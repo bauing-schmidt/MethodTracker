@@ -589,15 +589,16 @@ MethodsTemperaturesPresenter >> xLabels: xLabels yLabels: yLabels matrix: matrix
 	chart := RSChart new
 		         addPlot: barPlot;
 		         addDecoration: RSVerticalTick new;
-		         addDecoration: (RSHorizontalTick new
-				          useDiagonalLabel;
-				          fontSize: 3;
-				          fromNames:
-					          (compiledMethods collect: [ :anAssoc | 
-							           anAssoc key name ]);
-				          yourself);
 		         build;
 		         yourself.
+
+	barPlot bars
+		with: (compiledMethods collect: #key)
+		do: [ :aBar :aCompiledMethod | 
+			aBar
+				model: aCompiledMethod -> aBar model;
+				addInteraction: RSPopup new;
+				when: RSMouseClick do: [ :e | e shape model key browse ] ].
 
 	table
 		roots: xLabels;
