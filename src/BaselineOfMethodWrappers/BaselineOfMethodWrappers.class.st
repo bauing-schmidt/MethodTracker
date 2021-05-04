@@ -7,12 +7,14 @@ Class {
 { #category : #baselines }
 BaselineOfMethodWrappers >> baseline: spec [
 
-	  <baseline>
-	  spec for: #common do: [ 
-		  spec
-			  package: 'MethodWrappers';
-			  package: 'MethodWrappers-UI';
-			  package: 'Roassal3-Heatmap';
-			  package: 'MethodWrappers-Temperature';
-			  package: 'MethodWrappers-Temperature-UI' ]
+	<baseline>
+	spec for: #common do: [ 
+		spec
+			package: 'MethodWrappers';
+			package: 'MethodWrappers-UI';
+			package: 'Roassal3-Heatmap'
+			with: [ 
+				spec repository: 'github://ObjectProfile/Roassal3:v0.9.7b/src' ];
+			package: 'MethodWrappers-Temperature';
+			package: 'MethodWrappers-Temperature-UI' ]
 ]
