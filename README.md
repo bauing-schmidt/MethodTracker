@@ -5,7 +5,7 @@ I'm a self contained package and I can be loaded with:
 ```smalltalk
 Metacello new
     baseline: 'MethodWrappers';
-    repository: 'github:/bauing-schmidt/MethodWrappers/src';
+    repository: 'github://bauing-schmidt/MethodWrappers/src';
     load.
 ```
 After that, a presenter can be used with
