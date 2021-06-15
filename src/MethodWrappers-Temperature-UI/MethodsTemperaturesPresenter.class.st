@@ -35,8 +35,9 @@ MethodsTemperaturesPresenter class >> defaultSpec [
 	^ SpBoxLayout newVertical
 		  spacing: 5;
 		  add: #toolbar expand: false;
-		  add: (SpBoxLayout newHorizontal
-				   spacing: 10;
+		  add: (SpPanedLayout newLeftToRight
+				   positionOfSlider:
+					   (StandardFonts defaultFont widthOfString: 'M') * 35;
 				   add: (SpBoxLayout newVertical
 						    spacing: 5;
 						    add: 'Behavior block' expand: false;
@@ -52,11 +53,14 @@ MethodsTemperaturesPresenter class >> defaultSpec [
 						    add: #classesSorter expand: true;
 						    add: 'Bar chart ordering block' expand: false;
 						    add: #barChartSorter expand: true;
-						    yourself)
-				   withConstraints: [ :constraints | constraints width: 300 ];
-				   add: #table expand: true;
-				   add: #heatmap expand: true;
-				   add: #barChart expand: true;
+						    yourself);
+				   add: (SpPanedLayout newLeftToRight
+						    add: #table;
+						    add: (SpPanedLayout newTopToBottom
+								     add: #heatmap;
+								     add: #barChart;
+								     yourself);
+						    yourself);
 				   yourself)
 		  expand: true;
 		  yourself
@@ -255,6 +259,7 @@ MethodsTemperaturesPresenter >> initialize [
 	measuringInProgress := MethodTemperatureMeasuringPhase sleeping.
 
 	"Also, keep track if the wrappers have been installed or not."
+	wrappers := OrderedCollection new.
 	wrappersHaveBeenInstalledAlready := false.
 
 	"Finally, keep track if an update of visualizations is 
@@ -365,6 +370,13 @@ MethodsTemperaturesPresenter >> initializeWindow: aWindowPresenter [
 		initialExtent: 1100 @ 850
 ]
 
+{ #category : #initialization }
+MethodsTemperaturesPresenter >> installWrappersSpButtonPresenter [
+
+	^ toolbar itemNamed:
+		  InstallMethodTemperatureWrappersStCommand defaultName
+]
+
 { #category : #'dispatched commands' }
 MethodsTemperaturesPresenter >> installingWrappers: aBlock [
 
@@ -375,7 +387,12 @@ MethodsTemperaturesPresenter >> installingWrappers: aBlock [
 				       format: { wrappers size }.
 			Warning signal: msg ]
 		ifFalse: [ 
-			aBlock ensure: [ wrappersHaveBeenInstalledAlready := true ] ]
+			aBlock ensure: [ 
+				wrappersHaveBeenInstalledAlready := true.
+				
+				self installWrappersSpButtonPresenter
+					badge: 'i';
+					update ] ]
 ]
 
 { #category : #charting }
@@ -440,13 +457,19 @@ MethodsTemperaturesPresenter >> resortWrappers [
 ]
 
 { #category : #'dispatched commands' }
+MethodsTemperaturesPresenter >> runDoitWrappedTemperatureMethodsStCommand: aCommand [
+
+	self doBlock value
+]
+
+{ #category : #'dispatched commands' }
 MethodsTemperaturesPresenter >> runInstallMethodTemperatureWrappersStCommand: aCommand [
 
 	self installingWrappers: [ "First, allocate a wrapper for each compiled method selected by
 		 the given block (edited in the corresponding block presenter)."
-		wrappers := MethodTemperatureWrapper
-			            forBaselineClass: baselineOfClass
-			            selectMethod: self selectBlock.
+		wrappers addAll: (MethodTemperatureWrapper
+				 forBaselineClass: baselineOfClass
+				 selectMethod: self selectBlock).
 
 		"Second, install the wrappers (possibly time-consuming)."
 		self methodTemperatureWrappersDo: [ :each | each install ] ]
@@ -535,8 +558,9 @@ MethodsTemperaturesPresenter >> windowIsClosing [
 	super windowIsClosing.
 
 	wrappers ifNotNil: [ 
-		wrappers do: [ :each | each uninstall ].
-		wrappers := nil.
+		wrappers
+			do: [ :each | each uninstall ];
+			removeAll.
 		wrappersHaveBeenInstalledAlready := false ]
 ]
 
