@@ -13,7 +13,7 @@ MeasureMethodsTemperaturesStCommand class >> defaultDescription [
 { #category : #accessing }
 MeasureMethodsTemperaturesStCommand class >> defaultIconName [
 
-	^ #smallDoIt
+	^ #smallProfile
 ]
 
 { #category : #default }

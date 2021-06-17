@@ -13,7 +13,7 @@ InstallMethodTemperatureWrappersStCommand class >> defaultDescription [
 { #category : #accessing }
 InstallMethodTemperatureWrappersStCommand class >> defaultIconName [
 
-	^ #smallDoIt
+	^ #add
 ]
 
 { #category : #accessing }

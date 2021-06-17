@@ -45,7 +45,6 @@ MethodsTemperaturesPresenter class >> defaultSpec [
 						    add: 'CompiledMethod select block' expand: false;
 						    add: #select expand: true;
 						    add: 'Temperature threshold block' expand: false;
-						    add: #checkbox expand: false;
 						    add: #temperature expand: true;
 						    add: 'Selectors ordering block' expand: false;
 						    add: #selectorsSorter expand: true;
@@ -55,7 +54,10 @@ MethodsTemperaturesPresenter class >> defaultSpec [
 						    add: #barChartSorter expand: true;
 						    yourself);
 				   add: (SpPanedLayout newLeftToRight
-						    add: #table;
+						    add: (SpBoxLayout newTopToBottom
+								     add: #checkbox expand: false;
+								     add: #table;
+								     yourself);
 						    add: (SpPanedLayout newTopToBottom
 								     add: #heatmap;
 								     add: #barChart;
