@@ -24,7 +24,11 @@ Class {
 		'table',
 		'methodsByClassDict',
 		'updateInProgress',
-		'checkbox'
+		'checkbox',
+		'packagesList',
+		'packageNameText',
+		'selectedPackages',
+		'allPackages'
 	],
 	#category : #'MethodWrappers-Temperature-UI'
 }
@@ -36,12 +40,14 @@ MethodsTemperaturesPresenter class >> defaultSpec [
 		  spacing: 5;
 		  add: #toolbar expand: false;
 		  add: (SpPanedLayout newLeftToRight
-				   positionOfSlider:
-					   (StandardFonts defaultFont widthOfString: 'M') * 35;
+				   positionOfSlider: 380;
 				   add: (SpBoxLayout newVertical
 						    spacing: 5;
 						    add: 'Behavior block' expand: false;
 						    add: #do expand: true;
+						    add: 'Packages selection' expand: false;
+						    add: #packagesList expand: true;
+						    add: #packageNameText expand: false;
 						    add: 'CompiledMethod select block' expand: false;
 						    add: #select expand: true;
 						    add: 'Temperature threshold block' expand: false;
@@ -286,6 +292,38 @@ MethodsTemperaturesPresenter >> initializePresenters [
 		          whenSubmitDo: [ :text | self updateVisualizations ];
 		          yourself.
 
+	allPackages := RPackageOrganizer default packages asOrderedCollection 
+		               sort: [ :a :b | a name < b name ].
+	selectedPackages := Set withAll: (allPackages select: [ :each | 
+			                     each name asLowercase includesSubstring: 'documaps' ]).
+	packagesList := self newTable addColumn: (SpCompositeTableColumn new
+			                 addColumn: (SpCheckBoxTableColumn new
+					                  evaluated: [ :item | 
+						                  selectedPackages includes: item ];
+					                  onActivation: [ :item | 
+						                  selectedPackages add: item ];
+					                  onDeactivation: [ :item | 
+						                  selectedPackages remove: item ifAbsent: [  ] ];
+					                  width:
+						                  20 * self currentWorld displayScaleFactor;
+					                  yourself);
+			                 addColumn: (SpImageTableColumn new
+					                  width: 20;
+					                  evaluated: [ :each | self iconNamed: #package ];
+					                  yourself);
+			                 addColumn: (SpStringTableColumn new
+					                  evaluated: #name;
+					                  yourself);
+			                 yourself).
+
+	packageNameText := self newTextInput
+		                   placeholder: 'Enter a package name';
+		                   autoAccept: true;
+		                   whenTextChangedDo: [ :text | 
+			                   self refreshPackagesTableWhenTextChanges: text ].
+
+	self refreshPackagesTableWhenTextChanges: ''.
+
 	checkbox := self newCheckBox
 		            label: ('Restrict to top {1} warmer methods.' format:
 					             { self topWarmerCompiledMethodsSize });
@@ -417,6 +455,15 @@ MethodsTemperaturesPresenter >> methodTemperatureWrappersDo: aBlock [
 	 wrappers do: aBlock
 ]
 
+{ #category : #initialization }
+MethodsTemperaturesPresenter >> refreshPackagesTableWhenTextChanges: aString [
+
+	packagesList items: (aString ifEmpty: [ allPackages ] ifNotEmpty: [ 
+			 allPackages select: [ :currPackage | 
+				 currPackage name asLowercase includesSubstring:
+					 aString asLowercase ] ])
+]
+
 { #category : #charting }
 MethodsTemperaturesPresenter >> resortWrappers [
 
@@ -496,7 +543,9 @@ MethodsTemperaturesPresenter >> scaleForHeatmap [
 { #category : #'reified blocks' }
 MethodsTemperaturesPresenter >> selectBlock [
 
-	^ select evaluateCompiledMethod
+	^ [ :aMethod | 
+	  (selectedPackages includes: aMethod package) and: [ 
+		  select evaluateCompiledMethod value: aMethod ] ]
 ]
 
 { #category : #'reified blocks' }
