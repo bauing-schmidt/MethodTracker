@@ -296,7 +296,6 @@ MethodsTemperaturesPresenter >> initializePresenters [
 		               sort: [ :a :b | a name < b name ].
 	selectedPackages := Set withAll: (allPackages select: [ :each | 
 			                     each name asLowercase includesSubstring: 'documaps' ]).
-	selectedPackages := Set new.
 	packagesList := self newTable addColumn: (SpCompositeTableColumn new
 			                 addColumn: (SpCheckBoxTableColumn new
 					                  evaluated: [ :item | 
@@ -518,7 +517,7 @@ MethodsTemperaturesPresenter >> runInstallMethodTemperatureWrappersStCommand: aC
 	self installingWrappers: [ "First, allocate a wrapper for each compiled method selected by
 		 the given block (edited in the corresponding block presenter)."
 		wrappers addAll: (MethodTemperatureWrapper
-				 forMethods: (selectedPackages flatCollect: [:each | each methods]) 
+				 forPackages: selectedPackages 
 				 selectMethod: self selectBlock).
 
 		"Second, install the wrappers (possibly time-consuming)."

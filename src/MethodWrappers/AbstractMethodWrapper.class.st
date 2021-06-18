@@ -36,6 +36,15 @@ AbstractMethodWrapper class >> forMethods: aCollection selectMethod: methodBlock
 	^ methods collect: [ :each | self on: each ]
 ]
 
+{ #category : #API }
+AbstractMethodWrapper class >> forPackages: aCollection selectMethod: methodBlock [
+	
+	| methods |
+	methods := aCollection asOrderedCollection flatCollect: [ :each | each methods ].
+	
+	^ self forMethods: methods selectMethod: methodBlock
+]
+
 { #category : #'instance creation' }
 AbstractMethodWrapper class >> on: aMethodReference [
 
