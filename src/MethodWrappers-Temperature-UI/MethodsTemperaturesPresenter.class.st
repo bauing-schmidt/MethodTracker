@@ -214,7 +214,7 @@ MethodsTemperaturesPresenter >> defaultCodeForClassesSorter [
 { #category : #'default code' }
 MethodsTemperaturesPresenter >> defaultCodeForCompiledMethodSelection [
 
-	^ (RBParser parseExpression: '[ :aMethod | PdmAbstractItem allSubclasses includes: aMethod methodClass ]')
+	^ (RBParser parseExpression: '[ :aMethod | true ]')
 		  formattedCode
 ]
 
@@ -296,6 +296,7 @@ MethodsTemperaturesPresenter >> initializePresenters [
 		               sort: [ :a :b | a name < b name ].
 	selectedPackages := Set withAll: (allPackages select: [ :each | 
 			                     each name asLowercase includesSubstring: 'documaps' ]).
+	selectedPackages := Set new.
 	packagesList := self newTable addColumn: (SpCompositeTableColumn new
 			                 addColumn: (SpCheckBoxTableColumn new
 					                  evaluated: [ :item | 
@@ -517,7 +518,7 @@ MethodsTemperaturesPresenter >> runInstallMethodTemperatureWrappersStCommand: aC
 	self installingWrappers: [ "First, allocate a wrapper for each compiled method selected by
 		 the given block (edited in the corresponding block presenter)."
 		wrappers addAll: (MethodTemperatureWrapper
-				 forBaselineClass: baselineOfClass
+				 forMethods: (selectedPackages flatCollect: [:each | each methods]) 
 				 selectMethod: self selectBlock).
 
 		"Second, install the wrappers (possibly time-consuming)."
@@ -543,9 +544,7 @@ MethodsTemperaturesPresenter >> scaleForHeatmap [
 { #category : #'reified blocks' }
 MethodsTemperaturesPresenter >> selectBlock [
 
-	^ [ :aMethod | 
-	  (selectedPackages includes: aMethod package) and: [ 
-		  select evaluateCompiledMethod value: aMethod ] ]
+	^ select evaluateCompiledMethod
 ]
 
 { #category : #'reified blocks' }
@@ -608,11 +607,11 @@ MethodsTemperaturesPresenter >> windowIsClosing [
 
 	super windowIsClosing.
 
-	wrappers ifNotNil: [ 
-		wrappers
-			do: [ :each | each uninstall ];
-			removeAll.
-		wrappersHaveBeenInstalledAlready := false ]
+	wrappers
+		do: [ :each | each uninstall ];
+		removeAll.
+			
+	wrappersHaveBeenInstalledAlready := false 
 ]
 
 { #category : #charting }

@@ -15,15 +15,23 @@ Class {
 
 { #category : #API }
 AbstractMethodWrapper class >> forBaselineClass: aBaselineClass selectMethod: methodBlock [
+	
+	| methods |
+	methods := (aBaselineClass allPackageNames collect: [ :each | 
+		            each asPackage ]) flatCollect: [ :each | each methods ].
+	
+	^ self forMethods: methods selectMethod: methodBlock
+]
+
+{ #category : #API }
+AbstractMethodWrapper class >> forMethods: aCollection selectMethod: methodBlock [
 
 	| methods excludingClasses |
 	excludingClasses := AbstractMethodWrapper withAllSubclasses asSet.
 
-	methods := (aBaselineClass allPackageNames collect: [ :each | 
-		            each asPackage ]) flatCollect: [ :each | 
-		           each methods select: [ :aMethod | 
+	methods := aCollection select: [ :aMethod | 
 			           (excludingClasses includes: aMethod methodClass) not 
-				           and: [ methodBlock value: aMethod ] ] ].
+				           and: [ methodBlock value: aMethod ] ] .
 
 	^ methods collect: [ :each | self on: each ]
 ]
