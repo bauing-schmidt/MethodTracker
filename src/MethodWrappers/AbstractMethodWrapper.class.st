@@ -48,7 +48,9 @@ AbstractMethodWrapper class >> forPackages: aCollection selectMethod: methodBloc
 { #category : #'instance creation' }
 AbstractMethodWrapper class >> on: aMethodReference [
 
-	^ self new initializeOn: aMethodReference
+	^ self new
+		  initializeOn: aMethodReference;
+		  yourself
 ]
 
 { #category : #protocol }

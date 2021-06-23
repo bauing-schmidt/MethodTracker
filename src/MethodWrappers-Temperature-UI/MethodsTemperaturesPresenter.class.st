@@ -5,7 +5,6 @@ Class {
 	#name : #MethodsTemperaturesPresenter,
 	#superclass : #SpPresenter,
 	#instVars : [
-		'baselineOfClass',
 		'select',
 		'heatmap',
 		'temperature',
@@ -76,14 +75,6 @@ MethodsTemperaturesPresenter class >> defaultSpec [
 		  yourself
 ]
 
-{ #category : #specs }
-MethodsTemperaturesPresenter class >> on: aBaselineClass [
-
-	^ self basicNew
-		  baselineOfClass: aBaselineClass;
-		  initialize
-]
-
 { #category : #accessing }
 MethodsTemperaturesPresenter >> barChart: aChart [
 
@@ -98,12 +89,6 @@ MethodsTemperaturesPresenter >> barChart: aChart [
 MethodsTemperaturesPresenter >> barChartSorter [
 
 	^ barChartSorter evaluateCompiledMethod
-]
-
-{ #category : #accessing }
-MethodsTemperaturesPresenter >> baselineOfClass: anObject [
-
-	baselineOfClass := anObject
 ]
 
 { #category : #'reified blocks' }
