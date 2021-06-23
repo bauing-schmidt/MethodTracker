@@ -28,7 +28,8 @@ Class {
 		'packagesList',
 		'packageNameText',
 		'selectedPackages',
-		'allPackages'
+		'allPackages',
+		'checkboxInstallOnAllMethods'
 	],
 	#category : #'MethodWrappers-Temperature-UI'
 }
@@ -46,6 +47,7 @@ MethodsTemperaturesPresenter class >> defaultSpec [
 						    add: 'Behavior block' expand: false;
 						    add: #do expand: true;
 						    add: 'Packages selection' expand: false;
+							 add: #checkboxInstallOnAllMethods expand: false;
 						    add: #packagesList expand: true;
 						    add: #packageNameText expand: false;
 						    add: 'CompiledMethod select block' expand: false;
@@ -285,12 +287,14 @@ MethodsTemperaturesPresenter >> initializePresenters [
 		           fillWith: self toolbarActions;
 		           yourself.
 
-	select := (self instantiate: SpCodePresenter)
-		          withoutLineNumbers;
-		          beForScripting;
-		          text: self defaultCodeForCompiledMethodSelection;
-		          whenSubmitDo: [ :text | self updateVisualizations ];
-		          yourself.
+	
+		
+	checkboxInstallOnAllMethods := self newCheckBox
+		            label: ('Wrap all methods of selected packages.' format:
+					             { self topWarmerCompiledMethodsSize });
+		            state: true;
+		            whenChangedDo: [ :aBoolean |  select enabled: aBoolean not ];
+		            yourself..
 
 	allPackages := RPackageOrganizer default packages asOrderedCollection 
 		               sort: [ :a :b | a name < b name ].
@@ -323,6 +327,14 @@ MethodsTemperaturesPresenter >> initializePresenters [
 			                   self refreshPackagesTableWhenTextChanges: text ].
 
 	self refreshPackagesTableWhenTextChanges: ''.
+	
+	select := (self instantiate: SpCodePresenter)
+		          withoutLineNumbers;
+		          beForScripting;
+					 enabled: checkboxInstallOnAllMethods state not;
+		          text: self defaultCodeForCompiledMethodSelection;
+		          whenSubmitDo: [ :text | self updateVisualizations ];
+		          yourself.
 
 	checkbox := self newCheckBox
 		            label: ('Restrict to top {1} warmer methods.' format:
@@ -543,7 +555,9 @@ MethodsTemperaturesPresenter >> scaleForHeatmap [
 { #category : #'reified blocks' }
 MethodsTemperaturesPresenter >> selectBlock [
 
-	^ select evaluateCompiledMethod
+	^ checkboxInstallOnAllMethods state 
+		ifTrue: [ [ :aMethod | true ] ] 
+		ifFalse: [ select evaluateCompiledMethod ]
 ]
 
 { #category : #'reified blocks' }
