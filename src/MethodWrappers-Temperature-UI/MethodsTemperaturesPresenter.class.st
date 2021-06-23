@@ -28,10 +28,58 @@ Class {
 		'packageNameText',
 		'selectedPackages',
 		'allPackages',
-		'checkboxInstallOnAllMethods'
+		'checkboxInstallOnAllMethods',
+		'configuration'
 	],
 	#category : #'MethodWrappers-Temperature-UI'
 }
+
+{ #category : #'as yet unclassified' }
+MethodsTemperaturesPresenter class >> defaultConfFileReference [
+
+	^ 'method-temperatures-conf.ston' asFileReference
+]
+
+{ #category : #configuration }
+MethodsTemperaturesPresenter class >> defaultConfScript [
+
+	<script: 'MethodsTemperaturesPresenter defaultConfScript'>
+	self defaultConfFileReference writeStreamDo: [ :aStream | 
+		STON put: self defaultConfiguration onStreamPretty: aStream ]
+]
+
+{ #category : #configuration }
+MethodsTemperaturesPresenter class >> defaultConfiguration [
+
+	| conf |
+	conf := Dictionary new.
+	conf at: #installOnAllMethods put: true.
+	conf at: #topWarmerMethods put: 30.
+	conf at: #selectTopWarmerMethods put: true.
+	conf
+		at: #defaultCodeForBarChartSorter
+		put:
+		'[ :anAssociation :anotherAssociation | anAssociation value > anotherAssociation value ]'.
+	conf
+		at: #defaultCodeForClassesSorter
+		put: '[ :aClass :anotherClass | aClass name < anotherClass name ]'.
+	conf
+		at: #defaultCodeForCompiledMethodSelection
+		put: '[ :aMethod | true ]'.
+	conf at: #defaultCodeForDoBehavior put: 'PdmSystem start.'.
+	conf
+		at: #defaultCodeForSelectorsSorter
+		put: '[ :aWrapper :anotherWrapper | 
+		                   aWrapper method selector
+		                   < anotherWrapper method selector ]'.
+	conf
+		at: #defaultCodeForTemperatureThreshold
+		put: '[ :aCompiledMethod :temperature | temperature > 49 ]'.
+
+	conf at: #selectedPackageNames put: { 'Documaps'. 'Glorp' }.
+
+	^ conf
+]
 
 { #category : #specs }
 MethodsTemperaturesPresenter class >> defaultSpec [
@@ -187,45 +235,37 @@ MethodsTemperaturesPresenter >> dataForVisualizations [
 { #category : #'default code' }
 MethodsTemperaturesPresenter >> defaultCodeForBarChartSorter [
 
-	^ (RBParser parseExpression:
-		   '[ :anAssociation :anotherAssociation | anAssociation value > anotherAssociation value ]')
-		  formattedCode
+	^ configuration at: #defaultCodeForBarChartSorter
 ]
 
 { #category : #'default code' }
 MethodsTemperaturesPresenter >> defaultCodeForClassesSorter [
 
-	^ (RBParser parseExpression: '[ :aClass :anotherClass | aClass name < anotherClass name ]') formattedCode
+	^ configuration at: #defaultCodeForClassesSorter
 ]
 
 { #category : #'default code' }
 MethodsTemperaturesPresenter >> defaultCodeForCompiledMethodSelection [
 
-	^ (RBParser parseExpression: '[ :aMethod | true ]')
-		  formattedCode
+	^ configuration at: #defaultCodeForCompiledMethodSelection
 ]
 
 { #category : #'default code' }
 MethodsTemperaturesPresenter >> defaultCodeForDoBehavior [
 
-	^ (RBParser parseExpression: 'PdmSystem start.') formattedCode
+	^ configuration at: #defaultCodeForDoBehavior
 ]
 
 { #category : #'default code' }
 MethodsTemperaturesPresenter >> defaultCodeForSelectorsSorter [
 
-	^ (RBParser parseExpression: '[ :aWrapper :anotherWrapper | 
-		                   aWrapper method selector
-		                   < anotherWrapper method selector ]')
-		  formattedCode
+	^ configuration at: #defaultCodeForSelectorsSorter
 ]
 
 { #category : #'default code' }
 MethodsTemperaturesPresenter >> defaultCodeForTemperatureThreshold [
 
-	^ (RBParser parseExpression:
-		   '[ :aCompiledMethod :temperature | temperature > 49 ]')
-		  formattedCode
+	^ configuration at: #defaultCodeForTemperatureThreshold
 ]
 
 { #category : #'reified blocks' }
@@ -259,7 +299,9 @@ MethodsTemperaturesPresenter >> initialize [
 
 	"Finally, keep track if an update of visualizations is 
 	 in progress to not overlap data creation."
-	updateInProgress := false
+	updateInProgress := false.
+
+	
 ]
 
 { #category : #initialization }
@@ -267,24 +309,38 @@ MethodsTemperaturesPresenter >> initializePresenters [
 
 	super initializePresenters.
 
+	"Load a possible cconfiguration"
+	configuration := self loadConfiguration.
+
 	toolbar := self newToolbar
 		           addStyle: 'stToolbar';
 		           fillWith: self toolbarActions;
 		           yourself.
 
-	
-		
 	checkboxInstallOnAllMethods := self newCheckBox
-		            label: ('Wrap all methods of selected packages.' format:
-					             { self topWarmerCompiledMethodsSize });
-		            state: true;
-		            whenChangedDo: [ :aBoolean |  select enabled: aBoolean not ];
-		            yourself..
+		                               label:
+			                               ('Wrap all methods of selected packages.' 
+				                                format:
+					                                { self
+						                                topWarmerCompiledMethodsSize });
+		                               state:
+			                               (configuration at:
+					                                #installOnAllMethods);
+		                               whenChangedDo: [ :aBoolean | 
+			                               select enabled: aBoolean not ];
+		                               yourself.
 
 	allPackages := RPackageOrganizer default packages asOrderedCollection 
 		               sort: [ :a :b | a name < b name ].
 	selectedPackages := Set withAll: (allPackages select: [ :each | 
-			                     each name asLowercase includesSubstring: 'documaps' ]).
+			                     (configuration at: #selectedPackageNames)
+				                     inject: false
+				                     into: [ :acc :name | 
+					                     | aBoolean |
+					                     aBoolean := each name asLowercase 
+						                                 includesSubstring:
+						                                 name asLowercase.
+					                     acc | aBoolean ] ]).
 	packagesList := self newTable addColumn: (SpCompositeTableColumn new
 			                 addColumn: (SpCheckBoxTableColumn new
 					                  evaluated: [ :item | 
@@ -312,11 +368,11 @@ MethodsTemperaturesPresenter >> initializePresenters [
 			                   self refreshPackagesTableWhenTextChanges: text ].
 
 	self refreshPackagesTableWhenTextChanges: ''.
-	
+
 	select := (self instantiate: SpCodePresenter)
 		          withoutLineNumbers;
 		          beForScripting;
-					 enabled: checkboxInstallOnAllMethods state not;
+		          enabled: checkboxInstallOnAllMethods state not;
 		          text: self defaultCodeForCompiledMethodSelection;
 		          whenSubmitDo: [ :text | self updateVisualizations ];
 		          yourself.
@@ -324,7 +380,7 @@ MethodsTemperaturesPresenter >> initializePresenters [
 	checkbox := self newCheckBox
 		            label: ('Restrict to top {1} warmer methods.' format:
 					             { self topWarmerCompiledMethodsSize });
-		            state: true;
+		            state: (configuration at: #selectTopWarmerMethods);
 		            whenChangedDo: [ :ev | self updateVisualizations ];
 		            yourself.
 
@@ -438,6 +494,15 @@ MethodsTemperaturesPresenter >> keep: n of: aCollection accordingTo: aTruthHolde
 	^ aTruthHolder state
 		  ifTrue: [ aCollection copyFrom: 1 to: (n min: aCollection size) ]
 		  ifFalse: [ aCollection ]
+]
+
+{ #category : #running }
+MethodsTemperaturesPresenter >> loadConfiguration [
+
+	^ self class defaultConfFileReference
+		  ifExists: [ :fr | 
+		  fr readStreamDo: [ :aStream | STON fromStream: aStream ] ]
+		  ifAbsent: [ self class defaultConfiguration ]
 ]
 
 { #category : #initialization }
@@ -573,7 +638,7 @@ MethodsTemperaturesPresenter >> toolbarActions [
 { #category : #charting }
 MethodsTemperaturesPresenter >> topWarmerCompiledMethodsSize [
 
-	^ 25
+	^ configuration at: #topWarmerMethods
 ]
 
 { #category : #charting }
