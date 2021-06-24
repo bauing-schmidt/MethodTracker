@@ -15,7 +15,7 @@ BaselineOfMethodWrappers >> baseline: spec [
 			package: 'Roassal3-Heatmap'
 			with: [ 
 				spec repository: 'github://bauing-schmidt/Roassal3:production/src' ];
-			package: 'Roassal3-Spec-Morphic';
+			"package: 'Roassal3-Spec-Morphic';"
 			package: 'MethodWrappers-Temperature';
 			package: 'MethodWrappers-Temperature-UI' ]
 ]
