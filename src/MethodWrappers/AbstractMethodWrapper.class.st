@@ -51,6 +51,15 @@ AbstractMethodWrapper class >> on: aMethodReference [
 	^ self new initializeOn: aMethodReference
 ]
 
+{ #category : #initialization }
+AbstractMethodWrapper class >> reset [
+
+	<script>
+	self allInstances do: #uninstall.
+	SpNullApplication reset.
+	Smalltalk garbageCollect
+]
+
 { #category : #protocol }
 AbstractMethodWrapper >> disable [
 
