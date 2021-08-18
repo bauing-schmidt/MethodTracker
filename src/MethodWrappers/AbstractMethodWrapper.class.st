@@ -5,7 +5,6 @@ Class {
 	#name : #AbstractMethodWrapper,
 	#superclass : #ProtoObject,
 	#instVars : [
-		'reference',
 		'method',
 		'enabled',
 		'installed'
@@ -55,7 +54,7 @@ AbstractMethodWrapper class >> on: aMethodReference [
 AbstractMethodWrapper class >> reset [
 
 	<script>
-	self allInstances do: #uninstall.
+	self allSubclassesDo: [ :each | each allInstances do: #uninstall ].
 	SpNullApplication reset.
 	Smalltalk garbageCollect
 ]
@@ -81,11 +80,12 @@ AbstractMethodWrapper >> enable [
 { #category : #initialization }
 AbstractMethodWrapper >> initializeOn: aMethodReference [
 
-	reference := aMethodReference.
-	method := reference compiledMethod.
-
-	installed := false.
-	self disable
+	aMethodReference == aMethodReference compiledMethod
+		ifTrue: [ 
+			method := aMethodReference.
+			installed := false.
+			enabled := false ]
+		ifFalse: [ Error signal ]
 ]
 
 { #category : #actions }
@@ -93,15 +93,15 @@ AbstractMethodWrapper >> install [
 
 	installed
 		ifTrue: [ Error signal ]
-		ifFalse: [ reference installWrapper: self ]
+		ifFalse: [ method installWrapper: self ]
 ]
 
 { #category : #actions }
 AbstractMethodWrapper >> installCompiledMethod: aCompiledMethod [
 
-	reference == aCompiledMethod
+	method == aCompiledMethod
 		ifTrue: [ 
-			reference methodClass methodDict at: reference selector put: self.
+			method methodClass methodDict at: method selector put: self.
 			installed := true ]
 		ifFalse: [ Error signal ]
 ]
@@ -123,11 +123,6 @@ AbstractMethodWrapper >> noticeExecutionWith: anArray in: aReceiver [
 	self subclassResponsibility
 ]
 
-{ #category : #accessing }
-AbstractMethodWrapper >> reference [
-	^ reference
-]
-
 { #category : #evaluation }
 AbstractMethodWrapper >> run: aSelector with: anArray in: aReceiver [
 
@@ -143,7 +138,7 @@ AbstractMethodWrapper >> uninstall [
 
 	installed
 		ifTrue: [ 
-			reference methodClass methodDict at: reference selector put: method.
+			method methodClass methodDict at: method selector put: method.
 			installed := false ]
 		ifFalse: [ Error signal ]
 ]
