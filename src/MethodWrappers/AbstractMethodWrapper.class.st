@@ -59,7 +59,7 @@ AbstractMethodWrapper class >> reset [
 	Smalltalk garbageCollect
 ]
 
-{ #category : #protocol }
+{ #category : #actions }
 AbstractMethodWrapper >> disable [
 
 	enabled := false
@@ -71,7 +71,7 @@ AbstractMethodWrapper >> doesNotUnderstand: aMessage [
 	^ method perform: aMessage selector withArguments: aMessage arguments
 ]
 
-{ #category : #protocol }
+{ #category : #actions }
 AbstractMethodWrapper >> enable [
 
 	enabled := true
@@ -96,7 +96,7 @@ AbstractMethodWrapper >> install [
 		ifFalse: [ method installWrapper: self ]
 ]
 
-{ #category : #actions }
+{ #category : #dispatched }
 AbstractMethodWrapper >> installCompiledMethod: aCompiledMethod [
 
 	method == aCompiledMethod
@@ -106,7 +106,7 @@ AbstractMethodWrapper >> installCompiledMethod: aCompiledMethod [
 		ifFalse: [ Error signal ]
 ]
 
-{ #category : #actions }
+{ #category : #dispatched }
 AbstractMethodWrapper >> installWrapper: aWrapper [
 
 	Warning signal: 'Attempting to wrap a wrapper'
