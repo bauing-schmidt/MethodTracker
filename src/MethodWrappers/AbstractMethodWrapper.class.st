@@ -48,9 +48,7 @@ AbstractMethodWrapper class >> forPackages: aCollection selectMethod: methodBloc
 { #category : #'instance creation' }
 AbstractMethodWrapper class >> on: aMethodReference [
 
-	^ self new
-		  initializeOn: aMethodReference;
-		  yourself
+	^ self new initializeOn: aMethodReference
 ]
 
 { #category : #protocol }
@@ -61,6 +59,7 @@ AbstractMethodWrapper >> disable [
 
 { #category : #private }
 AbstractMethodWrapper >> doesNotUnderstand: aMessage [
+
 	^ method perform: aMessage selector withArguments: aMessage arguments
 ]
 
@@ -70,24 +69,32 @@ AbstractMethodWrapper >> enable [
 	enabled := true
 ]
 
-{ #category : #actions }
-AbstractMethodWrapper >> hasBeenInstalled [
-
-	installed := true
-]
-
 { #category : #initialization }
 AbstractMethodWrapper >> initializeOn: aMethodReference [
 
 	reference := aMethodReference.
-	method := reference compiledMethod
+	method := reference compiledMethod.
+
+	installed := false.
+	self disable
 ]
 
 { #category : #actions }
 AbstractMethodWrapper >> install [
 
-	installed := false.
-	reference installWrapper: self
+	installed
+		ifTrue: [ Error signal ]
+		ifFalse: [ reference installWrapper: self ]
+]
+
+{ #category : #actions }
+AbstractMethodWrapper >> installCompiledMethod: aCompiledMethod [
+
+	reference == aCompiledMethod
+		ifTrue: [ 
+			reference methodClass methodDict at: reference selector put: self.
+			installed := true ]
+		ifFalse: [ Error signal ]
 ]
 
 { #category : #actions }
@@ -101,6 +108,12 @@ AbstractMethodWrapper >> method [
 	^ method
 ]
 
+{ #category : #evaluation }
+AbstractMethodWrapper >> noticeExecutionWith: anArray in: aReceiver [
+
+	self subclassResponsibility
+]
+
 { #category : #accessing }
 AbstractMethodWrapper >> reference [
 	^ reference
@@ -109,11 +122,19 @@ AbstractMethodWrapper >> reference [
 { #category : #evaluation }
 AbstractMethodWrapper >> run: aSelector with: anArray in: aReceiver [
 
+	aSelector == method selector ifFalse: [ Error signal ].
+
+	enabled ifTrue: [ self noticeExecutionWith: anArray in: aReceiver ].
+
 	^ aReceiver withArgs: anArray executeMethod: method
 ]
 
 { #category : #actions }
 AbstractMethodWrapper >> uninstall [
 
-	reference methodClass methodDict at: reference selector put: method
+	installed
+		ifTrue: [ 
+			reference methodClass methodDict at: reference selector put: method.
+			installed := false ]
+		ifFalse: [ Error signal ]
 ]

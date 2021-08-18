@@ -578,7 +578,7 @@ MethodsTemperaturesPresenter >> runInstallMethodTemperatureWrappersStCommand: aC
 
 	self installingWrappers: [ "First, allocate a wrapper for each compiled method selected by
 		 the given block (edited in the corresponding block presenter)."
-		wrappers addAll: (MethodTemperatureWrapper
+		wrappers := (MethodTemperatureWrapper
 				 forPackages: selectedPackages 
 				 selectMethod: self selectBlock).
 
@@ -671,10 +671,10 @@ MethodsTemperaturesPresenter >> windowIsClosing [
 	super windowIsClosing.
 
 	wrappers
-		do: [ :each | each uninstall ];
+		do: [ :each | [ each uninstall ] onDNU: #uninstall do: [ :ex |  ] ];
 		removeAll.
-			
-	wrappersHaveBeenInstalledAlready := false 
+
+	wrappersHaveBeenInstalledAlready := false
 ]
 
 { #category : #charting }

@@ -31,16 +31,15 @@ MethodTemperatureWrapper >> count [
 ]
 
 { #category : #initialization }
-MethodTemperatureWrapper >> initialize [
+MethodTemperatureWrapper >> initializeOn: aMethodReference [
 
-	super initialize.
-	enabled := false.
-	count := 0
+	count := 0.
+
+	^ super initializeOn: aMethodReference
 ]
 
 { #category : #evaluation }
-MethodTemperatureWrapper >> run: aSelector with: anArray in: aReceiver [
+MethodTemperatureWrapper >> noticeExecutionWith: anArray in: aReceiver [
 
-	enabled ifTrue: [ count := count + 1 ].
-	^ super run: aSelector with: anArray in: aReceiver
+	count := count + 1
 ]
