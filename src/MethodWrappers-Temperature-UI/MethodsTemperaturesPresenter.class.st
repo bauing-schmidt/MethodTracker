@@ -34,7 +34,7 @@ Class {
 	#category : #'MethodWrappers-Temperature-UI'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #configuration }
 MethodsTemperaturesPresenter class >> defaultConfFileReference [
 
 	^ 'method-temperatures-conf.ston' asFileReference
@@ -43,7 +43,7 @@ MethodsTemperaturesPresenter class >> defaultConfFileReference [
 { #category : #configuration }
 MethodsTemperaturesPresenter class >> defaultConfScript [
 
-	<script: 'MethodsTemperaturesPresenter defaultConfScript'>
+	<script>
 	self defaultConfFileReference writeStreamDo: [ :aStream | 
 		STON put: self defaultConfiguration onStreamPretty: aStream ]
 ]
@@ -69,9 +69,8 @@ MethodsTemperaturesPresenter class >> defaultConfiguration [
 	conf at: #defaultCodeForDoBehavior put: 'PdmSystem start.'.
 	conf
 		at: #defaultCodeForSelectorsSorter
-		put: '[ :aWrapper :anotherWrapper | 
-		                   aWrapper method selector
-		                   < anotherWrapper method selector ]'.
+		put:
+		'[ :aWrapper :anotherWrapper | aWrapper method selector < anotherWrapper method selector ]'.
 	conf
 		at: #defaultCodeForTemperatureThreshold
 		put: '[ :aCompiledMethod :temperature | temperature > 49 ]'.
