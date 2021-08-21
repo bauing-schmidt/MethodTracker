@@ -54,7 +54,9 @@ AbstractMethodWrapper class >> on: aMethodReference [
 AbstractMethodWrapper class >> reset [
 
 	<script>
-	self allSubclassesDo: [ :each | each allInstances do: #uninstall ].
+	self allSubclassesDo: [ :each | 
+		each allInstances do: [ :w | 
+			[ w uninstall ] onDNU: #uninstall do: [  ] ] ].
 	SpNullApplication reset.
 	Smalltalk garbageCollect
 ]
@@ -140,5 +142,5 @@ AbstractMethodWrapper >> uninstall [
 		ifTrue: [ 
 			method methodClass methodDict at: method selector put: method.
 			installed := false ]
-		ifFalse: [ Error signal ]
+		ifFalse: [ "Warning signal" ]
 ]
