@@ -26,11 +26,12 @@ AbstractMethodWrapper class >> forBaselineClass: aBaselineClass selectMethod: me
 AbstractMethodWrapper class >> forMethods: aCollection selectMethod: methodBlock [
 
 	| methods excludingClasses |
-	excludingClasses := AbstractMethodWrapper withAllSubclasses asSet.
+	excludingClasses := (AbstractMethodWrapper withAllSubclasses
+	                     , AbstractProxy withAllSubclasses) asSet.
 
 	methods := aCollection select: [ :aMethod | 
-			           (excludingClasses includes: aMethod methodClass) not 
-				           and: [ methodBlock value: aMethod ] ] .
+		           (excludingClasses includes: aMethod methodClass) not 
+			           and: [ methodBlock value: aMethod ] ].
 
 	^ methods collect: [ :each | self on: each ]
 ]
