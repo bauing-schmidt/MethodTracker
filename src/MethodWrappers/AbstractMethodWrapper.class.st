@@ -5,7 +5,6 @@ Class {
 	#name : #AbstractMethodWrapper,
 	#superclass : #ProtoObject,
 	#instVars : [
-		'reference',
 		'method',
 		'enabled',
 		'installed'
@@ -27,11 +26,12 @@ AbstractMethodWrapper class >> forBaselineClass: aBaselineClass selectMethod: me
 AbstractMethodWrapper class >> forMethods: aCollection selectMethod: methodBlock [
 
 	| methods excludingClasses |
-	excludingClasses := AbstractMethodWrapper withAllSubclasses asSet.
+	excludingClasses := (AbstractMethodWrapper withAllSubclasses
+	                     , AbstractProxy withAllSubclasses) asSet.
 
 	methods := aCollection select: [ :aMethod | 
-			           (excludingClasses includes: aMethod methodClass) not 
-				           and: [ methodBlock value: aMethod ] ] .
+		           (excludingClasses includes: aMethod methodClass) not 
+			           and: [ methodBlock value: aMethod ] ].
 
 	^ methods collect: [ :each | self on: each ]
 ]
@@ -48,12 +48,21 @@ AbstractMethodWrapper class >> forPackages: aCollection selectMethod: methodBloc
 { #category : #'instance creation' }
 AbstractMethodWrapper class >> on: aMethodReference [
 
-	^ self new
-		  initializeOn: aMethodReference;
-		  yourself
+	^ self new initializeOn: aMethodReference
 ]
 
-{ #category : #protocol }
+{ #category : #initialization }
+AbstractMethodWrapper class >> reset [
+
+	<script>
+	self allSubclassesDo: [ :each | 
+		each allInstances do: [ :w | 
+			[ w uninstall ] onDNU: #uninstall do: [  ] ] ].
+	SpNullApplication reset.
+	Smalltalk garbageCollect
+]
+
+{ #category : #actions }
 AbstractMethodWrapper >> disable [
 
 	enabled := false
@@ -61,36 +70,46 @@ AbstractMethodWrapper >> disable [
 
 { #category : #private }
 AbstractMethodWrapper >> doesNotUnderstand: aMessage [
+
 	^ method perform: aMessage selector withArguments: aMessage arguments
 ]
 
-{ #category : #protocol }
+{ #category : #actions }
 AbstractMethodWrapper >> enable [
 
 	enabled := true
 ]
 
-{ #category : #actions }
-AbstractMethodWrapper >> hasBeenInstalled [
-
-	installed := true
-]
-
 { #category : #initialization }
 AbstractMethodWrapper >> initializeOn: aMethodReference [
 
-	reference := aMethodReference.
-	method := reference compiledMethod
+	aMethodReference == aMethodReference compiledMethod
+		ifTrue: [ 
+			method := aMethodReference.
+			installed := false.
+			enabled := false ]
+		ifFalse: [ Error signal ]
 ]
 
 { #category : #actions }
 AbstractMethodWrapper >> install [
 
-	installed := false.
-	reference installWrapper: self
+	installed
+		ifTrue: [ Error signal ]
+		ifFalse: [ method installWrapper: self ]
 ]
 
-{ #category : #actions }
+{ #category : #dispatched }
+AbstractMethodWrapper >> installCompiledMethod: aCompiledMethod [
+
+	method == aCompiledMethod
+		ifTrue: [ 
+			method methodClass methodDict at: method selector put: self.
+			installed := true ]
+		ifFalse: [ Error signal ]
+]
+
+{ #category : #dispatched }
 AbstractMethodWrapper >> installWrapper: aWrapper [
 
 	Warning signal: 'Attempting to wrap a wrapper'
@@ -101,13 +120,18 @@ AbstractMethodWrapper >> method [
 	^ method
 ]
 
-{ #category : #accessing }
-AbstractMethodWrapper >> reference [
-	^ reference
+{ #category : #evaluation }
+AbstractMethodWrapper >> noticeExecutionWith: anArray in: aReceiver [
+
+	self subclassResponsibility
 ]
 
 { #category : #evaluation }
 AbstractMethodWrapper >> run: aSelector with: anArray in: aReceiver [
+
+	aSelector == method selector ifFalse: [ Error signal ].
+
+	enabled ifTrue: [ self noticeExecutionWith: anArray in: aReceiver ].
 
 	^ aReceiver withArgs: anArray executeMethod: method
 ]
@@ -115,5 +139,9 @@ AbstractMethodWrapper >> run: aSelector with: anArray in: aReceiver [
 { #category : #actions }
 AbstractMethodWrapper >> uninstall [
 
-	reference methodClass methodDict at: reference selector put: method
+	installed
+		ifTrue: [ 
+			method methodClass methodDict at: method selector put: method.
+			installed := false ]
+		ifFalse: [ "Warning signal" ]
 ]
