@@ -12,8 +12,6 @@ Class {
 		'toolbar',
 		'barChart',
 		'wrappers',
-		'selectors',
-		'classIndices',
 		'classesSorter',
 		'selectorsSorter',
 		'barChartSorter',
@@ -145,7 +143,7 @@ MethodsTemperaturesPresenter >> classesSorter [
 ]
 
 { #category : #charting }
-MethodsTemperaturesPresenter >> dataForVisualizations [
+MethodsTemperaturesPresenter >> dataForVisualizationsSelectors: selectors classesIndices: classIndices [
 
 	| nrows ncols rowsToKeep columnsToKeep yLabels xLabels matrix temperatureSelectBlock |
 	temperatureSelectBlock := self temperatureBlock.
@@ -516,7 +514,7 @@ MethodsTemperaturesPresenter >> refreshPackagesTableWhenTextChanges: aString [
 { #category : #charting }
 MethodsTemperaturesPresenter >> resortWrappers [
 
-	| sortedWrappers filteredWrappers |
+	| sortedWrappers filteredWrappers selectors classIndices |
 	selectors := Dictionary new.
 	classIndices := Dictionary new.
 
@@ -562,7 +560,9 @@ MethodsTemperaturesPresenter >> resortWrappers [
 			   ordered by classes' names, by updating the `classIndex` dictionary."
 	(classIndices keys sorted: self classesSorter) withIndexDo: [ 
 		:aClass 
-		:anIndex | classIndices at: aClass put: anIndex ]
+		:anIndex | classIndices at: aClass put: anIndex ].
+
+	^ selectors -> classIndices
 ]
 
 { #category : #'dispatched commands' }
@@ -643,10 +643,12 @@ MethodsTemperaturesPresenter >> topWarmerCompiledMethodsSize [
 MethodsTemperaturesPresenter >> updateVisualizations [
 
 	self visualizationsUpdating: [ 
-		| aDictionary |
+		| aDictionary anAssociation |
+		anAssociation := self resortWrappers.
+
 		aDictionary := self
-			               resortWrappers;
-			               dataForVisualizations.
+			               dataForVisualizationsSelectors: anAssociation key
+			               classesIndices: anAssociation value.
 
 		aDictionary isEmpty ifFalse: [ 
 			self
