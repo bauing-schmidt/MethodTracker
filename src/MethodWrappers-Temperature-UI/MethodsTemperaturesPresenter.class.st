@@ -147,7 +147,9 @@ MethodsTemperaturesPresenter >> classesSorter [
 { #category : #charting }
 MethodsTemperaturesPresenter >> dataForVisualizations [
 
-	| nrows ncols rowsToKeep columnsToKeep yLabels xLabels matrix |
+	| nrows ncols rowsToKeep columnsToKeep yLabels xLabels matrix temperatureSelectBlock |
+	temperatureSelectBlock := self temperatureBlock.
+
 	"Some one time computed values."
 	nrows := selectors size.
 	ncols := classIndices size.
@@ -191,7 +193,7 @@ MethodsTemperaturesPresenter >> dataForVisualizations [
 
 				"If at least one temperature violates the threshold, both the row and  
 						   the column should be kept in the final representation."
-				(self temperatureBlock value: compiledMethod value: aTemperature) 
+				(temperatureSelectBlock value: compiledMethod value: aTemperature) 
 					ifTrue: [ 
 						rowsToKeep add: rowIndex.
 						columnsToKeep add: columnIndex ] ] ].
@@ -208,25 +210,11 @@ MethodsTemperaturesPresenter >> dataForVisualizations [
 	^ (rowsToKeep isNotEmpty and: [ columnsToKeep isNotEmpty ])
 		  ifTrue: [ 
 			  Dictionary new
-				  at: #xLabels put: (self
-						   keep: self topWarmerCompiledMethodsSize
-						   of: xLabels
-						   accordingTo: checkbox);
-				  at: #yLabels put: (self
-						   keep: self topWarmerCompiledMethodsSize
-						   of: yLabels
-						   accordingTo: checkbox);
-				  at: #matrix put: ((self
-						    keep: self topWarmerCompiledMethodsSize
-						    of: matrix
-						    accordingTo: checkbox) collect: [ :aRow | 
-							   | selected |
-							   selected := aRow withIndexSelect: [ :each :index | 
-									               columnsToKeep includes: index ].
-							   self
-								   keep: self topWarmerCompiledMethodsSize
-								   of: selected
-								   accordingTo: checkbox ]);
+				  at: #xLabels put: xLabels;
+				  at: #yLabels put: yLabels;
+				  at: #matrix put: (matrix collect: [ :aRow | 
+							   aRow withIndexSelect: [ :each :index | 
+									   columnsToKeep includes: index ] ]);
 				  yourself ]
 		  ifFalse: [ Dictionary new ]
 ]
@@ -528,13 +516,24 @@ MethodsTemperaturesPresenter >> refreshPackagesTableWhenTextChanges: aString [
 { #category : #charting }
 MethodsTemperaturesPresenter >> resortWrappers [
 
-	| orderedWrappers |
+	| sortedWrappers filteredWrappers |
 	selectors := Dictionary new.
 	classIndices := Dictionary new.
 
-	orderedWrappers := wrappers asSortedCollection: self selectorsSorter.
+	sortedWrappers := wrappers asSortedCollection: [ 
+		                  :aWrapper 
+		                  :anotherWrapper | 
+		                  aWrapper count > anotherWrapper count or: [ 
+			                  self selectorsSorter
+				                  value: aWrapper
+				                  value: anotherWrapper ] ].
 
-	orderedWrappers do: [ :each | 
+	filteredWrappers := self
+		                    keep: self topWarmerCompiledMethodsSize
+		                    of: sortedWrappers
+		                    accordingTo: checkbox.
+
+	filteredWrappers do: [ :each | 
 		| selectorAssoc aClass |
 		aClass := each method methodClass.
 
