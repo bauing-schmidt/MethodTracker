@@ -238,7 +238,7 @@ MethodsTemperaturesPresenter >> doBlock [
 { #category : #charting }
 MethodsTemperaturesPresenter >> filteredWrappers [
 
-	| thresholdBlock selectedWrappers orderedWrappers |
+	| thresholdBlock selectedWrappers orderedWrappers filteredWrappers |
 	thresholdBlock := self temperatureBlock.
 
 	selectedWrappers := wrappers select: [ :each | 
@@ -251,10 +251,12 @@ MethodsTemperaturesPresenter >> filteredWrappers [
 		                   :anotherWrapper | 
 		                   aWrapper count > anotherWrapper count ].
 
-	^ self
-		  keep: self topWarmerCompiledMethodsSize
-		  of: orderedWrappers
-		  accordingTo: checkbox
+	filteredWrappers := self
+		                    keep: self topWarmerCompiledMethodsSize
+		                    of: orderedWrappers
+		                    accordingTo: checkbox.
+
+	^ filteredWrappers asSortedCollection: self selectorsSorter
 ]
 
 { #category : #accessing }
