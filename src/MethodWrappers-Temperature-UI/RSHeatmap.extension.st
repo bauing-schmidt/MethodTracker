@@ -18,7 +18,7 @@ RSHeatmap >> show: matrix modelBlock: aBlock [
 				       color: (scale scale: v);
 				       addInteraction:
 					       (RSPopup text: [ :anAssociation | 
-							        anAssociation value asString , '°' ]);
+							        anAssociation value asString ]);
 				       when: RSMouseLeftClick
 				       do: [ :evt | evt shape model key browse ];
 				       yourself.

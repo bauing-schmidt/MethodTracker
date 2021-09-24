@@ -145,19 +145,13 @@ MethodsTemperaturesPresenter >> classesSorter [
 { #category : #charting }
 MethodsTemperaturesPresenter >> dataForVisualizationsSelectors: selectors classesIndices: classIndices [
 
-	| nrows ncols rowsToKeep columnsToKeep yLabels xLabels matrix temperatureSelectBlock |
-	temperatureSelectBlock := self temperatureBlock.
-
+	| nrows ncols yLabels xLabels matrix |
 	"Some one time computed values."
 	nrows := selectors size.
 	ncols := classIndices size.
 	yLabels := Array new: nrows.
 	xLabels := Array new: ncols.
 	matrix := Array new: nrows.
-
-	"Sets for bookeeping rows and columns that survive to the selection via `thresholdBlock`."
-	rowsToKeep := Set new.
-	columnsToKeep := Set new.
 
 	"Doing."
 	selectors keysAndValuesDo: [ 
@@ -187,32 +181,14 @@ MethodsTemperaturesPresenter >> dataForVisualizationsSelectors: selectors classe
 				xLabels at: columnIndex put: aClass.
 
 				"Store the temperature in the corresponding matrix position, finally."
-				row at: columnIndex put: aTemperature.
+				row at: columnIndex put: aTemperature ] ].
 
-				"If at least one temperature violates the threshold, both the row and  
-						   the column should be kept in the final representation."
-				(temperatureSelectBlock value: compiledMethod value: aTemperature) 
-					ifTrue: [ 
-						rowsToKeep add: rowIndex.
-						columnsToKeep add: columnIndex ] ] ].
-
-	"Filtering."
-	xLabels := xLabels withIndexSelect: [ :each :index | 
-		           columnsToKeep includes: index ].
-	yLabels := yLabels withIndexSelect: [ :each :index | 
-		           rowsToKeep includes: index ].
-	matrix := matrix withIndexSelect: [ :each :index | 
-		          rowsToKeep includes: index ].
-
-	"Selecting and returning."
-	^ (rowsToKeep isNotEmpty and: [ columnsToKeep isNotEmpty ])
+	^ (xLabels isNotEmpty and: [ yLabels isNotEmpty ])
 		  ifTrue: [ 
 			  Dictionary new
 				  at: #xLabels put: xLabels;
 				  at: #yLabels put: yLabels;
-				  at: #matrix put: (matrix collect: [ :aRow | 
-							   aRow withIndexSelect: [ :each :index | 
-									   columnsToKeep includes: index ] ]);
+				  at: #matrix put: matrix;
 				  yourself ]
 		  ifFalse: [ Dictionary new ]
 ]
@@ -259,6 +235,28 @@ MethodsTemperaturesPresenter >> doBlock [
 	^ do evaluateCompiledMethod
 ]
 
+{ #category : #charting }
+MethodsTemperaturesPresenter >> filteredWrappers [
+
+	| thresholdBlock selectedWrappers orderedWrappers |
+	thresholdBlock := self temperatureBlock.
+
+	selectedWrappers := wrappers select: [ :each | 
+		                    thresholdBlock
+			                    value: each method
+			                    value: each count ].
+
+	orderedWrappers := selectedWrappers asSortedCollection: [ 
+		                   :aWrapper 
+		                   :anotherWrapper | 
+		                   aWrapper count > anotherWrapper count ].
+
+	^ self
+		  keep: self topWarmerCompiledMethodsSize
+		  of: orderedWrappers
+		  accordingTo: checkbox
+]
+
 { #category : #accessing }
 MethodsTemperaturesPresenter >> heatmap: anHeatmap [
 
@@ -268,6 +266,20 @@ MethodsTemperaturesPresenter >> heatmap: anHeatmap [
 			addInteraction: RSCanvasController;
 			zoomToFit;
 			yourself ]
+]
+
+{ #category : #charting }
+MethodsTemperaturesPresenter >> heatmap: anHeatmap xLabels: xLabels yLabels: yLabels matrix: matrix [
+
+	self heatmap: (anHeatmap
+			 scale: self scaleForHeatmap;
+			 xLabels: xLabels;
+			 yLabels: yLabels;
+			 show: matrix modelBlock: [ :aSelector :aClass | 
+				 [ aClass >> aSelector ]
+					 on: KeyNotFound
+					 do: [ nil ] ];
+			 yourself)
 ]
 
 { #category : #initialization }
@@ -514,24 +526,11 @@ MethodsTemperaturesPresenter >> refreshPackagesTableWhenTextChanges: aString [
 { #category : #charting }
 MethodsTemperaturesPresenter >> resortWrappers [
 
-	| sortedWrappers filteredWrappers selectors classIndices |
+	| selectors classIndices |
 	selectors := Dictionary new.
 	classIndices := Dictionary new.
 
-	sortedWrappers := wrappers asSortedCollection: [ 
-		                  :aWrapper 
-		                  :anotherWrapper | 
-		                  aWrapper count > anotherWrapper count or: [ 
-			                  self selectorsSorter
-				                  value: aWrapper
-				                  value: anotherWrapper ] ].
-
-	filteredWrappers := self
-		                    keep: self topWarmerCompiledMethodsSize
-		                    of: sortedWrappers
-		                    accordingTo: checkbox.
-
-	filteredWrappers do: [ :each | 
+	self filteredWrappers do: [ :each | 
 		| selectorAssoc aClass |
 		aClass := each method methodClass.
 
@@ -680,20 +679,9 @@ MethodsTemperaturesPresenter >> windowIsClosing [
 { #category : #charting }
 MethodsTemperaturesPresenter >> xLabels: xLabels yLabels: yLabels matrix: matrix [
 
-	| anHeatmap barPlot chart compiledMethods |
-	anHeatmap := RSHeatmap new
-		             scale: self scaleForHeatmap;
-		             xLabels: xLabels;
-		             yLabels: yLabels;
-		             show: matrix modelBlock: [ :aSelector :aClass | 
-			             [ aClass >> aSelector ]
-				             on: KeyNotFound
-				             do: [ nil ] ];
-		             yourself.
-
+	| barPlot chart compiledMethods |
 	compiledMethods := SortedCollection sortUsing: self barChartSorter.
 	methodsByClassDict := Dictionary new.
-
 
 	xLabels withIndexDo: [ :aClass :columnIndex | 
 		yLabels withIndexDo: [ :aSelector :rowIndex | 
@@ -720,8 +708,8 @@ MethodsTemperaturesPresenter >> xLabels: xLabels yLabels: yLabels matrix: matrix
 	barPlot := RSBarPlot new
 		           color: (Color black alpha: 0.3);
 		           y: (compiledMethods collect: #value);
-		           yourself.
-	barPlot shape cornerRadius: 3.
+		           yourself: [ :plot | 
+			           plot shape cornerRadius: Float goldenRatio double ].
 
 	chart := RSChart new
 		         addPlot: barPlot;
@@ -729,6 +717,7 @@ MethodsTemperaturesPresenter >> xLabels: xLabels yLabels: yLabels matrix: matrix
 		         build;
 		         yourself.
 
+	"The following iteration can only be done after the message `build` has been sent to the chart."
 	barPlot bars
 		with: (compiledMethods collect: #key)
 		do: [ :aBar :aCompiledMethod | 
@@ -742,6 +731,10 @@ MethodsTemperaturesPresenter >> xLabels: xLabels yLabels: yLabels matrix: matrix
 		expandAll.
 
 	self
-		heatmap: anHeatmap;
-		barChart: chart
+		heatmap: RSHeatmap new
+		xLabels: xLabels
+		yLabels: yLabels
+		matrix: matrix.
+
+	self barChart: chart
 ]
