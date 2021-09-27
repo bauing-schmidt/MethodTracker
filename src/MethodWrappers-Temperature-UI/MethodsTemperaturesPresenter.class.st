@@ -586,18 +586,17 @@ MethodsTemperaturesPresenter >> resortWrappers [
 { #category : #'dispatched commands' }
 MethodsTemperaturesPresenter >> runConfLoadTemperatureMethodsStCommand: aCommand [
 
-	| dialog answer |
+	| dialog |
 	dialog := FileDialogWindow new
 		          title: 'Load conf';
 		          validExtensions: #( ston );
 		          answerFileEntry.
 
-	answer := dialog openModal answer.
+	dialog openModal answer ifNotNil: [ :answer | 
+		configuration := self loadConfigurationFromFileReference:
+			                 answer asFileReference.
 
-	configuration := self loadConfigurationFromFileReference:
-		                 answer asFileReference.
-
-	self applyConfiguration
+		self applyConfiguration ]
 ]
 
 { #category : #'dispatched commands' }
