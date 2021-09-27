@@ -120,6 +120,42 @@ MethodsTemperaturesPresenter class >> defaultSpec [
 		  yourself
 ]
 
+{ #category : #'dispatched commands' }
+MethodsTemperaturesPresenter >> applyConfiguration [
+
+	checkboxInstallOnAllMethods
+		label: ('Wrap all methods of selected packages.' format:
+					 { self topWarmerCompiledMethodsSize });
+		state: (configuration at: #installOnAllMethods).
+
+	selectedPackages := Set withAll: (allPackages select: [ :each | 
+			                     (configuration at: #selectedPackageNames)
+				                     inject: false
+				                     into: [ :acc :name | 
+					                     | aBoolean |
+					                     aBoolean := each name asLowercase 
+						                                 includesSubstring:
+						                                 name asLowercase.
+					                     acc | aBoolean ] ]).
+
+	select text: self defaultCodeForCompiledMethodSelection.
+
+	checkbox
+		label: ('Restrict to top {1} warmer methods.' format:
+					 { self topWarmerCompiledMethodsSize });
+		state: (configuration at: #selectTopWarmerMethods).
+
+	temperature text: self defaultCodeForTemperatureThreshold.
+
+	do text: self defaultCodeForDoBehavior.
+
+	selectorsSorter text: self defaultCodeForSelectorsSorter.
+
+	classesSorter text: self defaultCodeForClassesSorter.
+
+	barChartSorter text: self defaultCodeForBarChartSorter
+]
+
 { #category : #accessing }
 MethodsTemperaturesPresenter >> barChart: aChart [
 
@@ -287,9 +323,8 @@ MethodsTemperaturesPresenter >> heatmap: anHeatmap xLabels: xLabels yLabels: yLa
 { #category : #initialization }
 MethodsTemperaturesPresenter >> initialize [
 
-	super initialize.
-
 	"The initial phase of temperatures measuring is sleeping."
+
 	measuringInProgress := MethodTemperatureMeasuringPhase sleeping.
 
 	"Also, keep track if the wrappers have been installed or not."
@@ -300,7 +335,8 @@ MethodsTemperaturesPresenter >> initialize [
 	 in progress to not overlap data creation."
 	updateInProgress := false.
 
-	
+	"Now we can initialize subpresenters via our super implementation"
+	super initialize
 ]
 
 { #category : #initialization }
@@ -308,38 +344,19 @@ MethodsTemperaturesPresenter >> initializePresenters [
 
 	super initializePresenters.
 
-	"Load a possible cconfiguration"
-	configuration := self loadConfiguration.
-
 	toolbar := self newToolbar
 		           addStyle: 'stToolbar';
 		           fillWith: self toolbarActions;
 		           yourself.
 
 	checkboxInstallOnAllMethods := self newCheckBox
-		                               label:
-			                               ('Wrap all methods of selected packages.' 
-				                                format:
-					                                { self
-						                                topWarmerCompiledMethodsSize });
-		                               state:
-			                               (configuration at:
-					                                #installOnAllMethods);
 		                               whenChangedDo: [ :aBoolean | 
 			                               select enabled: aBoolean not ];
 		                               yourself.
 
 	allPackages := RPackageOrganizer default packages asOrderedCollection 
 		               sort: [ :a :b | a name < b name ].
-	selectedPackages := Set withAll: (allPackages select: [ :each | 
-			                     (configuration at: #selectedPackageNames)
-				                     inject: false
-				                     into: [ :acc :name | 
-					                     | aBoolean |
-					                     aBoolean := each name asLowercase 
-						                                 includesSubstring:
-						                                 name asLowercase.
-					                     acc | aBoolean ] ]).
+	selectedPackages := Set empty.
 	packagesList := self newTable addColumn: (SpCompositeTableColumn new
 			                 addColumn: (SpCheckBoxTableColumn new
 					                  evaluated: [ :item | 
@@ -372,34 +389,27 @@ MethodsTemperaturesPresenter >> initializePresenters [
 		          withoutLineNumbers;
 		          beForScripting;
 		          enabled: checkboxInstallOnAllMethods state not;
-		          text: self defaultCodeForCompiledMethodSelection;
 		          whenSubmitDo: [ :text | self updateVisualizations ];
 		          yourself.
 
 	checkbox := self newCheckBox
-		            label: ('Restrict to top {1} warmer methods.' format:
-					             { self topWarmerCompiledMethodsSize });
-		            state: (configuration at: #selectTopWarmerMethods);
 		            whenChangedDo: [ :ev | self updateVisualizations ];
 		            yourself.
 
 	temperature := (self instantiate: SpCodePresenter)
 		               withoutLineNumbers;
 		               beForScripting;
-		               text: self defaultCodeForTemperatureThreshold;
 		               whenSubmitDo: [ :text | self updateVisualizations ];
 		               yourself.
 
 	do := (self instantiate: SpCodePresenter)
 		      withoutLineNumbers;
 		      beForScripting;
-		      text: self defaultCodeForDoBehavior;
 		      yourself.
 
 	selectorsSorter := (self instantiate: SpCodePresenter)
 		                   withoutLineNumbers;
 		                   beForScripting;
-		                   text: self defaultCodeForSelectorsSorter;
 		                   whenSubmitDo: [ :text | 
 			                   self updateVisualizations ];
 		                   yourself.
@@ -407,14 +417,12 @@ MethodsTemperaturesPresenter >> initializePresenters [
 	classesSorter := (self instantiate: SpCodePresenter)
 		                 withoutLineNumbers;
 		                 beForScripting;
-		                 text: self defaultCodeForClassesSorter;
 		                 whenSubmitDo: [ :text | self updateVisualizations ];
 		                 yourself.
 
 	barChartSorter := (self instantiate: SpCodePresenter)
 		                  withoutLineNumbers;
 		                  beForScripting;
-		                  text: self defaultCodeForBarChartSorter;
 		                  whenSubmitDo: [ :text | self updateVisualizations ];
 		                  yourself.
 
@@ -451,7 +459,11 @@ MethodsTemperaturesPresenter >> initializePresenters [
 		         activateOnDoubleClick;
 		         whenActivatedDo: [ :selection | 
 			         selection selectedItem browse ];
-		         yourself
+		         yourself.
+
+	"Load a possible cconfiguration"
+	configuration := self loadDefaultConfiguration.
+	self applyConfiguration
 ]
 
 { #category : #initialization }
@@ -496,11 +508,16 @@ MethodsTemperaturesPresenter >> keep: n of: aCollection accordingTo: aTruthHolde
 ]
 
 { #category : #running }
-MethodsTemperaturesPresenter >> loadConfiguration [
+MethodsTemperaturesPresenter >> loadConfigurationFromFileReference: fr [
+
+	^ fr readStreamDo: [ :aStream | STON fromStream: aStream ]
+]
+
+{ #category : #running }
+MethodsTemperaturesPresenter >> loadDefaultConfiguration [
 
 	^ self class defaultConfFileReference
-		  ifExists: [ :fr | 
-		  fr readStreamDo: [ :aStream | STON fromStream: aStream ] ]
+		  ifExists: [ :fr | self loadConfigurationFromFileReference: fr ]
 		  ifAbsent: [ self class defaultConfiguration ]
 ]
 
@@ -564,6 +581,23 @@ MethodsTemperaturesPresenter >> resortWrappers [
 		:anIndex | classIndices at: aClass put: anIndex ].
 
 	^ selectors -> classIndices
+]
+
+{ #category : #'dispatched commands' }
+MethodsTemperaturesPresenter >> runConfLoadTemperatureMethodsStCommand: aCommand [
+
+	| dialog answer |
+	dialog := FileDialogWindow new
+		          title: 'Load conf';
+		          validExtensions: #( ston );
+		          answerFileEntry.
+
+	answer := dialog openModal answer.
+
+	configuration := self loadConfigurationFromFileReference:
+		                 answer asFileReference.
+
+	self applyConfiguration
 ]
 
 { #category : #'dispatched commands' }
