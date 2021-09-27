@@ -178,6 +178,28 @@ MethodsTemperaturesPresenter >> classesSorter [
 	^ classesSorter evaluateCompiledMethod
 ]
 
+{ #category : #'selection support' }
+MethodsTemperaturesPresenter >> currentConfiguration [
+
+	| conf |
+	conf := Dictionary new.
+	conf at: #installOnAllMethods put: checkboxInstallOnAllMethods state.
+	conf at: #topWarmerMethods put: (configuration at: #topWarmerMethods).
+	conf at: #selectTopWarmerMethods put: checkbox state.
+	conf at: #defaultCodeForBarChartSorter put: barChartSorter text.
+	conf at: #defaultCodeForClassesSorter put: classesSorter text.
+	conf at: #defaultCodeForCompiledMethodSelection put: select text.
+	conf at: #defaultCodeForDoBehavior put: do text.
+	conf at: #defaultCodeForSelectorsSorter put: selectorsSorter text.
+	conf at: #defaultCodeForTemperatureThreshold put: temperature text.
+
+	conf
+		at: #selectedPackageNames
+		put: (selectedPackages asArray collect: [ :each | each name ]).
+
+	^ conf
+]
+
 { #category : #charting }
 MethodsTemperaturesPresenter >> dataForVisualizationsSelectors: selectors classesIndices: classIndices [
 
@@ -597,6 +619,20 @@ MethodsTemperaturesPresenter >> runConfLoadTemperatureMethodsStCommand: aCommand
 			                 answer asFileReference.
 
 		self applyConfiguration ]
+]
+
+{ #category : #'dispatched commands' }
+MethodsTemperaturesPresenter >> runConfSaveTemperatureMethodsStCommand: aCommand [
+
+	| dialog |
+	dialog := FileDialogWindow new
+		          title: 'Save conf';
+		          validExtensions: #( ston );
+		          answerSaveFile.
+
+	dialog openModal answer ifNotNil: [ :answer | 
+		answer asFileReference writeStreamDo: [ :aStream | 
+			STON put: self currentConfiguration onStreamPretty: aStream ] ]
 ]
 
 { #category : #'dispatched commands' }
