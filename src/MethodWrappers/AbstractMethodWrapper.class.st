@@ -7,7 +7,8 @@ Class {
 	#instVars : [
 		'method',
 		'enabled',
-		'installed'
+		'installed',
+		'callsLog'
 	],
 	#category : #MethodWrappers
 }
@@ -62,6 +63,12 @@ AbstractMethodWrapper class >> reset [
 	Smalltalk garbageCollect
 ]
 
+{ #category : #accessing }
+AbstractMethodWrapper >> callsLog [
+
+	^ callsLog
+]
+
 { #category : #actions }
 AbstractMethodWrapper >> disable [
 
@@ -87,7 +94,8 @@ AbstractMethodWrapper >> initializeOn: aMethodReference [
 		ifTrue: [ 
 			method := aMethodReference.
 			installed := false.
-			enabled := false ]
+			enabled := false.
+			callsLog := OrderedCollection new ]
 		ifFalse: [ Error signal ]
 ]
 
@@ -123,7 +131,10 @@ AbstractMethodWrapper >> method [
 { #category : #evaluation }
 AbstractMethodWrapper >> noticeExecutionWith: anArray in: aReceiver [
 
-	self subclassResponsibility
+	callsLog add: DateAndTime now -> (MessageSend
+			 receiver: aReceiver
+			 selector: method selector
+			 arguments: anArray)
 ]
 
 { #category : #evaluation }

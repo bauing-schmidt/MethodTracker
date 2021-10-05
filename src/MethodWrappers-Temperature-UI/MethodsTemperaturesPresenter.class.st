@@ -27,7 +27,8 @@ Class {
 		'selectedPackages',
 		'allPackages',
 		'checkboxInstallOnAllMethods',
-		'configuration'
+		'configuration',
+		'callsLog'
 	],
 	#category : #'MethodWrappers-Temperature-UI'
 }
@@ -91,7 +92,7 @@ MethodsTemperaturesPresenter class >> defaultSpec [
 						    add: 'Behavior block' expand: false;
 						    add: #do expand: true;
 						    add: 'Packages selection' expand: false;
-							 add: #checkboxInstallOnAllMethods expand: false;
+						    add: #checkboxInstallOnAllMethods expand: false;
 						    add: #packagesList expand: true;
 						    add: #packageNameText expand: false;
 						    add: 'CompiledMethod select block' expand: false;
@@ -107,12 +108,17 @@ MethodsTemperaturesPresenter class >> defaultSpec [
 						    yourself);
 				   add: (SpPanedLayout newLeftToRight
 						    add: (SpBoxLayout newTopToBottom
-								     add: #checkbox expand: false;
-								     add: #table;
+								     add: #callsLog expand: true;
 								     yourself);
-						    add: (SpPanedLayout newTopToBottom
-								     add: #heatmap;
-								     add: #barChart;
+						    add: (SpPanedLayout newLeftToRight
+								     add: (SpBoxLayout newTopToBottom
+										      add: #checkbox expand: false;
+										      add: #table;
+										      yourself);
+								     add: (SpPanedLayout newTopToBottom
+										      add: #heatmap;
+										      add: #barChart;
+										      yourself);
 								     yourself);
 						    yourself);
 				   yourself)
@@ -483,6 +489,15 @@ MethodsTemperaturesPresenter >> initializePresenters [
 			         selection selectedItem browse ];
 		         yourself.
 
+	callsLog := (self instantiate: SpListPresenter)
+		            sortingBlock: [ :aWrapper :anotherWrapper | 
+			            aWrapper callsLog last key
+			            > anotherWrapper callsLog last key ];
+		            display: [ :aWrapper | 
+			            aWrapper callsLog last in: [ :anAssoc | 
+					            anAssoc key asString , ': ' , anAssoc value asString ] ];
+		            yourself.
+
 	"Load a possible cconfiguration"
 	configuration := self loadDefaultConfiguration.
 	self applyConfiguration
@@ -719,6 +734,10 @@ MethodsTemperaturesPresenter >> updateVisualizations [
 		aDictionary := self
 			               dataForVisualizationsSelectors: anAssociation key
 			               classesIndices: anAssociation value.
+
+		callsLog
+			items: (wrappers select: [ :each | each callsLog isNotEmpty ]);
+			updateList.
 
 		aDictionary isEmpty ifFalse: [ 
 			self
