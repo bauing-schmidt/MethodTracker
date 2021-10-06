@@ -495,7 +495,8 @@ MethodsTemperaturesPresenter >> initializePresenters [
 			            > anotherWrapper callsLog last key ];
 		            display: [ :aWrapper | 
 			            aWrapper callsLog last in: [ :anAssoc | 
-					            anAssoc key asString , ': ' , anAssoc value asString ] ];
+					            anAssoc key asTimeString , ': '
+					            , anAssoc value asString ] ];
 		            yourself.
 
 	"Load a possible cconfiguration"
