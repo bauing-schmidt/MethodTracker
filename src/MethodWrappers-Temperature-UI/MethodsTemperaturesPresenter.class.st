@@ -28,7 +28,8 @@ Class {
 		'allPackages',
 		'checkboxInstallOnAllMethods',
 		'configuration',
-		'callsLog'
+		'callsLog',
+		'checkboxShowMessageSendsArgs'
 	],
 	#category : #'MethodWrappers-Temperature-UI'
 }
@@ -55,6 +56,7 @@ MethodsTemperaturesPresenter class >> defaultConfiguration [
 	conf at: #installOnAllMethods put: true.
 	conf at: #topWarmerMethods put: 30.
 	conf at: #selectTopWarmerMethods put: true.
+	conf at: #showMessageSendsArgs put: false.
 	conf
 		at: #defaultCodeForBarChartSorter
 		put:
@@ -108,6 +110,7 @@ MethodsTemperaturesPresenter class >> defaultSpec [
 						    yourself);
 				   add: (SpPanedLayout newLeftToRight
 						    add: (SpBoxLayout newTopToBottom
+								     add: #checkboxShowMessageSendsArgs expand: false;
 								     add: #callsLog expand: true;
 								     yourself);
 						    add: (SpPanedLayout newLeftToRight
@@ -151,6 +154,9 @@ MethodsTemperaturesPresenter >> applyConfiguration [
 					 { self topWarmerCompiledMethodsSize });
 		state: (configuration at: #selectTopWarmerMethods).
 
+	checkboxShowMessageSendsArgs state:
+		(configuration at: #showMessageSendsArgs).
+
 	temperature text: self defaultCodeForTemperatureThreshold.
 
 	do text: self defaultCodeForDoBehavior.
@@ -192,6 +198,7 @@ MethodsTemperaturesPresenter >> currentConfiguration [
 	conf at: #installOnAllMethods put: checkboxInstallOnAllMethods state.
 	conf at: #topWarmerMethods put: (configuration at: #topWarmerMethods).
 	conf at: #selectTopWarmerMethods put: checkbox state.
+	conf at: #showMessageSendsArgs put: checkboxShowMessageSendsArgs state.
 	conf at: #defaultCodeForBarChartSorter put: barChartSorter text.
 	conf at: #defaultCodeForClassesSorter put: classesSorter text.
 	conf at: #defaultCodeForCompiledMethodSelection put: select text.
@@ -489,14 +496,26 @@ MethodsTemperaturesPresenter >> initializePresenters [
 			         selection selectedItem browse ];
 		         yourself.
 
+	checkboxShowMessageSendsArgs := self newCheckBox
+		                                label:
+			                                'Show arguments of message sends';
+		                                yourself.
+
 	callsLog := (self instantiate: SpListPresenter)
 		            sortingBlock: [ :aWrapper :anotherWrapper | 
 			            aWrapper callsLog last key
 			            > anotherWrapper callsLog last key ];
 		            display: [ :aWrapper | 
 			            aWrapper callsLog last in: [ :anAssoc | 
-					            anAssoc key asTimeString , ': '
-					            , anAssoc value asString ] ];
+					            String streamContents: [ :aStream | 
+							            | msg |
+							            aStream
+								            nextPutAll: anAssoc key asTimeString;
+								            nextPutAll: ': '.
+							            msg := checkboxShowMessageSendsArgs state
+								                   ifTrue: [ anAssoc value asString ]
+								                   ifFalse: [ anAssoc value selector ].
+							            aStream nextPutAll: msg ] ] ];
 		            yourself.
 
 	"Load a possible cconfiguration"
