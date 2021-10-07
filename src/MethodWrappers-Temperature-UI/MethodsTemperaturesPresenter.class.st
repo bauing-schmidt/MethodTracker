@@ -697,6 +697,19 @@ MethodsTemperaturesPresenter >> runMeasureMethodsTemperaturesStCommand: aCommand
 			yourself
 ]
 
+{ #category : #'dispatched commands' }
+MethodsTemperaturesPresenter >> runSequenceDiagramMethodsTemperaturesStCommand: aCommand [
+
+	    | builder |
+	    builder := RSUMLSequenceBuilder new.
+	    builder messagesSends:
+		    ((wrappers flatCollect: [ :each | each callsLog ]) 
+			     asSortedCollection: [ :anAssoc :anotherAssoc | 
+			     anAssoc key start < anotherAssoc key start ]).
+	    builder build.
+	    builder canvas open
+]
+
 { #category : #charting }
 MethodsTemperaturesPresenter >> scaleForHeatmap [
 
