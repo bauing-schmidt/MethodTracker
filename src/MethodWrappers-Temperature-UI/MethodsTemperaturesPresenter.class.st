@@ -700,14 +700,16 @@ MethodsTemperaturesPresenter >> runMeasureMethodsTemperaturesStCommand: aCommand
 { #category : #'dispatched commands' }
 MethodsTemperaturesPresenter >> runSequenceDiagramMethodsTemperaturesStCommand: aCommand [
 
-	    | builder |
-	    builder := RSUMLSequenceBuilder new.
-	    builder messagesSends:
-		    ((wrappers flatCollect: [ :each | each callsLog ]) 
-			     asSortedCollection: [ :anAssoc :anotherAssoc | 
-			     anAssoc key start < anotherAssoc key start ]).
-	    builder build.
-	    builder canvas open
+	        | builder |
+	        builder := RSUMLSequenceBuilder new.
+	        builder messagesSends:
+		        ((wrappers flatCollect: [ :each | each callsLog ]) 
+			         asSortedCollection: [ :anAssoc :anotherAssoc | 
+			         anAssoc key start < anotherAssoc key start ]).
+	        builder build.
+	        builder canvas
+		        zoomToFit;
+		        open
 ]
 
 { #category : #charting }
