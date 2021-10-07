@@ -41,6 +41,5 @@ MethodTemperatureWrapper >> initializeOn: aMethodReference [
 { #category : #evaluation }
 MethodTemperatureWrapper >> noticeExecutionWith: anArray in: aReceiver [
 
-	count := count + 1.
-	super noticeExecutionWith: anArray in: aReceiver
+	count := count + 1
 ]

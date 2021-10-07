@@ -131,20 +131,40 @@ AbstractMethodWrapper >> method [
 { #category : #evaluation }
 AbstractMethodWrapper >> noticeExecutionWith: anArray in: aReceiver [
 
-	callsLog add: DateAndTime now -> (MessageSend
-			 receiver: aReceiver
-			 selector: method selector
-			 arguments: anArray)
+	super subclassResponsibility
 ]
 
 { #category : #evaluation }
 AbstractMethodWrapper >> run: aSelector with: anArray in: aReceiver [
 
+	| anAssoc receivedTime result |
 	aSelector == method selector ifFalse: [ Error signal ].
 
-	enabled ifTrue: [ self noticeExecutionWith: anArray in: aReceiver ].
+	receivedTime := DateAndTime now.
 
-	^ aReceiver withArgs: anArray executeMethod: method
+	enabled
+		ifTrue: [ 
+			| messageSend |
+			messageSend := (FullMessageSend
+				                receiver: aReceiver
+				                selector: method selector
+				                arguments: anArray)
+				               client: thisContext client;
+				               yourself.
+
+			anAssoc := Timespan current -> messageSend.
+
+			callsLog add: anAssoc.
+
+			self noticeExecutionWith: anArray in: aReceiver ]
+		ifFalse: [ anAssoc := nil ].
+
+	result := aReceiver withArgs: anArray executeMethod: method.
+
+	anAssoc ifNotNil: [ 
+		anAssoc key duration: DateAndTime now - receivedTime ].
+
+	^ result
 ]
 
 { #category : #actions }
