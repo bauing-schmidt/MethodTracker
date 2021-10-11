@@ -137,35 +137,37 @@ AbstractMethodWrapper >> noticeExecutionWith: anArray in: aReceiver [
 { #category : #evaluation }
 AbstractMethodWrapper >> run: aSelector with: anArray in: aReceiver [
 
-	      | anAssoc receivedTime result |
-	      aSelector == method selector ifFalse: [ Error signal ].
+	| anAssoc receivedTime result |
+	aSelector == method selector ifFalse: [ Error signal ].
 
-	      receivedTime := DateAndTime now.
+	receivedTime := DateAndTime now.
 
-	      enabled
-		      ifTrue: [ 
-			      | messageSend |
-			      messageSend := (RSFullMessageSend
-				                      receiver: aReceiver
-				                      selector: method selector
-				                      arguments: anArray)
-				                     client: thisContext client;
-				                     yourself.
+	enabled
+		ifTrue: [ 
+			| messageSend |
+			messageSend := (RSFullMessageSend
+				                receiver: aReceiver
+				                selector: method selector
+				                arguments: anArray)
+				               client: thisContext client;
+				               yourself.
 
-			      anAssoc := (Timespan starting: receivedTime) -> messageSend.
+			anAssoc := (Timespan starting: receivedTime) -> messageSend.
 
-			      callsLog add: anAssoc.
+			callsLog add: anAssoc.
 
-			      self noticeExecutionWith: anArray in: aReceiver ]
-		      ifFalse: [ anAssoc := nil ].
+			self noticeExecutionWith: anArray in: aReceiver ]
+		ifFalse: [ anAssoc := nil ].
 
-	      result := aReceiver withArgs: anArray executeMethod: method.
+	result := aReceiver withArgs: anArray executeMethod: method.
 
-	      anAssoc ifNotNil: [ 
-		      anAssoc key duration:
-			      DateAndTime now - receivedTime + (Duration nanoSeconds: 1) ].
+	anAssoc ifNotNil: [ 
+		| duration |
+		duration := DateAndTime now - receivedTime.
+		duration isZero ifTrue: [ duration := Duration nanoSeconds: 1 ].
+		anAssoc key duration: duration ].
 
-	      ^ result
+	^ result
 ]
 
 { #category : #actions }
