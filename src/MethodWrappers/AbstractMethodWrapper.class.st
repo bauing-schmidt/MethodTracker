@@ -145,7 +145,7 @@ AbstractMethodWrapper >> run: aSelector with: anArray in: aReceiver [
 	      enabled
 		      ifTrue: [ 
 			      | messageSend |
-			      messageSend := (FullMessageSend
+			      messageSend := (RSFullMessageSend
 				                      receiver: aReceiver
 				                      selector: method selector
 				                      arguments: anArray)
