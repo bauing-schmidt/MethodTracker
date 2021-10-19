@@ -611,7 +611,9 @@ MethodsTemperaturesPresenter >> overlappings: aCollection do: aBlock [
 				  current := aCollection at: j.
 				  current key start < end ] ] whileTrue: [ 
 				  overlappings add: current.
-				  end := end min: current key end.
+				  current value
+					  ifToSelf: [ "Nothing to do here." ]
+					  ifNotToSelf: [ end := end min: current key end ].
 				  j := j + 1 ].
 
 			  aBlock value: overlappings.
