@@ -683,7 +683,7 @@ MethodsTemperaturesPresenter >> runInstallMethodTemperatureWrappersStCommand: aC
 		 the given block (edited in the corresponding block presenter)."
 		wrappers := (MethodTemperatureWrapper
 				 forPackages: selectedPackages 
-				 selectMethod: self selectBlock).
+				 selectMethod: [ :aMethod | self selectBlock value: aMethod value: selectedPackages ]).
 
 		"Second, install the wrappers (possibly time-consuming)."
 		self methodTemperatureWrappersDo: [ :each | each install ] ]
@@ -724,7 +724,7 @@ MethodsTemperaturesPresenter >> scaleForHeatmap [
 MethodsTemperaturesPresenter >> selectBlock [
 
 	^ checkboxInstallOnAllMethods state 
-		ifTrue: [ [ :aMethod | true ] ] 
+		ifTrue: [ [ :aMethod :packages | true ] ] 
 		ifFalse: [ select evaluateCompiledMethod ]
 ]
 

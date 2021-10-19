@@ -137,8 +137,9 @@ AbstractMethodWrapper >> noticeExecutionWith: anArray in: aReceiver [
 { #category : #evaluation }
 AbstractMethodWrapper >> run: aSelector with: anArray in: aReceiver [
 
-	| anAssoc receivedTime result |
+	| anAssoc receivedTime result random |
 	aSelector == method selector ifFalse: [ Error signal ].
+	random := RandomGaussian seed: 17.
 
 	receivedTime := DateAndTime now.
 
@@ -152,20 +153,24 @@ AbstractMethodWrapper >> run: aSelector with: anArray in: aReceiver [
 				               client: thisContext client;
 				               yourself.
 
-			anAssoc := (Timespan starting: receivedTime) -> messageSend.
+			anAssoc := (Timespan starting: receivedTime duration: nil)
+			           -> messageSend.
 
 			callsLog add: anAssoc.
 
-			self noticeExecutionWith: anArray in: aReceiver ]
+			self noticeExecutionWith: anArray in: aReceiver.
+
+			(Delay forMilliseconds: (random next abs max: 1)) wait ]
 		ifFalse: [ anAssoc := nil ].
 
 	result := aReceiver withArgs: anArray executeMethod: method.
 
 	anAssoc ifNotNil: [ 
-		| duration |
-		duration := DateAndTime now - receivedTime.
-		duration isZero ifTrue: [ duration := Duration nanoSeconds: 1 ].
-		anAssoc key duration: duration ].
+		(Delay forMilliseconds: (random next abs max: 1)) wait.
+
+		anAssoc key duration: DateAndTime now - receivedTime.
+
+		(Delay forMilliseconds: (random next abs max: 1)) wait ].
 
 	^ result
 ]
