@@ -137,42 +137,39 @@ AbstractMethodWrapper >> noticeExecutionWith: anArray in: aReceiver [
 { #category : #evaluation }
 AbstractMethodWrapper >> run: aSelector with: anArray in: aReceiver [
 
-	| anAssoc receivedTime result random |
-	aSelector == method selector ifFalse: [ Error signal ].
-	random := RandomGaussian seed: 17.
+	  | anAssoc receivedTime result |
+	  aSelector == method selector ifFalse: [ Error signal ].
 
-	receivedTime := DateAndTime now.
+	  receivedTime := DateAndTime now.
 
-	enabled
-		ifTrue: [ 
-			| messageSend |
-			messageSend := (RSFullMessageSend
-				                receiver: aReceiver
-				                selector: method selector
-				                arguments: anArray)
-				               client: thisContext client;
-				               yourself.
+	  enabled
+		  ifTrue: [ 
+			  | messageSend |
+			  messageSend := (RSFullMessageSend
+				                  receiver: aReceiver
+				                  selector: method selector
+				                  arguments: anArray)
+				                 client: thisContext client;
+				                 yourself.
 
-			anAssoc := (Timespan starting: receivedTime duration: nil)
-			           -> messageSend.
+			  anAssoc := (Timespan starting: receivedTime duration: nil)
+			             -> messageSend.
 
-			callsLog add: anAssoc.
+			  callsLog add: anAssoc.
 
-			self noticeExecutionWith: anArray in: aReceiver.
+			  self noticeExecutionWith: anArray in: aReceiver ]
+		  ifFalse: [ anAssoc := nil ].
 
-			(Delay forMilliseconds: (random next abs max: 1)) wait ]
-		ifFalse: [ anAssoc := nil ].
+	  result := aReceiver withArgs: anArray executeMethod: method.
 
-	result := aReceiver withArgs: anArray executeMethod: method.
+	  anAssoc ifNotNil: [ 
+		  | duration |
+		  duration := DateAndTime now - receivedTime max:
+			              (Duration milliSeconds: 1).
+			
+		  anAssoc key duration: duration ].
 
-	anAssoc ifNotNil: [ 
-		(Delay forMilliseconds: (random next abs max: 1)) wait.
-
-		anAssoc key duration: DateAndTime now - receivedTime.
-
-		(Delay forMilliseconds: (random next abs max: 1)) wait ].
-
-	^ result
+	  ^ result
 ]
 
 { #category : #actions }
