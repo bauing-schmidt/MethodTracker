@@ -601,7 +601,11 @@ MethodsTemperaturesPresenter >> overlappings: aCollection do: aBlock [
 		  [ i <= aCollection size ] whileTrue: [ 
 			  | end current base |
 			  base := overlappings
-				          ifEmpty: [ aCollection at: i ]
+				          ifEmpty: [ 
+					          | next |
+					          next := aCollection at: i.
+					          overlappings add: next.
+					          next ]
 				          ifNotEmpty: [ overlappings first ].
 
 			  end := base key end.
