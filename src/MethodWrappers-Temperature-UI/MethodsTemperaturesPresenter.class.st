@@ -590,6 +590,41 @@ MethodsTemperaturesPresenter >> methodTemperatureWrappersDo: aBlock [
 	 wrappers do: aBlock
 ]
 
+{ #category : #'dispatched commands' }
+MethodsTemperaturesPresenter >> overlappings: aCollection do: aBlock [
+
+	  aCollection ifNotEmpty: [ 
+		  | i j overlappings |
+		  overlappings := OrderedCollection with: aCollection first.
+
+		  i := 2.
+		  [ i <= aCollection size ] whileTrue: [ 
+			  | end current base |
+			  base := overlappings
+				          ifEmpty: [ aCollection at: i ]
+				          ifNotEmpty: [ overlappings first ].
+
+			  end := base key end.
+			  j := i + 1.
+			  [ 
+			  j <= aCollection size and: [ 
+				  current := aCollection at: j.
+				  current key start < end ] ] whileTrue: [ 
+				  overlappings add: current.
+				  end := end min: current key end.
+				  j := j + 1 ].
+
+			  aBlock value: overlappings.
+
+			  overlappings removeAll.
+
+			  (j <= aCollection size and: [ 
+				   (aCollection at: j) key start < base key end ]) ifTrue: [ 
+				  overlappings add: base ].
+
+			  i := j ] ]
+]
+
 { #category : #initialization }
 MethodsTemperaturesPresenter >> refreshPackagesTableWhenTextChanges: aString [
 
@@ -700,16 +735,31 @@ MethodsTemperaturesPresenter >> runMeasureMethodsTemperaturesStCommand: aCommand
 { #category : #'dispatched commands' }
 MethodsTemperaturesPresenter >> runSequenceDiagramMethodsTemperaturesStCommand: aCommand [
 
-	        | builder |
-	        builder := RSUMLSequenceBuilder new.
-	        builder messagesSends:
-		        ((wrappers flatCollect: [ :each | each callsLog ]) 
-			         asSortedCollection: [ :anAssoc :anotherAssoc | 
-			         anAssoc key start < anotherAssoc key start ]).
-	        builder build.
-	        builder canvas
-		        zoomToFit;
-		        open
+	  | orderedCalls shapes |
+	  orderedCalls := (wrappers flatCollect: [ :each | each callsLog ]) 
+		                  asSortedCollection: [ :anAssoc :anotherAssoc | 
+		                  anAssoc key start < anotherAssoc key start ].
+
+	  shapes := OrderedCollection new.
+
+	  self overlappings: orderedCalls do: [ :overlappings | 
+		  | builder |
+		  builder := RSUMLSequenceBuilder new
+			             messagesSends: overlappings;
+			             build;
+			             yourself.
+			
+		  shapes add: builder canvas asShape ].
+
+	  RSVerticalLineLayout new
+		  alignLeft;
+		  on: shapes.
+
+	  RSCanvas new
+		  addAll: shapes;
+		  addInteraction: RSCanvasController new;
+		  zoomToFit;
+		  open
 ]
 
 { #category : #charting }
