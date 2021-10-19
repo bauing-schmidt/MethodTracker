@@ -8,7 +8,8 @@ Class {
 		'method',
 		'enabled',
 		'installed',
-		'callsLog'
+		'callsLog',
+		'random'
 	],
 	#category : #MethodWrappers
 }
@@ -90,13 +91,14 @@ AbstractMethodWrapper >> enable [
 { #category : #initialization }
 AbstractMethodWrapper >> initializeOn: aMethodReference [
 
-	aMethodReference == aMethodReference compiledMethod
-		ifTrue: [ 
-			method := aMethodReference.
-			installed := false.
-			enabled := false.
-			callsLog := OrderedCollection new ]
-		ifFalse: [ Error signal ]
+	  aMethodReference == aMethodReference compiledMethod
+		  ifTrue: [ 
+			  method := aMethodReference.
+			  installed := false.
+			  enabled := false.
+			  random := RandomGaussian seed: 17.
+			  callsLog := OrderedCollection new ]
+		  ifFalse: [ Error signal ]
 ]
 
 { #category : #actions }
@@ -157,7 +159,9 @@ AbstractMethodWrapper >> run: aSelector with: anArray in: aReceiver [
 
 			  callsLog add: anAssoc.
 
-			  self noticeExecutionWith: anArray in: aReceiver ]
+			  self noticeExecutionWith: anArray in: aReceiver.
+
+			  (Delay forMilliseconds: random next abs) wait ]
 		  ifFalse: [ anAssoc := nil ].
 
 	  result := aReceiver withArgs: anArray executeMethod: method.
@@ -165,8 +169,8 @@ AbstractMethodWrapper >> run: aSelector with: anArray in: aReceiver [
 	  anAssoc ifNotNil: [ 
 		  | duration |
 		  duration := DateAndTime now - receivedTime max:
-			              (Duration milliSeconds: 1).
-			
+			              (Duration milliSeconds: random next abs).
+
 		  anAssoc key duration: duration ].
 
 	  ^ result
