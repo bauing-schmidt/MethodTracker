@@ -735,21 +735,38 @@ MethodsTemperaturesPresenter >> runMeasureMethodsTemperaturesStCommand: aCommand
 { #category : #'dispatched commands' }
 MethodsTemperaturesPresenter >> runSequenceDiagramMethodsTemperaturesStCommand: aCommand [
 
-	  | orderedCalls shapes |
+	  | orderedCalls shapes stackSelected |
 	  orderedCalls := (wrappers flatCollect: [ :each | each callsLog ]) 
 		                  asSortedCollection: [ :anAssoc :anotherAssoc | 
 		                  anAssoc key start < anotherAssoc key start ].
 
 	  shapes := OrderedCollection new.
 
-	  self overlappings: orderedCalls do: [ :overlappings | 
-		  | builder |
-		  builder := RSUMLSequenceBuilder new
-			             messagesSends: overlappings;
-			             build;
-			             yourself.
-			
-		  shapes add: builder canvas asShape ].
+	  stackSelected := SpConfirmDialog new
+		                   title: 'Question';
+		                   label: 'Stack interactions vertically?';
+		                   acceptLabel: 'Yes';
+		                   cancelLabel: 'No';
+		                   openModalWithSpec.
+
+	  stackSelected
+		  ifTrue: [ 
+			  self overlappings: orderedCalls do: [ :overlappings | 
+					  | builder |
+					  builder := RSUMLSequenceBuilder new
+						             messagesSends: overlappings;
+						             build;
+						             yourself.
+
+					  shapes add: builder canvas asShape ] ];
+		  ifFalse: [ 
+			  | builder |
+			  builder := RSUMLSequenceBuilder new
+				             messagesSends: orderedCalls;
+				             build;
+				             yourself.
+
+			  shapes add: builder canvas asShape ].
 
 	  RSVerticalLineLayout new
 		  alignLeft;
