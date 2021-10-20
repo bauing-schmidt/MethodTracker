@@ -139,10 +139,8 @@ AbstractMethodWrapper >> noticeExecutionWith: anArray in: aReceiver [
 { #category : #evaluation }
 AbstractMethodWrapper >> run: aSelector with: anArray in: aReceiver [
 
-	  | anAssoc receivedTime result |
+	  | anAssoc result |
 	  aSelector == method selector ifFalse: [ Error signal ].
-
-	  receivedTime := DateAndTime now.
 
 	  enabled
 		  ifTrue: [ 
@@ -154,26 +152,42 @@ AbstractMethodWrapper >> run: aSelector with: anArray in: aReceiver [
 				                 client: thisContext client;
 				                 yourself.
 
-			  anAssoc := (Timespan starting: receivedTime duration: nil)
-			             -> messageSend.
+			  anAssoc := self timeKey -> messageSend.
 
 			  callsLog add: anAssoc.
 
-			  self noticeExecutionWith: anArray in: aReceiver.
-
-			  (Delay forMilliseconds: random next abs) wait ]
+			  self noticeExecutionWith: anArray in: aReceiver ]
 		  ifFalse: [ anAssoc := nil ].
 
 	  result := aReceiver withArgs: anArray executeMethod: method.
 
 	  anAssoc ifNotNil: [ 
 		  | duration |
-		  duration := DateAndTime now - receivedTime max:
+		  duration := DateAndTime now
+		              - (self startingOfTimeKey: anAssoc key) max:
 			              (Duration milliSeconds: random next abs).
 
-		  anAssoc key duration: duration ].
+		  self timeKey: anAssoc key duration: duration ].
 
 	  ^ result
+]
+
+{ #category : #evaluation }
+AbstractMethodWrapper >> startingOfTimeKey: aTimespan [
+
+	  ^ aTimespan start
+]
+
+{ #category : #evaluation }
+AbstractMethodWrapper >> timeKey [
+
+	  ^ Timespan starting: DateAndTime now duration: nil
+]
+
+{ #category : #evaluation }
+AbstractMethodWrapper >> timeKey: aTimeStan duration: duration [
+
+	  aTimeStan duration: duration
 ]
 
 { #category : #actions }
