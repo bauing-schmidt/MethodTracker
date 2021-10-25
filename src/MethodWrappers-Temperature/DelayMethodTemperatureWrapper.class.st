@@ -5,6 +5,7 @@ Class {
 	#name : #DelayMethodTemperatureWrapper,
 	#superclass : #MethodTemperatureWrapper,
 	#classVars : [
+		'mutex',
 		'tick'
 	],
 	#category : #'MethodWrappers-Temperature'
@@ -19,7 +20,8 @@ DelayMethodTemperatureWrapper class >> initialize [
 { #category : #'as yet unclassified' }
 DelayMethodTemperatureWrapper class >> tick: aNumber [
 
-	  tick := aNumber
+	    tick := aNumber.
+	    mutex := Semaphore forMutualExclusion
 ]
 
 { #category : #evaluation }
@@ -31,11 +33,10 @@ DelayMethodTemperatureWrapper >> startingOfTimeKey: anArray [
 { #category : #'tag keys' }
 DelayMethodTemperatureWrapper >> timeKey [
 
-	  tick := tick + 1.
-
-	  ^ { 
-		    tick.
-		    super timeKey }
+	        ^ mutex critical: [ 
+		          { 
+			          tick.
+			          super timeKey } yourself: [ tick := tick + 1 ] ]
 ]
 
 { #category : #evaluation }

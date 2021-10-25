@@ -752,49 +752,58 @@ MethodsTemperaturesPresenter >> runMeasureMethodsTemperaturesStCommand: aCommand
 { #category : #'dispatched commands' }
 MethodsTemperaturesPresenter >> runSequenceDiagramMethodsTemperaturesStCommand: aCommand [
 
-	  | orderedCalls shapes stackSelected |
-	  orderedCalls := ((wrappers flatCollect: [ :each | each callsLog ]) 
-		                   asSortedCollection: [ :anAssoc :anotherAssoc | 
-		                   anAssoc key first < anotherAssoc key first ]) 
-		                  collect: [ :each | each key second -> each value ].
+	        | orderedCalls shapes stackSelected sortBlock |
+	        sortBlock := [ :anAssoc :anotherAssoc | 
+	                     | aStart anotherStart |
+	                     aStart := anAssoc key second start.
+	                     anotherStart := anotherAssoc key second start.
+	                     aStart = anotherStart
+		                     ifTrue: [ 
+		                     anAssoc key first < anotherAssoc key first ]
+		                     ifFalse: [ aStart < anotherStart ] ].
 
-	  shapes := OrderedCollection new.
+	        orderedCalls := ((wrappers flatCollect: [ :each | 
+		                          each callsLog ]) asSortedCollection:
+		                         sortBlock) collect: [ :each | 
+		                        each key second -> each value ].
 
-	  stackSelected := SpConfirmDialog new
-		                   title: 'Question';
-		                   label: 'Stack interactions vertically?';
-		                   acceptLabel: 'Yes';
-		                   cancelLabel: 'No';
-		                   openModalWithSpec.
+	        shapes := OrderedCollection new.
 
-	  stackSelected
-		  ifTrue: [ 
-			  self overlappings: orderedCalls do: [ :overlappings | 
-					  | builder |
-					  builder := RSUMLSequenceBuilder new
-						             messagesSends: overlappings;
-						             build;
-						             yourself.
+	        stackSelected := SpConfirmDialog new
+		                         title: 'Question';
+		                         label: 'Stack interactions vertically?';
+		                         acceptLabel: 'Yes';
+		                         cancelLabel: 'No';
+		                         openModalWithSpec.
 
-					  shapes add: builder canvas asShape ] ];
-		  ifFalse: [ 
-			  | builder |
-			  builder := RSUMLSequenceBuilder new
-				             messagesSends: orderedCalls;
-				             build;
-				             yourself.
+	        stackSelected
+		        ifTrue: [ 
+			        self overlappings: orderedCalls do: [ :overlappings | 
+					        | builder |
+					        builder := RSUMLSequenceBuilder new
+						                   messagesSends: overlappings;
+						                   build;
+						                   yourself.
 
-			  shapes add: builder canvas asShape ].
+					        shapes add: builder canvas asShape ] ];
+		        ifFalse: [ 
+			        | builder |
+			        builder := RSUMLSequenceBuilder new
+				                   messagesSends: orderedCalls;
+				                   build;
+				                   yourself.
 
-	  RSVerticalLineLayout new
-		  alignLeft;
-		  on: shapes.
+			        shapes add: builder canvas asShape ].
 
-	  RSCanvas new
-		  addAll: shapes;
-		  addInteraction: RSCanvasController new;
-		  zoomToFit;
-		  open
+	        RSVerticalLineLayout new
+		        alignLeft;
+		        on: shapes.
+
+	        RSCanvas new
+		        addAll: shapes;
+		        addInteraction: RSCanvasController new;
+		        zoomToFit;
+		        open
 ]
 
 { #category : #charting }

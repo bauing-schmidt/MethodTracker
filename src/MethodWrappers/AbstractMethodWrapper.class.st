@@ -139,37 +139,38 @@ AbstractMethodWrapper >> noticeExecutionWith: anArray in: aReceiver [
 { #category : #evaluation }
 AbstractMethodWrapper >> run: aSelector with: anArray in: aReceiver [
 
-	  | anAssoc result |
-	  aSelector == method selector ifFalse: [ Error signal ].
+	        | anAssoc result |
+	        aSelector == method selector ifFalse: [ Error signal ].
 
-	  enabled
-		  ifTrue: [ 
-			  | messageSend |
-			  messageSend := (RSFullMessageSend
-				                  receiver: aReceiver
-				                  selector: method selector
-				                  arguments: anArray)
-				                 client: thisContext client;
-				                 yourself.
+	        enabled
+		        ifTrue: [ 
+			        | messageSend |
+			        messageSend := (RSFullMessageSend
+				                        receiver: aReceiver
+				                        selector: method selector
+				                        arguments: anArray)
+				                       client: thisContext client;
+				                       callerSelector: thisContext sender selector;
+				                       yourself.
 
-			  anAssoc := self timeKey -> messageSend.
+			        anAssoc := self timeKey -> messageSend.
 
-			  callsLog add: anAssoc.
+			        callsLog add: anAssoc.
 
-			  self noticeExecutionWith: anArray in: aReceiver ]
-		  ifFalse: [ anAssoc := nil ].
+			        self noticeExecutionWith: anArray in: aReceiver ]
+		        ifFalse: [ anAssoc := nil ].
 
-	  result := aReceiver withArgs: anArray executeMethod: method.
+	        result := aReceiver withArgs: anArray executeMethod: method.
 
-	  anAssoc ifNotNil: [ 
-		  | duration |
-		  duration := DateAndTime now
-		              - (self startingOfTimeKey: anAssoc key) max:
-			              (Duration milliSeconds: random next abs).
+	        anAssoc ifNotNil: [ 
+		        | duration |
+		        duration := DateAndTime now
+		                    - (self startingOfTimeKey: anAssoc key) max:
+			                    (Duration milliSeconds: 1).
 
-		  self timeKey: anAssoc key duration: duration ].
+		        self timeKey: anAssoc key duration: duration ].
 
-	  ^ result
+	        ^ result
 ]
 
 { #category : #evaluation }
