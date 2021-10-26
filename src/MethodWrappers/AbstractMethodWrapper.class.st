@@ -7,9 +7,7 @@ Class {
 	#instVars : [
 		'method',
 		'enabled',
-		'installed',
-		'callsLog',
-		'random'
+		'installed'
 	],
 	#category : #MethodWrappers
 }
@@ -64,12 +62,6 @@ AbstractMethodWrapper class >> reset [
 	Smalltalk garbageCollect
 ]
 
-{ #category : #accessing }
-AbstractMethodWrapper >> callsLog [
-
-	^ callsLog
-]
-
 { #category : #actions }
 AbstractMethodWrapper >> disable [
 
@@ -91,14 +83,12 @@ AbstractMethodWrapper >> enable [
 { #category : #initialization }
 AbstractMethodWrapper >> initializeOn: aMethodReference [
 
-	  aMethodReference == aMethodReference compiledMethod
-		  ifTrue: [ 
-			  method := aMethodReference.
-			  installed := false.
-			  enabled := false.
-			  random := RandomGaussian seed: 17.
-			  callsLog := OrderedCollection new ]
-		  ifFalse: [ Error signal ]
+	            aMethodReference == aMethodReference compiledMethod
+		            ifTrue: [ 
+			            method := aMethodReference.
+			            installed := false.
+			            enabled := false ]
+		            ifFalse: [ Error signal ]
 ]
 
 { #category : #actions }
@@ -131,64 +121,44 @@ AbstractMethodWrapper >> method [
 ]
 
 { #category : #evaluation }
-AbstractMethodWrapper >> noticeExecutionWith: anArray in: aReceiver [
+AbstractMethodWrapper >> postRun: aSelector with: anArray in: aReceiver return: anObject carry: carry [
 
-	super subclassResponsibility
+	          
+]
+
+{ #category : #evaluation }
+AbstractMethodWrapper >> preRun: aSelector with: anArray in: aReceiver [
+
+	          
 ]
 
 { #category : #evaluation }
 AbstractMethodWrapper >> run: aSelector with: anArray in: aReceiver [
 
-	        | anAssoc result |
-	        aSelector == method selector ifFalse: [ Error signal ].
+	          | carry result witness |
+	          aSelector == method selector ifFalse: [ Error signal ].
 
-	        enabled
-		        ifTrue: [ 
-			        | messageSend |
-			        messageSend := (RSFullMessageSend
-				                        receiver: aReceiver
-				                        selector: method selector
-				                        arguments: anArray)
-				                       client: thisContext client;
-				                       callerSelector: thisContext sender selector;
-				                       yourself.
+	          witness := Object new.
 
-			        anAssoc := self timeKey -> messageSend.
+	          carry := enabled
+		                   ifTrue: [ 
+		                   self
+			                   preRun: aSelector
+			                   with: anArray
+			                   in: aReceiver ]
+		                   ifFalse: [ witness ].
 
-			        callsLog add: anAssoc.
+	          result := aReceiver withArgs: anArray executeMethod: method.
 
-			        self noticeExecutionWith: anArray in: aReceiver ]
-		        ifFalse: [ anAssoc := nil ].
+	          carry == witness ifFalse: [ 
+		          self
+			          postRun: aSelector
+			          with: anArray
+			          in: aReceiver
+			          return: result
+			          carry: carry ].
 
-	        result := aReceiver withArgs: anArray executeMethod: method.
-
-	        anAssoc ifNotNil: [ 
-		        | duration |
-		        duration := DateAndTime now
-		                    - (self startingOfTimeKey: anAssoc key) max:
-			                    (Duration milliSeconds: 1).
-
-		        self timeKey: anAssoc key duration: duration ].
-
-	        ^ result
-]
-
-{ #category : #evaluation }
-AbstractMethodWrapper >> startingOfTimeKey: aTimespan [
-
-	  ^ aTimespan start
-]
-
-{ #category : #evaluation }
-AbstractMethodWrapper >> timeKey [
-
-	  ^ Timespan starting: DateAndTime now duration: nil
-]
-
-{ #category : #evaluation }
-AbstractMethodWrapper >> timeKey: aTimeStan duration: duration [
-
-	  aTimeStan duration: duration
+	          ^ result
 ]
 
 { #category : #actions }

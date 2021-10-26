@@ -8,11 +8,13 @@ Class {
 }
 
 { #category : #evaluation }
-MethodTracingWrapper >> noticeExecutionWith: anArray in: aReceiver [
+MethodTracingWrapper >> preRun: aSelector with: anArray in: aReceiver [
 
-	Stdio stderr
-		nextPutAll: aReceiver class name;
-		nextPutAll: '>>#';
-		nextPutAll: method selector;
-		lf
+	          super preRun: aSelector with: anArray in: aReceiver.
+
+	          Stdio stderr
+		          nextPutAll: aReceiver class name;
+		          nextPutAll: '>>#';
+		          nextPutAll: method selector;
+		          lf
 ]

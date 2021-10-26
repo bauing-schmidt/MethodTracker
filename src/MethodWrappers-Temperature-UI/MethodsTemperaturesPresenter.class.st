@@ -377,157 +377,171 @@ MethodsTemperaturesPresenter >> initialize [
 { #category : #initialization }
 MethodsTemperaturesPresenter >> initializePresenters [
 
-	  super initializePresenters.
+	          super initializePresenters.
 
-	  toolbar := self newToolbar
-		             addStyle: 'stToolbar';
-		             fillWith: self toolbarActions;
-		             yourself.
-
-	  checkboxInstallOnAllMethods := self newCheckBox
-		                                 whenChangedDo: [ :aBoolean | 
-			                                 select enabled: aBoolean not ];
-		                                 yourself.
-
-	  allPackages := RPackageOrganizer default packages
-		                 asOrderedCollection sort: [ :a :b | 
-		                 a name < b name ].
-	  selectedPackages := Set empty.
-	  packagesList := self newTable addColumn:
-		                  (SpCompositeTableColumn new
-			                   addColumn: (SpCheckBoxTableColumn new
-					                    evaluated: [ :item | 
-						                    selectedPackages includes: item ];
-					                    onActivation: [ :item | 
-						                    selectedPackages add: item ];
-					                    onDeactivation: [ :item | 
-						                    selectedPackages remove: item ifAbsent: [  ] ];
-					                    width:
-						                    20 * self currentWorld displayScaleFactor;
-					                    yourself);
-			                   addColumn: (SpImageTableColumn new
-					                    width: 20;
-					                    evaluated: [ :each | 
-						                    self iconNamed: #package ];
-					                    yourself);
-			                   addColumn: (SpStringTableColumn new
-					                    evaluated: #name;
-					                    yourself);
-			                   yourself).
-
-	  packageNameText := self newTextInput
-		                     placeholder: 'Enter a package name';
-		                     autoAccept: true;
-		                     whenTextChangedDo: [ :text | 
-			                     self refreshPackagesTableWhenTextChanges: text ].
-
-	  self refreshPackagesTableWhenTextChanges: ''.
-
-	  select := (self instantiate: SpCodePresenter)
-		            withoutLineNumbers;
-		            beForScripting;
-		            enabled: checkboxInstallOnAllMethods state not;
-		            whenSubmitDo: [ :text | self updateVisualizations ];
-		            yourself.
-
-	  checkbox := self newCheckBox
-		              whenChangedDo: [ :ev | self updateVisualizations ];
-		              yourself.
-
-	  temperature := (self instantiate: SpCodePresenter)
-		                 withoutLineNumbers;
-		                 beForScripting;
-		                 whenSubmitDo: [ :text | self updateVisualizations ];
-		                 yourself.
-
-	  do := (self instantiate: SpCodePresenter)
-		        withoutLineNumbers;
-		        beForScripting;
-		        yourself.
-
-	  selectorsSorter := (self instantiate: SpCodePresenter)
-		                     withoutLineNumbers;
-		                     beForScripting;
-		                     whenSubmitDo: [ :text | 
-			                     self updateVisualizations ];
+	          toolbar := self newToolbar
+		                     addStyle: 'stToolbar';
+		                     fillWith: self toolbarActions;
 		                     yourself.
 
-	  classesSorter := (self instantiate: SpCodePresenter)
-		                   withoutLineNumbers;
-		                   beForScripting;
-		                   whenSubmitDo: [ :text | 
-			                   self updateVisualizations ];
-		                   yourself.
+	          checkboxInstallOnAllMethods := self newCheckBox
+		                                         whenChangedDo: [ :aBoolean | 
+			                                         select enabled:
+					                                         aBoolean not ];
+		                                         yourself.
 
-	  barChartSorter := (self instantiate: SpCodePresenter)
+	          allPackages := RPackageOrganizer default packages
+		                         asOrderedCollection sort: [ :a :b | 
+		                         a name < b name ].
+	          selectedPackages := Set empty.
+	          packagesList := self newTable addColumn:
+		                          (SpCompositeTableColumn new
+			                           addColumn: (SpCheckBoxTableColumn new
+					                            evaluated: [ :item | 
+						                            selectedPackages includes: item ];
+					                            onActivation: [ :item | 
+						                            selectedPackages add: item ];
+					                            onDeactivation: [ :item | 
+						                            selectedPackages
+							                            remove: item
+							                            ifAbsent: [  ] ];
+					                            width:
+						                            20
+						                            *
+							                            self currentWorld
+								                            displayScaleFactor;
+					                            yourself);
+			                           addColumn: (SpImageTableColumn new
+					                            width: 20;
+					                            evaluated: [ :each | 
+						                            self iconNamed: #package ];
+					                            yourself);
+			                           addColumn: (SpStringTableColumn new
+					                            evaluated: #name;
+					                            yourself);
+			                           yourself).
+
+	          packageNameText := self newTextInput
+		                             placeholder: 'Enter a package name';
+		                             autoAccept: true;
+		                             whenTextChangedDo: [ :text | 
+			                             self 
+				                             refreshPackagesTableWhenTextChanges:
+					                             text ].
+
+	          self refreshPackagesTableWhenTextChanges: ''.
+
+	          select := (self instantiate: SpCodePresenter)
 		                    withoutLineNumbers;
 		                    beForScripting;
+		                    enabled: checkboxInstallOnAllMethods state not;
 		                    whenSubmitDo: [ :text | 
 			                    self updateVisualizations ];
 		                    yourself.
 
-	  heatmap := self instantiate: SpRoassalPresenter.
-	  barChart := self instantiate: SpRoassalPresenter.
+	          checkbox := self newCheckBox
+		                      whenChangedDo: [ :ev | 
+			                      self updateVisualizations ];
+		                      yourself.
 
-	  table := self newTreeTable
-		           addColumn: (SpStringTableColumn
-				            title: 'Compiled methods by class'
-				            evaluated: [ :anObject | 
-					            anObject isCompiledMethod
-						            ifTrue: [ anObject selector ]
-						            ifFalse: [ anObject name ] ]);
-		           addColumn:
-			           (SpStringTableColumn
-				            title: 'Temperature'
-				            evaluated: [ :anObject | 
-					            anObject isCompiledMethod
-						            ifTrue: [ 
-							            methodsByClassDict
-								            at: anObject methodClass
-								            ifPresent: [ :associations | 
-									            | index |
-									            index := associations findFirst: [ :each | 
-											                     each key = anObject ].
-									            (associations at: index) value ] ]
-						            ifFalse: [ String empty ] ]);
-		           children: [ :aClass | 
-			           methodsByClassDict
-				           at: aClass
-				           ifPresent: [ :associations | 
-					           associations collect: #key ]
-				           ifAbsent: [ #(  ) ] ];
-		           beResizable;
-		           activateOnDoubleClick;
-		           whenActivatedDo: [ :selection | 
-			           selection selectedItem browse ];
-		           yourself.
+	          temperature := (self instantiate: SpCodePresenter)
+		                         withoutLineNumbers;
+		                         beForScripting;
+		                         whenSubmitDo: [ :text | 
+			                         self updateVisualizations ];
+		                         yourself.
 
-	  checkboxShowMessageSendsArgs := self newCheckBox
-		                                  label:
-			                                  'Show arguments of message sends';
-		                                  yourself.
+	          do := (self instantiate: SpCodePresenter)
+		                withoutLineNumbers;
+		                beForScripting;
+		                yourself.
 
-	  callsLog := (self instantiate: SpListPresenter)
-		              sortingBlock: [ :aWrapper :anotherWrapper | 
-			              aWrapper callsLog last key first
-			              > anotherWrapper callsLog last key first ];
-		              display: [ :aWrapper | 
-			              aWrapper callsLog last in: [ :anAssoc | 
-					              String streamContents: [ :aStream | 
-							              | msg |
-							              aStream
-								              nextPutAll:
-									              anAssoc key second start asTimeString;
-								              nextPutAll: ': '.
-							              msg := checkboxShowMessageSendsArgs state
-								                     ifTrue: [ anAssoc value asString ]
-								                     ifFalse: [ anAssoc value selector ].
-							              aStream nextPutAll: msg ] ] ];
-		              yourself.
+	          selectorsSorter := (self instantiate: SpCodePresenter)
+		                             withoutLineNumbers;
+		                             beForScripting;
+		                             whenSubmitDo: [ :text | 
+			                             self updateVisualizations ];
+		                             yourself.
 
-	  "Load a possible cconfiguration"
-	  configuration := self loadDefaultConfiguration.
-	  self applyConfiguration
+	          classesSorter := (self instantiate: SpCodePresenter)
+		                           withoutLineNumbers;
+		                           beForScripting;
+		                           whenSubmitDo: [ :text | 
+			                           self updateVisualizations ];
+		                           yourself.
+
+	          barChartSorter := (self instantiate: SpCodePresenter)
+		                            withoutLineNumbers;
+		                            beForScripting;
+		                            whenSubmitDo: [ :text | 
+			                            self updateVisualizations ];
+		                            yourself.
+
+	          heatmap := self instantiate: SpRoassalPresenter.
+	          barChart := self instantiate: SpRoassalPresenter.
+
+	          table := self newTreeTable
+		                   addColumn: (SpStringTableColumn
+				                    title: 'Compiled methods by class'
+				                    evaluated: [ :anObject | 
+					                    anObject isCompiledMethod
+						                    ifTrue: [ anObject selector ]
+						                    ifFalse: [ anObject name ] ]);
+		                   addColumn:
+			                   (SpStringTableColumn
+				                    title: 'Temperature'
+				                    evaluated: [ :anObject | 
+					                    anObject isCompiledMethod
+						                    ifTrue: [ 
+							                    methodsByClassDict
+								                    at: anObject methodClass
+								                    ifPresent: [ :associations | 
+									                    | index |
+									                    index := associations findFirst: [ :each | 
+											                             each key = anObject ].
+									                    (associations at: index) value ] ]
+						                    ifFalse: [ String empty ] ]);
+		                   children: [ :aClass | 
+			                   methodsByClassDict
+				                   at: aClass
+				                   ifPresent: [ :associations | 
+					                   associations collect: #key ]
+				                   ifAbsent: [ #(  ) ] ];
+		                   beResizable;
+		                   activateOnDoubleClick;
+		                   whenActivatedDo: [ :selection | 
+			                   selection selectedItem browse ];
+		                   yourself.
+
+	          checkboxShowMessageSendsArgs := self newCheckBox
+		                                          label:
+			                                          'Show arguments of message sends';
+		                                          yourself.
+
+	          callsLog := (self instantiate: SpListPresenter)
+		                      sortingBlock: [ :aWrapper :anotherWrapper | 
+			                      aWrapper callsLog last key logicalStart
+			                      >
+				                      anotherWrapper callsLog last key
+					                      logicalStart ];
+		                      display: [ :aWrapper | 
+			                      aWrapper callsLog last in: [ :anAssoc | 
+					                      String streamContents: [ :aStream | 
+							                      | msg |
+							                      aStream
+								                      nextPutAll:
+									                      anAssoc key start asTimeString;
+								                      nextPutAll: ': '.
+							                      msg := checkboxShowMessageSendsArgs state
+								                             ifTrue: [ anAssoc value asString ]
+								                             ifFalse: [ 
+								                             anAssoc value selector ].
+							                      aStream nextPutAll: msg ] ] ];
+		                      yourself.
+
+	          "Load a possible cconfiguration"
+	          configuration := self loadDefaultConfiguration.
+	          self applyConfiguration
 ]
 
 { #category : #initialization }
@@ -600,42 +614,39 @@ MethodsTemperaturesPresenter >> methodTemperatureWrappersDo: aBlock [
 { #category : #'dispatched commands' }
 MethodsTemperaturesPresenter >> overlappings: aCollection do: aBlock [
 
-	  aCollection ifNotEmpty: [ 
-		  | i j overlappings |
-		  overlappings := OrderedCollection with: aCollection first.
+	          aCollection ifNotEmpty: [ 
+		          | i j link |
+		          link := nil.
 
-		  i := 2.
-		  [ i <= aCollection size ] whileTrue: [ 
-			  | end current base |
-			  base := overlappings
-				          ifEmpty: [ 
-					          | next |
-					          next := aCollection at: i.
-					          overlappings add: next.
-					          next ]
-				          ifNotEmpty: [ overlappings first ].
+		          i := 1.
+		          [ i <= aCollection size ] whileTrue: [ 
+			          | end current start each |
+			          each := aCollection at: i.
 
-			  end := base key end.
-			  j := i + 1.
-			  [ 
-			  j <= aCollection size and: [ 
-				  current := aCollection at: j.
-				  current key start < end ] ] whileTrue: [ 
-				  overlappings add: current.
-				  current value
-					  ifToSelf: [ "Nothing to do here." ]
-					  ifNotToSelf: [ end := end min: current key end ].
-				  j := j + 1 ].
+			          start := each key start.
+			          end := each key end.
 
-			  aBlock value: overlappings.
+			          [ link isNotNil and: [ link value key end < start ] ] 
+				          whileTrue: [ link := link nextLink ].
 
-			  overlappings removeAll.
+			          link := each ~~> link.
 
-			  (j <= aCollection size and: [ 
-				   (aCollection at: j) key start < base key end ]) ifTrue: [ 
-				  overlappings add: base ].
+			          j := i + 1.
+			          [ 
+			          j <= aCollection size and: [ 
+				          current := aCollection at: j.
+				          current key start < end ] ] whileTrue: [ 
+				          link := current ~~> link.
 
-			  i := j ] ]
+				          current value
+					          ifSelfSend: [  ]
+					          ifNotSelfSend: [ end := current key end ].
+
+				          j := j + 1 ].
+
+			          aBlock value: (LinkedList with: link reversed).
+
+			          i := j ] ]
 ]
 
 { #category : #initialization }
@@ -727,18 +738,18 @@ MethodsTemperaturesPresenter >> runDoitWrappedTemperatureMethodsStCommand: aComm
 { #category : #'dispatched commands' }
 MethodsTemperaturesPresenter >> runInstallMethodTemperatureWrappersStCommand: aCommand [
 
-	  self installingWrappers: [ "First, allocate a wrapper for each compiled method selected by
+	          self installingWrappers: [ "First, allocate a wrapper for each compiled method selected by
 		 the given block (edited in the corresponding block presenter)."
-		  wrappers := DelayMethodTemperatureWrapper
-			              tick: 0;
-			              forPackages: selectedPackages
-			              selectMethod: [ :aMethod | 
-				              self selectBlock
-					              value: aMethod
-					              value: selectedPackages ].
+		          wrappers := DelayMethodTemperatureWrapper
+			                      tick: 0;
+			                      forPackages: selectedPackages
+			                      selectMethod: [ :aMethod | 
+				                      self selectBlock
+					                      value: aMethod
+					                      value: selectedPackages ].
 
-		  "Second, install the wrappers (possibly time-consuming)."
-		  self methodTemperatureWrappersDo: [ :each | each install ] ]
+		          "Second, install the wrappers (possibly time-consuming)."
+		          self methodTemperatureWrappersDo: [ :each | each install ] ]
 ]
 
 { #category : #'dispatched commands' }
@@ -752,58 +763,52 @@ MethodsTemperaturesPresenter >> runMeasureMethodsTemperaturesStCommand: aCommand
 { #category : #'dispatched commands' }
 MethodsTemperaturesPresenter >> runSequenceDiagramMethodsTemperaturesStCommand: aCommand [
 
-	        | orderedCalls shapes stackSelected sortBlock |
-	        sortBlock := [ :anAssoc :anotherAssoc | 
-	                     | aStart anotherStart |
-	                     aStart := anAssoc key second start.
-	                     anotherStart := anotherAssoc key second start.
-	                     aStart = anotherStart
-		                     ifTrue: [ 
-		                     anAssoc key first < anotherAssoc key first ]
-		                     ifFalse: [ aStart < anotherStart ] ].
+	          | orderedCalls shapes stackSelected sortBlock |
+	          sortBlock := [ :anAssoc :anotherAssoc | 
+	                       anAssoc key logicalStart
+	                       < anotherAssoc key logicalStart ].
+	          self halt.
+	          orderedCalls := (DelayMethodTemperatureWrapper callsLog 
+		                           asSortedCollection: sortBlock) collect: [ 
+		                          :each | each key second -> each value ].
 
-	        orderedCalls := ((wrappers flatCollect: [ :each | 
-		                          each callsLog ]) asSortedCollection:
-		                         sortBlock) collect: [ :each | 
-		                        each key second -> each value ].
+	          shapes := OrderedCollection new.
 
-	        shapes := OrderedCollection new.
+	          stackSelected := SpConfirmDialog new
+		                           title: 'Question';
+		                           label: 'Stack interactions vertically?';
+		                           acceptLabel: 'Yes';
+		                           cancelLabel: 'No';
+		                           openModalWithSpec.
 
-	        stackSelected := SpConfirmDialog new
-		                         title: 'Question';
-		                         label: 'Stack interactions vertically?';
-		                         acceptLabel: 'Yes';
-		                         cancelLabel: 'No';
-		                         openModalWithSpec.
+	          stackSelected
+		          ifTrue: [ 
+			          self overlappings: orderedCalls do: [ :overlappings | 
+					          | builder |
+					          builder := RSUMLSequenceBuilder new
+						                     messagesSends: overlappings;
+						                     build;
+						                     yourself.
 
-	        stackSelected
-		        ifTrue: [ 
-			        self overlappings: orderedCalls do: [ :overlappings | 
-					        | builder |
-					        builder := RSUMLSequenceBuilder new
-						                   messagesSends: overlappings;
-						                   build;
-						                   yourself.
+					          shapes add: builder canvas asShape ] ];
+		          ifFalse: [ 
+			          | builder |
+			          builder := RSUMLSequenceBuilder new
+				                     messagesSends: orderedCalls;
+				                     build;
+				                     yourself.
 
-					        shapes add: builder canvas asShape ] ];
-		        ifFalse: [ 
-			        | builder |
-			        builder := RSUMLSequenceBuilder new
-				                   messagesSends: orderedCalls;
-				                   build;
-				                   yourself.
+			          shapes add: builder canvas asShape ].
 
-			        shapes add: builder canvas asShape ].
+	          RSVerticalLineLayout new
+		          alignLeft;
+		          on: shapes.
 
-	        RSVerticalLineLayout new
-		        alignLeft;
-		        on: shapes.
-
-	        RSCanvas new
-		        addAll: shapes;
-		        addInteraction: RSCanvasController new;
-		        zoomToFit;
-		        open
+	          RSCanvas new
+		          addAll: shapes;
+		          addInteraction: RSCanvasController new;
+		          zoomToFit;
+		          open
 ]
 
 { #category : #charting }
