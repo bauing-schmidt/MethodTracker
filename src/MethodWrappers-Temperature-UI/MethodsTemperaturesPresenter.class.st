@@ -614,41 +614,45 @@ MethodsTemperaturesPresenter >> methodTemperatureWrappersDo: aBlock [
 { #category : #'dispatched commands' }
 MethodsTemperaturesPresenter >> overlappings: aCollection do: aBlock [
 
-	            aCollection ifNotEmpty: [ 
-		            | i j link |
-		            link := nil.
+	                  aCollection ifNotEmpty: [ 
+		                  | i j link |
+		                  link := nil.
 
-		            i := 1.
-		            [ i <= aCollection size ] whileTrue: [ 
-			            | end current start each |
-			            each := aCollection at: i.
+		                  i := 1.
+		                  [ i <= aCollection size ] whileTrue: [ 
+			                  | end current start each |
+			                  each := aCollection at: i.
 
-			            start := each key logicalStart.
-			            end := each key logicalEnd.
+			                  start := each key logicalStart.
+			                  end := each key logicalEnd.
 
-			            [ 
-			            link isNotNil and: [ link value key logicalEnd <= start ] ] 
-				            whileTrue: [ link := link nextLink ].
+			                  [ 
+			                  link isNotNil and: [ 
+				                  link value key logicalEnd <= start ] ] 
+				                  whileTrue: [ link := link nextLink ].
 
-			            link := each ~~> link.
+			                  link := each ~~> link.
 
-			            j := i + 1.
-			            [ 
-			            j <= aCollection size and: [ 
-				            current := aCollection at: j.
-				            current key logicalStart < end ] ] whileTrue: [ 
-				            link := current ~~> link.
+			                  j := i + 1.
+			                  [ 
+			                  j <= aCollection size and: [ 
+				                  current := aCollection at: j.
+				                  current key logicalStart < end ] ] whileTrue: [ 
+				                  link := current ~~> link.
 
-				            current value
-					            ifSelfSend: [  ]
-					            ifNotSelfSend: [ 
-					            end := end min: current key logicalEnd ].
+				                  current value
+					                  ifSelfSend: [  ]
+					                  ifNotSelfSend: [ 
+					                  end := end min: current key logicalEnd ].
 
-				            j := j + 1 ].
+				                  j := j + 1 ].
 
-			            aBlock value: (LinkedList with: link reversed).
 
-			            i := j ] ]
+			                  aBlock value: (OrderedCollection new
+					                   addAll: link reversed;
+					                   yourself).
+
+			                  i := j ] ]
 ]
 
 { #category : #initialization }
