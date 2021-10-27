@@ -121,44 +121,48 @@ AbstractMethodWrapper >> method [
 ]
 
 { #category : #evaluation }
-AbstractMethodWrapper >> postRun: aSelector with: anArray in: aReceiver return: anObject carry: carry [
-
-	          
-]
-
-{ #category : #evaluation }
-AbstractMethodWrapper >> preRun: aSelector with: anArray in: aReceiver [
-
-	          
-]
-
-{ #category : #evaluation }
 AbstractMethodWrapper >> run: aSelector with: anArray in: aReceiver [
 
-	          | carry result witness |
-	          aSelector == method selector ifFalse: [ Error signal ].
+	            | carry result witness |
+	            aSelector == method selector ifFalse: [ Error signal ].
 
-	          witness := Object new.
+	            witness := Object new.
 
-	          carry := enabled
-		                   ifTrue: [ 
-		                   self
-			                   preRun: aSelector
-			                   with: anArray
-			                   in: aReceiver ]
-		                   ifFalse: [ witness ].
+	            carry := enabled
+		                     ifTrue: [ 
+			                     self
+				                     run: aSelector
+				                     with: anArray
+				                     in: aReceiver
+				                     pre: thisContext ]
+		                     ifFalse: [ witness ].
 
-	          result := aReceiver withArgs: anArray executeMethod: method.
+	            result := aReceiver
+		                      withArgs: anArray
+		                      executeMethod: method.
 
-	          carry == witness ifFalse: [ 
-		          self
-			          postRun: aSelector
-			          with: anArray
-			          in: aReceiver
-			          return: result
-			          carry: carry ].
+	            carry == witness ifFalse: [ 
+		            self
+			            run: aSelector
+			            with: anArray
+			            in: aReceiver
+			            post: thisContext
+			            return: result
+			            carry: carry ].
 
-	          ^ result
+	            ^ result
+]
+
+{ #category : #evaluation }
+AbstractMethodWrapper >> run: aSelector with: anArray in: aReceiver post: aContext return: anObject carry: carry [
+
+	            
+]
+
+{ #category : #evaluation }
+AbstractMethodWrapper >> run: aSelector with: anArray in: aReceiver pre: aContext [
+
+	            
 ]
 
 { #category : #actions }

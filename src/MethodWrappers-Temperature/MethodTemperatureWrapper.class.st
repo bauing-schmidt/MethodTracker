@@ -39,9 +39,13 @@ MethodTemperatureWrapper >> initializeOn: aMethodReference [
 ]
 
 { #category : #evaluation }
-MethodTemperatureWrapper >> preRun: aSelector with: anArray in: aReceiver [
+MethodTemperatureWrapper >> run: aSelector with: anArray in: aReceiver pre: aContext [
 
-	          super preRun: aSelector with: anArray in: aReceiver.
+	            super
+		            run: aSelector
+		            with: anArray
+		            in: aReceiver
+		            pre: aContext.
 
-	          count := count + 1
+	            count := count + 1
 ]

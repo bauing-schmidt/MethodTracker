@@ -20,6 +20,12 @@ LogicalTimespan >> logicalDuration: anObject [
 	logicalDuration := anObject
 ]
 
+{ #category : #'as yet unclassified' }
+LogicalTimespan >> logicalEnd [
+
+	          ^ self logicalStart + self logicalDuration
+]
+
 { #category : #accessing }
 LogicalTimespan >> logicalStart [
 

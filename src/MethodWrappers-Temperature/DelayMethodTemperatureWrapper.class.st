@@ -44,62 +44,67 @@ DelayMethodTemperatureWrapper >> callsLog [
 ]
 
 { #category : #evaluation }
-DelayMethodTemperatureWrapper >> postRun: aSelector with: anArray in: aReceiver return: anObject carry: anAssoc [
+DelayMethodTemperatureWrapper >> run: aSelector with: anArray in: aReceiver post: aContext return: anObject carry: anAssoc [
 
-	          | logicalDuration timespan |
-	          timespan := anAssoc key.
+	            | logicalDuration timespan |
+	            timespan := anAssoc key.
 
-	          mutex critical: [ 
-		          | index continue |
-		          logicalDuration := 0.
-		          index := callsLog size.
-		          continue := true.
-		          [ continue and: [ index > 0 ] ] whileTrue: [ 
-			          | each |
-			          each := callsLog at: index.
-			          each isAssociation ifTrue: [ 
-				          logicalDuration := logicalDuration + 1.
-				          each == anAssoc ifTrue: [ continue := false ] ].
-			          index := index - 1 ].
+	            mutex critical: [ 
+		            | index continue |
+		            logicalDuration := 0.
+		            index := callsLog size.
+		            continue := true.
+		            [ continue and: [ index > 0 ] ] whileTrue: [ 
+			            | each |
+			            each := callsLog at: index.
+			            each isAssociation ifTrue: [ 
+				            logicalDuration := logicalDuration + 1.
+				            each == anAssoc ifTrue: [ continue := false ] ].
+			            index := index - 1 ].
 
-		          callsLog add: (LookupKey new
-				           key: anAssoc;
-				           yourself) ].
+		            callsLog add: (LookupKey new
+				             key: anAssoc;
+				             yourself) ].
 
-	          timespan
-		          duration: DateAndTime now - timespan start;
-		          logicalDuration: logicalDuration
+	            timespan
+		            duration: DateAndTime now - timespan start;
+		            logicalDuration: logicalDuration
 ]
 
 { #category : #evaluation }
-DelayMethodTemperatureWrapper >> preRun: aSelector with: anArray in: aReceiver [
+DelayMethodTemperatureWrapper >> run: aSelector with: anArray in: aReceiver pre: aContext [
 
-	          | messageSend |
-	          super preRun: aSelector with: anArray in: aReceiver.
+	                | messageSend |
+	                super
+		                run: aSelector
+		                with: anArray
+		                in: aReceiver
+		                pre: aContext.
 
-	          messageSend := (RSFullMessageSend
-		                          receiver: aReceiver
-		                          selector: aSelector
-		                          arguments: anArray)
-		                         client: thisContext client;
-		                         callerSelector: thisContext sender selector;
-		                         yourself.
+	                messageSend := (RSFullMessageSend
+		                                receiver: aReceiver
+		                                selector: aSelector
+		                                arguments: anArray)
+		                               client: aContext client;
+		                               callerSelector:
+			                               aContext sender selector;
+		                               yourself.
 
-	          ^ mutex critical: [ 
-		            | span anAssoc |
-		            span := LogicalTimespan new
-			                    start: DateAndTime now;
-			                    duration: nil;
-			                    logicalStart: tick;
-			                    logicalDuration: nil;
-			                    yourself.
+	                ^ mutex critical: [ 
+		                  | span anAssoc |
+		                  span := LogicalTimespan new
+			                          start: DateAndTime now;
+			                          duration: nil;
+			                          logicalStart: tick;
+			                          logicalDuration: nil;
+			                          yourself.
 
-		            tick := tick + 1.
+		                  tick := tick + 1.
 
-		            anAssoc := span -> messageSend.
+		                  anAssoc := span -> messageSend.
 
-		            callsLog add: anAssoc.
+		                  callsLog add: anAssoc.
 
-		            "The following object will be received in the post run message."
-		            anAssoc ]
+		                  "The following object will be received in the post run message."
+		                  anAssoc ]
 ]

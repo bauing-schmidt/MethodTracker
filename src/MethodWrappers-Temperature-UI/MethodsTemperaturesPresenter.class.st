@@ -614,39 +614,41 @@ MethodsTemperaturesPresenter >> methodTemperatureWrappersDo: aBlock [
 { #category : #'dispatched commands' }
 MethodsTemperaturesPresenter >> overlappings: aCollection do: aBlock [
 
-	          aCollection ifNotEmpty: [ 
-		          | i j link |
-		          link := nil.
+	            aCollection ifNotEmpty: [ 
+		            | i j link |
+		            link := nil.
 
-		          i := 1.
-		          [ i <= aCollection size ] whileTrue: [ 
-			          | end current start each |
-			          each := aCollection at: i.
+		            i := 1.
+		            [ i <= aCollection size ] whileTrue: [ 
+			            | end current start each |
+			            each := aCollection at: i.
 
-			          start := each key start.
-			          end := each key end.
+			            start := each key logicalStart.
+			            end := each key logicalEnd.
 
-			          [ link isNotNil and: [ link value key end < start ] ] 
-				          whileTrue: [ link := link nextLink ].
+			            [ 
+			            link isNotNil and: [ link value key logicalEnd <= start ] ] 
+				            whileTrue: [ link := link nextLink ].
 
-			          link := each ~~> link.
+			            link := each ~~> link.
 
-			          j := i + 1.
-			          [ 
-			          j <= aCollection size and: [ 
-				          current := aCollection at: j.
-				          current key start < end ] ] whileTrue: [ 
-				          link := current ~~> link.
+			            j := i + 1.
+			            [ 
+			            j <= aCollection size and: [ 
+				            current := aCollection at: j.
+				            current key logicalStart < end ] ] whileTrue: [ 
+				            link := current ~~> link.
 
-				          current value
-					          ifSelfSend: [  ]
-					          ifNotSelfSend: [ end := current key end ].
+				            current value
+					            ifSelfSend: [  ]
+					            ifNotSelfSend: [ 
+					            end := end min: current key logicalEnd ].
 
-				          j := j + 1 ].
+				            j := j + 1 ].
 
-			          aBlock value: (LinkedList with: link reversed).
+			            aBlock value: (LinkedList with: link reversed).
 
-			          i := j ] ]
+			            i := j ] ]
 ]
 
 { #category : #initialization }
@@ -763,52 +765,52 @@ MethodsTemperaturesPresenter >> runMeasureMethodsTemperaturesStCommand: aCommand
 { #category : #'dispatched commands' }
 MethodsTemperaturesPresenter >> runSequenceDiagramMethodsTemperaturesStCommand: aCommand [
 
-	          | orderedCalls shapes stackSelected sortBlock |
-	          sortBlock := [ :anAssoc :anotherAssoc | 
-	                       anAssoc key logicalStart
-	                       < anotherAssoc key logicalStart ].
-	          self halt.
-	          orderedCalls := (DelayMethodTemperatureWrapper callsLog 
-		                           asSortedCollection: sortBlock) collect: [ 
-		                          :each | each key second -> each value ].
+	            | orderedCalls shapes stackSelected sortBlock |
+	            sortBlock := [ :anAssoc :anotherAssoc | 
+	                         anAssoc key logicalStart
+	                         < anotherAssoc key logicalStart ].
 
-	          shapes := OrderedCollection new.
+	            orderedCalls := (DelayMethodTemperatureWrapper callsLog 
+		                             select: [ :each | each isAssociation ]) 
+		                            asSortedCollection: sortBlock.
 
-	          stackSelected := SpConfirmDialog new
-		                           title: 'Question';
-		                           label: 'Stack interactions vertically?';
-		                           acceptLabel: 'Yes';
-		                           cancelLabel: 'No';
-		                           openModalWithSpec.
+	            shapes := OrderedCollection new.
 
-	          stackSelected
-		          ifTrue: [ 
-			          self overlappings: orderedCalls do: [ :overlappings | 
-					          | builder |
-					          builder := RSUMLSequenceBuilder new
-						                     messagesSends: overlappings;
-						                     build;
-						                     yourself.
+	            stackSelected := SpConfirmDialog new
+		                             title: 'Question';
+		                             label: 'Stack interactions vertically?';
+		                             acceptLabel: 'Yes';
+		                             cancelLabel: 'No';
+		                             openModalWithSpec.
 
-					          shapes add: builder canvas asShape ] ];
-		          ifFalse: [ 
-			          | builder |
-			          builder := RSUMLSequenceBuilder new
-				                     messagesSends: orderedCalls;
-				                     build;
-				                     yourself.
+	            stackSelected
+		            ifTrue: [ 
+			            self overlappings: orderedCalls do: [ :overlappings | 
+					            | builder |
+					            builder := RSUMLSequenceBuilder new
+						                       messagesSends: overlappings;
+						                       build;
+						                       yourself.
 
-			          shapes add: builder canvas asShape ].
+					            shapes add: builder canvas asShape ] ];
+		            ifFalse: [ 
+			            | builder |
+			            builder := RSUMLSequenceBuilder new
+				                       messagesSends: orderedCalls;
+				                       build;
+				                       yourself.
 
-	          RSVerticalLineLayout new
-		          alignLeft;
-		          on: shapes.
+			            shapes add: builder canvas asShape ].
 
-	          RSCanvas new
-		          addAll: shapes;
-		          addInteraction: RSCanvasController new;
-		          zoomToFit;
-		          open
+	            RSVerticalLineLayout new
+		            alignLeft;
+		            on: shapes.
+
+	            RSCanvas new
+		            addAll: shapes;
+		            addInteraction: RSCanvasController new;
+		            zoomToFit;
+		            open
 ]
 
 { #category : #charting }
