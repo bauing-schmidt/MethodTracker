@@ -791,8 +791,10 @@ MethodsTemperaturesPresenter >> runSequenceDiagramMethodsTemperaturesStCommand: 
 
 	                  stackSelected
 		                  ifTrue: [ 
-			                  | previousOverlappings |
+			                  | previousOverlappings previousHeaders |
 			                  previousOverlappings := OrderedCollection new.
+			                  previousHeaders := OrderedCollection new.
+
 			                  self
 				                  overlappings: orderedCalls
 				                  do: [ :overlappings | 
@@ -801,10 +803,13 @@ MethodsTemperaturesPresenter >> runSequenceDiagramMethodsTemperaturesStCommand: 
 						                             messagesSends: overlappings;
 						                             previousMessagesSends:
 							                             previousOverlappings;
+						                             previousHeaders: previousHeaders;
 						                             build;
 						                             yourself.
 
 					                  shapes add: builder canvas asShape.
+					                  previousHeaders := builder modelDescriptor
+						                                     columns.
 					                  previousOverlappings := overlappings ] ];
 		                  ifFalse: [ 
 			                  | builder |
