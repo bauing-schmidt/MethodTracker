@@ -807,10 +807,12 @@ MethodsTemperaturesPresenter >> runSequenceDiagramMethodsTemperaturesStCommand: 
 						                             build;
 						                             yourself.
 
-					                  shapes add: builder canvas asShape.
 					                  previousHeaders := builder modelDescriptor
 						                                     columns.
-					                  previousOverlappings := overlappings ] ];
+					                  previousOverlappings := overlappings.
+
+					                  builder canvas shapes ifNotEmpty: [ 
+						                  shapes add: builder canvas asShape ] ] ];
 		                  ifFalse: [ 
 			                  | builder |
 			                  builder := RSUMLSequenceBuilder new
