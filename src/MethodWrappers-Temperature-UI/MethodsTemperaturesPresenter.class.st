@@ -815,6 +815,10 @@ MethodsTemperaturesPresenter >> runSequenceDiagramMethodsTemperaturesStCommand: 
 			                  | builder |
 			                  builder := RSUMLSequenceBuilder new
 				                             messagesSends: orderedCalls;
+				                             previousHeaders:
+					                             OrderedCollection new;
+				                             previousMessagesSends:
+					                             OrderedCollection new;
 				                             build;
 				                             yourself.
 
