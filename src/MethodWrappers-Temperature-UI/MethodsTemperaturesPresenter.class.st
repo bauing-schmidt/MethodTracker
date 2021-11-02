@@ -769,72 +769,73 @@ MethodsTemperaturesPresenter >> runMeasureMethodsTemperaturesStCommand: aCommand
 { #category : #'dispatched commands' }
 MethodsTemperaturesPresenter >> runSequenceDiagramMethodsTemperaturesStCommand: aCommand [
 
-	                  | orderedCalls shapes stackSelected sortBlock |
-	                  sortBlock := [ :anAssoc :anotherAssoc | 
-	                               anAssoc key logicalStart
-	                               < anotherAssoc key logicalStart ].
+	                    | orderedCalls shapes stackSelected sortBlock |
+	                    sortBlock := [ :anAssoc :anotherAssoc | 
+	                                 anAssoc key logicalStart
+	                                 < anotherAssoc key logicalStart ].
 
-	                  orderedCalls := (DelayMethodTemperatureWrapper
-		                                   callsLog select: [ :each | 
-		                                   each isAssociation ]) 
-		                                  asSortedCollection: sortBlock.
+	                    orderedCalls := (DelayMethodTemperatureWrapper
+		                                     callsLog select: [ :each | 
+		                                     each isAssociation ]) 
+		                                    asSortedCollection: sortBlock.
 
-	                  shapes := OrderedCollection new.
+	                    shapes := OrderedCollection new.
 
-	                  stackSelected := SpConfirmDialog new
-		                                   title: 'Question';
-		                                   label:
-			                                   'Stack interactions vertically?';
-		                                   acceptLabel: 'Yes';
-		                                   cancelLabel: 'No';
-		                                   openModalWithSpec.
+	                    stackSelected := SpConfirmDialog new
+		                                     title: 'Question';
+		                                     label:
+			                                     'Stack interactions vertically?';
+		                                     acceptLabel: 'Yes';
+		                                     cancelLabel: 'No';
+		                                     openModalWithSpec.
 
-	                  stackSelected
-		                  ifTrue: [ 
-			                  | previousOverlappings previousHeaders |
-			                  previousOverlappings := OrderedCollection new.
-			                  previousHeaders := OrderedCollection new.
+	                    stackSelected
+		                    ifTrue: [ 
+			                    | previousOverlappings previousHeaders |
+			                    previousOverlappings := OrderedCollection new.
+			                    previousHeaders := OrderedCollection new.
 
-			                  self
-				                  overlappings: orderedCalls
-				                  do: [ :overlappings | 
-					                  | builder |
-					                  builder := RSUMLSequenceBuilder new
-						                             messagesSends: overlappings;
-						                             previousMessagesSends:
-							                             previousOverlappings;
-						                             previousHeaders: previousHeaders;
-						                             build;
-						                             yourself.
+			                    self
+				                    overlappings: orderedCalls
+				                    do: [ :overlappings | 
+					                    | builder |
+					                    builder := RSUMLSequenceBuilder new
+						                               messagesSends: overlappings;
+						                               previousMessagesSends:
+							                               previousOverlappings;
+						                               previousHeaders: previousHeaders;
+						                               build;
+						                               yourself.
 
-					                  previousHeaders := builder modelDescriptor
-						                                     columns.
-					                  previousOverlappings := overlappings.
+					                    previousHeaders := builder modelDescriptor
+						                                       columns.
+					                    previousOverlappings := overlappings.
 
-					                  builder canvas shapes ifNotEmpty: [ 
-						                  shapes add: builder canvas asShape ] ] ];
-		                  ifFalse: [ 
-			                  | builder |
-			                  builder := RSUMLSequenceBuilder new
-				                             messagesSends: orderedCalls;
-				                             previousHeaders:
-					                             OrderedCollection new;
-				                             previousMessagesSends:
-					                             OrderedCollection new;
-				                             build;
-				                             yourself.
+					                    builder canvas shapes ifNotEmpty: [ 
+						                    shapes add: builder canvas asShape ] ] ];
+		                    ifFalse: [ 
+			                    | builder |
+			                    builder := RSUMLSequenceBuilder new
+				                               messagesSends: orderedCalls;
+				                               previousHeaders:
+					                               OrderedCollection new;
+				                               previousMessagesSends:
+					                               OrderedCollection new;
+				                               build;
+				                               yourself.
 
-			                  shapes add: builder canvas asShape ].
+			                    shapes add: builder canvas asShape ].
 
-	                  RSVerticalLineLayout new
-		                  alignLeft;
-		                  on: shapes.
+	                    RSVerticalLineLayout new
+		                    verticalGap: 0;
+		                    alignLeft;
+		                    on: shapes.
 
-	                  RSCanvas new
-		                  addAll: shapes;
-		                  addInteraction: RSCanvasController new;
-		                  zoomToFit;
-		                  open
+	                    RSCanvas new
+		                    addAll: shapes;
+		                    addInteraction: RSCanvasController new;
+		                    zoomToFit;
+		                    open
 ]
 
 { #category : #charting }
