@@ -46,29 +46,70 @@ DelayMethodTemperatureWrapper >> callsLog [
 { #category : #evaluation }
 DelayMethodTemperatureWrapper >> run: aSelector with: anArray in: aReceiver post: aContext return: anObject carry: anAssoc [
 
-	            | logicalDuration timespan |
-	            timespan := anAssoc key.
+	                                                  | logicalDuration timespan returnTimespan |
+	                                                  timespan := anAssoc
+		                                                              key.
 
-	            mutex critical: [ 
-		            | index continue |
-		            logicalDuration := 0.
-		            index := callsLog size.
-		            continue := true.
-		            [ continue and: [ index > 0 ] ] whileTrue: [ 
-			            | each |
-			            each := callsLog at: index.
-			            each isAssociation ifTrue: [ 
-				            logicalDuration := logicalDuration + 1.
-				            each == anAssoc ifTrue: [ continue := false ] ].
-			            index := index - 1 ].
+	                                                  mutex critical: [ 
+		                                                  | index continue |
+		                                                  logicalDuration := 0.
+		                                                  index := callsLog
+			                                                           size.
+		                                                  continue := true.
+		                                                  [ 
+		                                                  continue and: [ 
+			                                                  index > 0 ] ] 
+			                                                  whileTrue: [ 
+				                                                  | each |
+				                                                  each := callsLog 
+					                                                          at:
+					                                                          index.
+					logicalDuration := logicalDuration + 1.
+					
+				                                                  each value
+					                                                  ifMessageSend: [ 
+					                                                   ]
+					                                                  ifReturnMessageSend: [ 
+					                                                  :aMessageSend | 
+					                                                   ].
+				                                                  each == anAssoc 
+					                                                  ifTrue: [ 
+					                                                  continue := false ].
+				                                                  index := index
+				                                                           - 1 ].
 
-		            callsLog add: (LookupKey new
-				             key: anAssoc;
-				             yourself) ].
+		                                                  anAssoc value
+			                                                  ifSelfSend: [ 
+			                                                  returnTimespan := nil ]
+			                                                  ifNotSelfSend: [ 
+				                                                  returnTimespan := LogicalTimespan
+					                                                                    new.
 
-	            timespan
-		            duration: DateAndTime now - timespan start;
-		            logicalDuration: logicalDuration
+				                                                  callsLog add:
+					                                                  returnTimespan
+					                                                  ->
+					                                                  anAssoc value
+						                                                  asReturnMessageSend ] ].
+
+	                                                  timespan
+		                                                  duration:
+			                                                  DateAndTime now
+			                                                  - timespan start;
+		                                                  logicalDuration:
+			                                                  logicalDuration.
+
+	                                                  returnTimespan 
+		                                                  ifNotNil: [ 
+			                                                  returnTimespan
+				                                                  start: timespan end;
+				                                                  duration:
+					                                                  Duration zero;
+				                                                  logicalStart:
+					                                                  timespan
+						                                                  logicalEnd;
+				                                                  
+				                                                  logicalDuration:
+					                                                  -1 ]
 ]
 
 { #category : #evaluation }

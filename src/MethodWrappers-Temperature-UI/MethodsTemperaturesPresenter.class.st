@@ -775,8 +775,8 @@ MethodsTemperaturesPresenter >> runSequenceDiagramMethodsTemperaturesStCommand: 
 	                                 < anotherAssoc key logicalStart ].
 
 	                    orderedCalls := (DelayMethodTemperatureWrapper
-		                                     callsLog select: [ :each | 
-		                                     each isAssociation ]) 
+		                                     callsLog "select: [ :each | 
+		                                     each isAssociation ]") 
 		                                    asSortedCollection: sortBlock.
 
 	                    shapes := OrderedCollection new.
