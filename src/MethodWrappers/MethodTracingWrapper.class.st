@@ -10,15 +10,15 @@ Class {
 { #category : #evaluation }
 MethodTracingWrapper >> run: aSelector with: anArray in: aReceiver pre: aContext [
 
-	            super
-		            run: aSelector
-		            with: anArray
-		            in: aReceiver
-		            pre: aContext.
+	super
+		run: aSelector
+		with: anArray
+		in: aReceiver
+		pre: aContext.
 
-	            Stdio stderr
-		            nextPutAll: aReceiver class name;
-		            nextPutAll: '>>#';
-		            nextPutAll: method selector;
-		            lf
+	Stdio stderr
+		nextPutAll: aReceiver class name;
+		nextPutAll: '>>#';
+		nextPutAll: method selector;
+		lf
 ]

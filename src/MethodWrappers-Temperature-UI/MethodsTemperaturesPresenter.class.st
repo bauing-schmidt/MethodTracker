@@ -614,45 +614,42 @@ MethodsTemperaturesPresenter >> methodTemperatureWrappersDo: aBlock [
 { #category : #'dispatched commands' }
 MethodsTemperaturesPresenter >> overlappings: aCollection do: aBlock [
 
-	                  aCollection ifNotEmpty: [ 
-		                  | i j link |
-		                  link := nil.
+	aCollection ifNotEmpty: [ 
+		| i j link |
+		link := nil.
 
-		                  i := 1.
-		                  [ i <= aCollection size ] whileTrue: [ 
-			                  | end current start each |
-			                  each := aCollection at: i.
+		i := 1.
+		[ i <= aCollection size ] whileTrue: [ 
+			| end current start each |
+			each := aCollection at: i.
 
-			                  start := each key logicalStart.
-			                  end := each key logicalEnd.
+			start := each key logicalStart.
+			end := each key logicalEnd.
 
-			                  [ 
-			                  link isNotNil and: [ 
-				                  link value key logicalEnd <= start ] ] 
-				                  whileTrue: [ link := link nextLink ].
+			[ link isNotNil and: [ link value key logicalEnd <= start ] ] 
+				whileTrue: [ link := link nextLink ].
 
-			                  link := each ~~> link.
+			link := each ~~> link.
 
-			                  j := i + 1.
-			                  [ 
-			                  j <= aCollection size and: [ 
-				                  current := aCollection at: j.
-				                  current key logicalStart < end ] ] whileTrue: [ 
-				                  link := current ~~> link.
+			j := i + 1.
+			[ 
+			j <= aCollection size and: [ 
+				current := aCollection at: j.
+				current key logicalStart < end ] ] whileTrue: [ 
+				link := current ~~> link.
 
-				                  current value
-					                  ifSelfSend: [  ]
-					                  ifNotSelfSend: [ 
-					                  end := end min: current key logicalEnd ].
+				current value
+					ifSelfSend: [  ]
+					ifNotSelfSend: [ end := end min: current key logicalEnd ].
 
-				                  j := j + 1 ].
+				j := j + 1 ].
 
 
-			                  aBlock value: (OrderedCollection new
-					                   addAll: link reversed;
-					                   yourself).
+			aBlock value: (OrderedCollection new
+					 addAll: link reversed;
+					 yourself).
 
-			                  i := j ] ]
+			i := j ] ]
 ]
 
 { #category : #initialization }
@@ -744,18 +741,18 @@ MethodsTemperaturesPresenter >> runDoitWrappedTemperatureMethodsStCommand: aComm
 { #category : #'dispatched commands' }
 MethodsTemperaturesPresenter >> runInstallMethodTemperatureWrappersStCommand: aCommand [
 
-	          self installingWrappers: [ "First, allocate a wrapper for each compiled method selected by
+	self installingWrappers: [ "First, allocate a wrapper for each compiled method selected by
 		 the given block (edited in the corresponding block presenter)."
-		          wrappers := DelayMethodTemperatureWrapper
-			                      tick: 0;
-			                      forPackages: selectedPackages
-			                      selectMethod: [ :aMethod | 
-				                      self selectBlock
-					                      value: aMethod
-					                      value: selectedPackages ].
+		wrappers := DelayMethodTemperatureWrapper
+			            tick: 0;
+			            forPackages: selectedPackages
+			            selectMethod: [ :aMethod | 
+				            self selectBlock
+					            value: aMethod
+					            value: selectedPackages ].
 
-		          "Second, install the wrappers (possibly time-consuming)."
-		          self methodTemperatureWrappersDo: [ :each | each install ] ]
+		"Second, install the wrappers (possibly time-consuming)."
+		self methodTemperatureWrappersDo: [ :each | each install ] ]
 ]
 
 { #category : #'dispatched commands' }
@@ -769,73 +766,64 @@ MethodsTemperaturesPresenter >> runMeasureMethodsTemperaturesStCommand: aCommand
 { #category : #'dispatched commands' }
 MethodsTemperaturesPresenter >> runSequenceDiagramMethodsTemperaturesStCommand: aCommand [
 
-	                    | orderedCalls shapes stackSelected sortBlock |
-	                    sortBlock := [ :anAssoc :anotherAssoc | 
-	                                 anAssoc key logicalStart
-	                                 < anotherAssoc key logicalStart ].
+	| orderedCalls shapes stackSelected sortBlock |
+	sortBlock := [ :anAssoc :anotherAssoc | 
+	             anAssoc key logicalStart < anotherAssoc key logicalStart ].
 
-	                    orderedCalls := (DelayMethodTemperatureWrapper
-		                                     callsLog "select: [ :each | 
-		                                     each isAssociation ]") 
-		                                    asSortedCollection: sortBlock.
+	orderedCalls := DelayMethodTemperatureWrapper callsLog 
+		                asSortedCollection: sortBlock. "select: [ :each | 
+		                                     each isAssociation ]"
 
-	                    shapes := OrderedCollection new.
+	shapes := OrderedCollection new.
 
-	                    stackSelected := SpConfirmDialog new
-		                                     title: 'Question';
-		                                     label:
-			                                     'Stack interactions vertically?';
-		                                     acceptLabel: 'Yes';
-		                                     cancelLabel: 'No';
-		                                     openModalWithSpec.
+	stackSelected := SpConfirmDialog new
+		                 title: 'Question';
+		                 label: 'Stack interactions vertically?';
+		                 acceptLabel: 'Yes';
+		                 cancelLabel: 'No';
+		                 openModalWithSpec.
 
-	                    stackSelected
-		                    ifTrue: [ 
-			                    | previousOverlappings previousHeaders |
-			                    previousOverlappings := OrderedCollection new.
-			                    previousHeaders := OrderedCollection new.
+	stackSelected
+		ifTrue: [ 
+			| previousOverlappings previousHeaders |
+			previousOverlappings := OrderedCollection new.
+			previousHeaders := OrderedCollection new.
 
-			                    self
-				                    overlappings: orderedCalls
-				                    do: [ :overlappings | 
-					                    | builder |
-					                    builder := RSUMLSequenceBuilder new
-						                               messagesSends: overlappings;
-						                               previousMessagesSends:
-							                               previousOverlappings;
-						                               previousHeaders: previousHeaders;
-						                               build;
-						                               yourself.
+			self overlappings: orderedCalls do: [ :overlappings | 
+					| builder |
+					builder := RSUMLSequenceBuilder new
+						           messagesSends: overlappings;
+						           previousMessagesSends: previousOverlappings;
+						           previousHeaders: previousHeaders;
+						           build;
+						           yourself.
 
-					                    previousHeaders := builder modelDescriptor
-						                                       columns.
-					                    previousOverlappings := overlappings.
+					previousHeaders := builder modelDescriptor columns.
+					previousOverlappings := overlappings.
 
-					                    builder canvas shapes ifNotEmpty: [ 
-						                    shapes add: builder canvas asShape ] ] ];
-		                    ifFalse: [ 
-			                    | builder |
-			                    builder := RSUMLSequenceBuilder new
-				                               messagesSends: orderedCalls;
-				                               previousHeaders:
-					                               OrderedCollection new;
-				                               previousMessagesSends:
-					                               OrderedCollection new;
-				                               build;
-				                               yourself.
+					builder canvas shapes ifNotEmpty: [ 
+						shapes add: builder canvas asShape ] ] ];
+		ifFalse: [ 
+			| builder |
+			builder := RSUMLSequenceBuilder new
+				           messagesSends: orderedCalls;
+				           previousHeaders: OrderedCollection new;
+				           previousMessagesSends: OrderedCollection new;
+				           build;
+				           yourself.
 
-			                    shapes add: builder canvas asShape ].
+			shapes add: builder canvas asShape ].
 
-	                    RSVerticalLineLayout new
-		                    verticalGap: 0;
-		                    alignLeft;
-		                    on: shapes.
+	RSVerticalLineLayout new
+		verticalGap: 0;
+		alignLeft;
+		on: shapes.
 
-	                    RSCanvas new
-		                    addAll: shapes;
-		                    addInteraction: RSCanvasController new;
-		                    zoomToFit;
-		                    open
+	RSCanvas new
+		addAll: shapes;
+		addInteraction: RSCanvasController new;
+		zoomToFit;
+		open
 ]
 
 { #category : #charting }

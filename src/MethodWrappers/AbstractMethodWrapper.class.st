@@ -83,12 +83,12 @@ AbstractMethodWrapper >> enable [
 { #category : #initialization }
 AbstractMethodWrapper >> initializeOn: aMethodReference [
 
-	            aMethodReference == aMethodReference compiledMethod
-		            ifTrue: [ 
-			            method := aMethodReference.
-			            installed := false.
-			            enabled := false ]
-		            ifFalse: [ Error signal ]
+	aMethodReference == aMethodReference compiledMethod
+		ifTrue: [ 
+			method := aMethodReference.
+			installed := false.
+			enabled := false ]
+		ifFalse: [ Error signal ]
 ]
 
 { #category : #actions }
@@ -123,34 +123,32 @@ AbstractMethodWrapper >> method [
 { #category : #evaluation }
 AbstractMethodWrapper >> run: aSelector with: anArray in: aReceiver [
 
-	            | carry result witness |
-	            aSelector == method selector ifFalse: [ Error signal ].
+	| carry result witness |
+	aSelector == method selector ifFalse: [ Error signal ].
 
-	            witness := Object new.
+	witness := Object new.
 
-	            carry := enabled
-		                     ifTrue: [ 
-			                     self
-				                     run: aSelector
-				                     with: anArray
-				                     in: aReceiver
-				                     pre: thisContext ]
-		                     ifFalse: [ witness ].
+	carry := enabled
+		         ifTrue: [ 
+			         self
+				         run: aSelector
+				         with: anArray
+				         in: aReceiver
+				         pre: thisContext ]
+		         ifFalse: [ witness ].
 
-	            result := aReceiver
-		                      withArgs: anArray
-		                      executeMethod: method.
+	result := aReceiver withArgs: anArray executeMethod: method.
 
-	            carry == witness ifFalse: [ 
-		            self
-			            run: aSelector
-			            with: anArray
-			            in: aReceiver
-			            post: thisContext
-			            return: result
-			            carry: carry ].
+	carry == witness ifFalse: [ 
+		self
+			run: aSelector
+			with: anArray
+			in: aReceiver
+			post: thisContext
+			return: result
+			carry: carry ].
 
-	            ^ result
+	^ result
 ]
 
 { #category : #evaluation }
