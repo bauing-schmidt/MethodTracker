@@ -766,13 +766,8 @@ MethodsTemperaturesPresenter >> runMeasureMethodsTemperaturesStCommand: aCommand
 { #category : #'dispatched commands' }
 MethodsTemperaturesPresenter >> runSequenceDiagramMethodsTemperaturesStCommand: aCommand [
 
-	| orderedCalls shapes stackSelected sortBlock |
-	sortBlock := [ :anAssoc :anotherAssoc | 
-	             anAssoc key logicalStart < anotherAssoc key logicalStart ].
-
-	orderedCalls := DelayMethodTemperatureWrapper callsLog 
-		                asSortedCollection: sortBlock. "select: [ :each | 
-		                                     each isAssociation ]"
+	| orderedCalls shapes stackSelected |
+	orderedCalls := DelayMethodTemperatureWrapper callsLog.
 
 	shapes := OrderedCollection new.
 

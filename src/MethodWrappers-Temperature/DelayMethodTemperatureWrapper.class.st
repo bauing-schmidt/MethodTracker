@@ -57,12 +57,13 @@ DelayMethodTemperatureWrapper >> run: aSelector with: anArray in: aReceiver post
 		[ continue and: [ index > 0 ] ] whileTrue: [ 
 			| each |
 			each := callsLog at: index.
-			logicalDuration := logicalDuration + 1.
 
 			each value
-				ifMessageSend: [  ]
+				ifMessageSend: [ logicalDuration := logicalDuration + 1 ]
 				ifReturnMessageSend: [ :aMessageSend |  ].
+
 			each == anAssoc ifTrue: [ continue := false ].
+
 			index := index - 1 ].
 
 		anAssoc value
@@ -80,8 +81,8 @@ DelayMethodTemperatureWrapper >> run: aSelector with: anArray in: aReceiver post
 		returnTimespan
 			start: timespan end;
 			duration: Duration zero;
-			logicalStart: timespan logicalEnd;
-			logicalDuration: -1 ]
+			logicalStart: timespan logicalStart;
+			logicalDuration: timespan logicalDuration ]
 ]
 
 { #category : #evaluation }
