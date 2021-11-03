@@ -50,21 +50,19 @@ DelayMethodTemperatureWrapper >> run: aSelector with: anArray in: aReceiver post
 	timespan := anAssoc key.
 
 	mutex critical: [ 
-		| index continue |
+		| index |
+		[ 
 		logicalDuration := 0.
-		index := callsLog size.
-		continue := true.
-		[ continue and: [ index > 0 ] ] whileTrue: [ 
-			| each |
-			each := callsLog at: index.
+		index := callsLog size ]
+			for: [ index > 0 ]
+			collect: [ callsLog at: index ]
+			do: [ :break :each | 
+				each value
+					ifMessageSend: [ logicalDuration := logicalDuration + 1 ]
+					ifReturnMessageSend: [ :aMessageSend |  ].
 
-			each value
-				ifMessageSend: [ logicalDuration := logicalDuration + 1 ]
-				ifReturnMessageSend: [ :aMessageSend |  ].
-
-			each == anAssoc ifTrue: [ continue := false ].
-
-			index := index - 1 ].
+				each == anAssoc ifTrue: break ]
+			then: [ index := index - 1 ].
 
 		anAssoc value
 			ifSelfSend: [ returnTimespan := nil ]
