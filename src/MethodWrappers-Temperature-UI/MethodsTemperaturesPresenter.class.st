@@ -796,8 +796,10 @@ MethodsTemperaturesPresenter >> runSequenceDiagramMethodsTemperaturesStCommand: 
 					previousHeaders := builder modelDescriptor columns.
 					previousOverlappings := overlappings.
 
-					builder canvas shapes ifNotEmpty: [ 
-						shapes add: builder canvas asShape ] ] ];
+					builder shapes ifNotEmpty: [ :nestedShapes | 
+						shapes add: (RSComposite new
+								 shapes: nestedShapes;
+								 yourself) ] ] ];
 		ifFalse: [ 
 			| builder |
 			builder := RSUMLSequenceBuilder new
@@ -816,8 +818,12 @@ MethodsTemperaturesPresenter >> runSequenceDiagramMethodsTemperaturesStCommand: 
 
 	RSCanvas new
 		addAll: shapes;
-		addInteraction: RSCanvasController new;
 		zoomToFit;
+		in: [ :c | 
+			c svgExporter
+				zoomToShapes;
+				export ];
+		addInteraction: RSCanvasController new;
 		open
 ]
 
