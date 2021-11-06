@@ -787,9 +787,17 @@ MethodsTemperaturesPresenter >> runSequenceDiagramMethodsTemperaturesStCommand: 
 			self overlappings: orderedCalls do: [ :overlappings | 
 					| builder |
 					builder := RSUMLSequenceBuilder new
-						           messagesSends: overlappings;
 						           previousMessagesSends: previousOverlappings;
 						           previousHeaders: previousHeaders;
+						           receiverArgumentsShape: [ :anObject | 
+							           anObject asShapeSlotsDfsTree:
+									           (anObject slotDescriptorsContext collect: [ 
+											            :aDescriptor | 
+											            aDescriptor
+												            headerWithClass;
+												            inline: [ :o :level :default | 
+													            level > 0 ] ]) ];
+						           messagesSends: overlappings;
 						           build;
 						           yourself.
 
@@ -819,10 +827,10 @@ MethodsTemperaturesPresenter >> runSequenceDiagramMethodsTemperaturesStCommand: 
 	RSCanvas new
 		addAll: shapes;
 		zoomToFit;
-		in: [ :c | 
+		"in: [ :c | 
 			c svgExporter
 				zoomToShapes;
-				export ];
+				export ];"
 		addInteraction: RSCanvasController new;
 		open
 ]
