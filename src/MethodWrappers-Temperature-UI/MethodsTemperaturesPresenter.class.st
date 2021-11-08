@@ -789,14 +789,6 @@ MethodsTemperaturesPresenter >> runSequenceDiagramMethodsTemperaturesStCommand: 
 					builder := RSUMLSequenceBuilder new
 						           previousMessagesSends: previousOverlappings;
 						           previousHeaders: previousHeaders;
-						           receiverArgumentsShape: [ :anObject | 
-							           anObject asShapeSlotsDfsTree:
-									           (anObject slotDescriptorsContext collect: [ 
-											            :aDescriptor | 
-											            aDescriptor
-												            headerWithClass;
-												            inline: [ :o :level :default | 
-													            level > 0 ] ]) ];
 						           messagesSends: overlappings;
 						           build;
 						           yourself.
