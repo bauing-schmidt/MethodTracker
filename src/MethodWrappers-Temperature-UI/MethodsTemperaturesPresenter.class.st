@@ -766,10 +766,11 @@ MethodsTemperaturesPresenter >> runMeasureMethodsTemperaturesStCommand: aCommand
 { #category : #'dispatched commands' }
 MethodsTemperaturesPresenter >> runSequenceDiagramMethodsTemperaturesStCommand: aCommand [
 
-	| orderedCalls shapes stackSelected |
+	| orderedCalls shapes stackSelected objectsSeenSoFar |
 	orderedCalls := DelayMethodTemperatureWrapper callsLog.
 
 	shapes := OrderedCollection new.
+	objectsSeenSoFar := IdentityDictionary new.
 
 	stackSelected := SpConfirmDialog new
 		                 title: 'Question';
@@ -787,6 +788,7 @@ MethodsTemperaturesPresenter >> runSequenceDiagramMethodsTemperaturesStCommand: 
 			self overlappings: orderedCalls do: [ :overlappings | 
 					| builder |
 					builder := RSUMLSequenceBuilder new
+						           objectsSeenSoFar: objectsSeenSoFar;
 						           previousMessagesSends: previousOverlappings;
 						           previousHeaders: previousHeaders;
 						           messagesSends: overlappings;
@@ -803,6 +805,7 @@ MethodsTemperaturesPresenter >> runSequenceDiagramMethodsTemperaturesStCommand: 
 		ifFalse: [ 
 			| builder |
 			builder := RSUMLSequenceBuilder new
+				           objectsSeenSoFar: objectsSeenSoFar;
 				           messagesSends: orderedCalls;
 				           previousHeaders: OrderedCollection new;
 				           previousMessagesSends: OrderedCollection new;
