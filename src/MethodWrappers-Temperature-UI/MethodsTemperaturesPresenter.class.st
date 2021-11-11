@@ -815,7 +815,7 @@ MethodsTemperaturesPresenter >> runSequenceDiagramMethodsTemperaturesStCommand: 
 			shapes add: builder canvas asShape ].
 
 	RSVerticalLineLayout new
-		verticalGap: 0;
+		verticalGap: -5;
 		alignLeft;
 		on: shapes.
 
