@@ -64,12 +64,16 @@ DelayMethodTemperatureWrapper >> run: aSelector with: anArray in: aReceiver post
 				each == anAssoc ifTrue: break ]
 			then: [ index := index - 1 ].
 
-		anAssoc value
-			ifSelfSend: [ returnTimespan := nil ]
-			ifNotSelfSend: [ 
-				returnTimespan := LogicalTimespan new.
-
-				callsLog add: returnTimespan -> anAssoc value asReturnMessageSend ] ].
+		anAssoc value in: [ :fullMessageSend | 
+			fullMessageSend
+				ifSelfSend: [ returnTimespan := nil ]
+				ifNotSelfSend: [ 
+					| returnMessageSend |
+					returnTimespan := LogicalTimespan new.
+					returnMessageSend := fullMessageSend asReturnMessageSend
+						                     return: anObject;
+						                     yourself.
+					callsLog add: returnTimespan -> returnMessageSend ] ] ].
 
 	timespan
 		duration: DateAndTime now - timespan start;
