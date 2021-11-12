@@ -377,171 +377,150 @@ MethodsTemperaturesPresenter >> initialize [
 { #category : #initialization }
 MethodsTemperaturesPresenter >> initializePresenters [
 
-	          super initializePresenters.
+	super initializePresenters.
 
-	          toolbar := self newToolbar
-		                     addStyle: 'stToolbar';
-		                     fillWith: self toolbarActions;
-		                     yourself.
+	toolbar := self newToolbar
+		           addStyle: 'stToolbar';
+		           fillWith: self toolbarActions;
+		           yourself.
 
-	          checkboxInstallOnAllMethods := self newCheckBox
-		                                         whenChangedDo: [ :aBoolean | 
-			                                         select enabled:
-					                                         aBoolean not ];
-		                                         yourself.
+	checkboxInstallOnAllMethods := self newCheckBox
+		                               whenChangedDo: [ :aBoolean | 
+			                               select enabled: aBoolean not ];
+		                               yourself.
 
-	          allPackages := RPackageOrganizer default packages
-		                         asOrderedCollection sort: [ :a :b | 
-		                         a name < b name ].
-	          selectedPackages := Set empty.
-	          packagesList := self newTable addColumn:
-		                          (SpCompositeTableColumn new
-			                           addColumn: (SpCheckBoxTableColumn new
-					                            evaluated: [ :item | 
-						                            selectedPackages includes: item ];
-					                            onActivation: [ :item | 
-						                            selectedPackages add: item ];
-					                            onDeactivation: [ :item | 
-						                            selectedPackages
-							                            remove: item
-							                            ifAbsent: [  ] ];
-					                            width:
-						                            20
-						                            *
-							                            self currentWorld
-								                            displayScaleFactor;
-					                            yourself);
-			                           addColumn: (SpImageTableColumn new
-					                            width: 20;
-					                            evaluated: [ :each | 
-						                            self iconNamed: #package ];
-					                            yourself);
-			                           addColumn: (SpStringTableColumn new
-					                            evaluated: #name;
-					                            yourself);
-			                           yourself).
+	allPackages := RPackageOrganizer default packages asOrderedCollection 
+		               sort: [ :a :b | a name < b name ].
+	selectedPackages := Set empty.
+	packagesList := self newTable addColumn: (SpCompositeTableColumn new
+			                 addColumn: (SpCheckBoxTableColumn new
+					                  evaluated: [ :item | 
+						                  selectedPackages includes: item ];
+					                  onActivation: [ :item | 
+						                  selectedPackages add: item ];
+					                  onDeactivation: [ :item | 
+						                  selectedPackages remove: item ifAbsent: [  ] ];
+					                  width:
+						                  20 * self currentWorld displayScaleFactor;
+					                  yourself);
+			                 addColumn: (SpImageTableColumn new
+					                  width: 20;
+					                  evaluated: [ :each | self iconNamed: #package ];
+					                  yourself);
+			                 addColumn: (SpStringTableColumn new
+					                  evaluated: #name;
+					                  yourself);
+			                 yourself).
 
-	          packageNameText := self newTextInput
-		                             placeholder: 'Enter a package name';
-		                             autoAccept: true;
-		                             whenTextChangedDo: [ :text | 
-			                             self 
-				                             refreshPackagesTableWhenTextChanges:
-					                             text ].
+	packageNameText := self newTextInput
+		                   placeholder: 'Enter a package name';
+		                   autoAccept: true;
+		                   whenTextChangedDo: [ :text | 
+			                   self refreshPackagesTableWhenTextChanges: text ].
 
-	          self refreshPackagesTableWhenTextChanges: ''.
+	self refreshPackagesTableWhenTextChanges: ''.
 
-	          select := (self instantiate: SpCodePresenter)
-		                    withoutLineNumbers;
-		                    beForScripting;
-		                    enabled: checkboxInstallOnAllMethods state not;
-		                    whenSubmitDo: [ :text | 
-			                    self updateVisualizations ];
-		                    yourself.
+	select := (self instantiate: SpCodePresenter)
+		          withoutLineNumbers;
+		          beForScripting;
+		          enabled: checkboxInstallOnAllMethods state not;
+		          whenSubmitDo: [ :text | self updateVisualizations ];
+		          yourself.
 
-	          checkbox := self newCheckBox
-		                      whenChangedDo: [ :ev | 
-			                      self updateVisualizations ];
-		                      yourself.
+	checkbox := self newCheckBox
+		            whenChangedDo: [ :ev | self updateVisualizations ];
+		            yourself.
 
-	          temperature := (self instantiate: SpCodePresenter)
-		                         withoutLineNumbers;
-		                         beForScripting;
-		                         whenSubmitDo: [ :text | 
-			                         self updateVisualizations ];
-		                         yourself.
+	temperature := (self instantiate: SpCodePresenter)
+		               withoutLineNumbers;
+		               beForScripting;
+		               whenSubmitDo: [ :text | self updateVisualizations ];
+		               yourself.
 
-	          do := (self instantiate: SpCodePresenter)
-		                withoutLineNumbers;
-		                beForScripting;
-		                yourself.
+	do := (self instantiate: SpCodePresenter)
+		      withoutLineNumbers;
+		      beForScripting;
+		      yourself.
 
-	          selectorsSorter := (self instantiate: SpCodePresenter)
-		                             withoutLineNumbers;
-		                             beForScripting;
-		                             whenSubmitDo: [ :text | 
-			                             self updateVisualizations ];
-		                             yourself.
-
-	          classesSorter := (self instantiate: SpCodePresenter)
-		                           withoutLineNumbers;
-		                           beForScripting;
-		                           whenSubmitDo: [ :text | 
-			                           self updateVisualizations ];
-		                           yourself.
-
-	          barChartSorter := (self instantiate: SpCodePresenter)
-		                            withoutLineNumbers;
-		                            beForScripting;
-		                            whenSubmitDo: [ :text | 
-			                            self updateVisualizations ];
-		                            yourself.
-
-	          heatmap := self instantiate: SpRoassalPresenter.
-	          barChart := self instantiate: SpRoassalPresenter.
-
-	          table := self newTreeTable
-		                   addColumn: (SpStringTableColumn
-				                    title: 'Compiled methods by class'
-				                    evaluated: [ :anObject | 
-					                    anObject isCompiledMethod
-						                    ifTrue: [ anObject selector ]
-						                    ifFalse: [ anObject name ] ]);
-		                   addColumn:
-			                   (SpStringTableColumn
-				                    title: 'Temperature'
-				                    evaluated: [ :anObject | 
-					                    anObject isCompiledMethod
-						                    ifTrue: [ 
-							                    methodsByClassDict
-								                    at: anObject methodClass
-								                    ifPresent: [ :associations | 
-									                    | index |
-									                    index := associations findFirst: [ :each | 
-											                             each key = anObject ].
-									                    (associations at: index) value ] ]
-						                    ifFalse: [ String empty ] ]);
-		                   children: [ :aClass | 
-			                   methodsByClassDict
-				                   at: aClass
-				                   ifPresent: [ :associations | 
-					                   associations collect: #key ]
-				                   ifAbsent: [ #(  ) ] ];
-		                   beResizable;
-		                   activateOnDoubleClick;
-		                   whenActivatedDo: [ :selection | 
-			                   selection selectedItem browse ];
+	selectorsSorter := (self instantiate: SpCodePresenter)
+		                   withoutLineNumbers;
+		                   beForScripting;
+		                   whenSubmitDo: [ :text | 
+			                   self updateVisualizations ];
 		                   yourself.
 
-	          checkboxShowMessageSendsArgs := self newCheckBox
-		                                          label:
-			                                          'Show arguments of message sends';
-		                                          yourself.
+	classesSorter := (self instantiate: SpCodePresenter)
+		                 withoutLineNumbers;
+		                 beForScripting;
+		                 whenSubmitDo: [ :text | self updateVisualizations ];
+		                 yourself.
 
-	          callsLog := (self instantiate: SpListPresenter)
-		                      sortingBlock: [ :aWrapper :anotherWrapper | 
-			                      aWrapper callsLog last key logicalStart
-			                      >
-				                      anotherWrapper callsLog last key
-					                      logicalStart ];
-		                      display: [ :aWrapper | 
-			                      aWrapper callsLog last in: [ :anAssoc | 
-					                      String streamContents: [ :aStream | 
-							                      | msg |
-							                      aStream
-								                      nextPutAll:
-									                      anAssoc key start asTimeString;
-								                      nextPutAll: ': '.
-							                      msg := checkboxShowMessageSendsArgs state
-								                             ifTrue: [ anAssoc value asString ]
-								                             ifFalse: [ 
-								                             anAssoc value selector ].
-							                      aStream nextPutAll: msg ] ] ];
-		                      yourself.
+	barChartSorter := (self instantiate: SpCodePresenter)
+		                  withoutLineNumbers;
+		                  beForScripting;
+		                  whenSubmitDo: [ :text | self updateVisualizations ];
+		                  yourself.
 
-	          "Load a possible cconfiguration"
-	          configuration := self loadDefaultConfiguration.
-	          self applyConfiguration
+	heatmap := self instantiate: SpRoassalPresenter.
+	barChart := self instantiate: SpRoassalPresenter.
+
+	table := self newTreeTable
+		         addColumn: (SpStringTableColumn
+				          title: 'Compiled methods by class'
+				          evaluated: [ :anObject | 
+					          anObject isCompiledMethod
+						          ifTrue: [ anObject selector ]
+						          ifFalse: [ anObject name ] ]);
+		         addColumn:
+			         (SpStringTableColumn
+				          title: 'Temperature'
+				          evaluated: [ :anObject | 
+					          anObject isCompiledMethod
+						          ifTrue: [ 
+							          methodsByClassDict
+								          at: anObject methodClass
+								          ifPresent: [ :associations | 
+									          | index |
+									          index := associations findFirst: [ :each | 
+											                   each key = anObject ].
+									          (associations at: index) value ] ]
+						          ifFalse: [ String empty ] ]);
+		         children: [ :aClass | 
+			         methodsByClassDict
+				         at: aClass
+				         ifPresent: [ :associations | associations collect: #key ]
+				         ifAbsent: [ #(  ) ] ];
+		         beResizable;
+		         activateOnDoubleClick;
+		         whenActivatedDo: [ :selection | 
+			         selection selectedItem browse ];
+		         yourself.
+
+	checkboxShowMessageSendsArgs := self newCheckBox
+		                                label:
+			                                'Show arguments of message sends';
+		                                yourself.
+
+	callsLog := (self instantiate: SpListPresenter)
+		            sortingBlock: [ :aWrapper :anotherWrapper | 
+			            aWrapper callsLog last key logicalStart
+			            > anotherWrapper callsLog last key logicalStart ];
+		            display: [ :aWrapper | 
+			            aWrapper callsLog last in: [ :anAssoc | 
+					            String streamContents: [ :aStream | 
+							            | msg |
+							            aStream
+								            nextPutAll: anAssoc key start asTimeString;
+								            nextPutAll: ': '.
+							            msg := checkboxShowMessageSendsArgs state
+								                   ifTrue: [ anAssoc value asString ]
+								                   ifFalse: [ anAssoc value selector ].
+							            aStream nextPutAll: msg ] ] ];
+		            yourself.
+
+	"Load a possible cconfiguration"
+	configuration := self loadDefaultConfiguration.
+	self applyConfiguration
 ]
 
 { #category : #initialization }
@@ -657,8 +636,7 @@ MethodsTemperaturesPresenter >> refreshPackagesTableWhenTextChanges: aString [
 
 	packagesList items: (aString ifEmpty: [ allPackages ] ifNotEmpty: [ 
 			 allPackages select: [ :currPackage | 
-				 currPackage name asLowercase includesSubstring:
-					 aString asLowercase ] ])
+				 aString match: currPackage name asString ] ])
 ]
 
 { #category : #charting }
