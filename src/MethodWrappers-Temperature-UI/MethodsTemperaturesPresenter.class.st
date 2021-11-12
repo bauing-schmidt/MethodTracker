@@ -29,7 +29,8 @@ Class {
 		'checkboxInstallOnAllMethods',
 		'configuration',
 		'callsLog',
-		'checkboxShowMessageSendsArgs'
+		'checkboxShowMessageSendsArgs',
+		'checkboxSkipTestPackages'
 	],
 	#category : #'MethodWrappers-Temperature-UI'
 }
@@ -95,6 +96,7 @@ MethodsTemperaturesPresenter class >> defaultSpec [
 						    add: #do expand: true;
 						    add: 'Packages selection' expand: false;
 						    add: #checkboxInstallOnAllMethods expand: false;
+						    add: #checkboxSkipTestPackages expand: false;
 						    add: #packagesList expand: true;
 						    add: #packageNameText expand: false;
 						    add: 'CompiledMethod select block' expand: false;
@@ -157,6 +159,8 @@ MethodsTemperaturesPresenter >> applyConfiguration [
 	checkboxShowMessageSendsArgs state:
 		(configuration at: #showMessageSendsArgs).
 
+	checkboxSkipTestPackages state: (configuration at: #skipTestPackages).
+
 	temperature text: self defaultCodeForTemperatureThreshold.
 
 	do text: self defaultCodeForDoBehavior.
@@ -199,6 +203,7 @@ MethodsTemperaturesPresenter >> currentConfiguration [
 	conf at: #topWarmerMethods put: (configuration at: #topWarmerMethods).
 	conf at: #selectTopWarmerMethods put: checkbox state.
 	conf at: #showMessageSendsArgs put: checkboxShowMessageSendsArgs state.
+	conf at: #skipTestPackages put: checkboxSkipTestPackages state.
 	conf at: #defaultCodeForBarChartSorter put: barChartSorter text.
 	conf at: #defaultCodeForClassesSorter put: classesSorter text.
 	conf at: #defaultCodeForCompiledMethodSelection put: select text.
@@ -388,6 +393,14 @@ MethodsTemperaturesPresenter >> initializePresenters [
 		                               whenChangedDo: [ :aBoolean | 
 			                               select enabled: aBoolean not ];
 		                               yourself.
+
+	checkboxSkipTestPackages := self newCheckBox
+		                            label: 'Skip test packages';
+		                            whenChangedDo: [ :aBoolean | 
+			                            self 
+				                            refreshPackagesTableWhenTextChanges:
+					                            packageNameText text ];
+		                            yourself.
 
 	allPackages := RPackageOrganizer default packages asOrderedCollection 
 		               sort: [ :a :b | a name < b name ].
@@ -634,9 +647,17 @@ MethodsTemperaturesPresenter >> overlappings: aCollection do: aBlock [
 { #category : #initialization }
 MethodsTemperaturesPresenter >> refreshPackagesTableWhenTextChanges: aString [
 
-	packagesList items: (aString ifEmpty: [ allPackages ] ifNotEmpty: [ 
-			 allPackages select: [ :currPackage | 
-				 aString match: currPackage name asString ] ])
+	| packages |
+	packages := aString ifEmpty: [ allPackages ] ifNotEmpty: [ 
+		            allPackages select: [ :currPackage | 
+			            | bool |
+			            bool := aString match: currPackage name asString.
+			            bool and: [ 
+				            checkboxSkipTestPackages state
+					            ifTrue: [ currPackage isTestPackage not ]
+					            ifFalse: [ true ] ] ] ].
+		
+	packagesList items: packages
 ]
 
 { #category : #charting }
