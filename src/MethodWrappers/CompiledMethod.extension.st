@@ -14,7 +14,7 @@ CompiledMethod >> allImplementations [
 ]
 
 { #category : #'*MethodWrappers' }
-CompiledMethod >> installWrapper: aWrapper [
+CompiledMethod >> installOnMethodWrapper: aWrapper [
 
-	aWrapper installCompiledMethod: self
+	aWrapper compiledMethod: self
 ]

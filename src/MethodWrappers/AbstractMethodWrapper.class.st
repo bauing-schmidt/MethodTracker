@@ -5,170 +5,205 @@ Class {
 	#name : #AbstractMethodWrapper,
 	#superclass : #ProtoObject,
 	#instVars : [
-		'method',
-		'enabled',
-		'installed'
+		'compiledMethod',
+		'handler',
+		'selector',
+		'behavior'
 	],
 	#category : #MethodWrappers
 }
 
-{ #category : #API }
-AbstractMethodWrapper class >> forBaselineClass: aBaselineClass selectMethod: methodBlock [
-	
-	| methods |
-	methods := (aBaselineClass allPackageNames collect: [ :each | 
-		            each asPackage ]) flatCollect: [ :each | each methods ].
-	
-	^ self forMethods: methods selectMethod: methodBlock
+{ #category : #'as yet unclassified' }
+AbstractMethodWrapper class >> behavior: aBehavior selector: aSelector [
+
+	^ self basicNew
+		  behavior: aBehavior;
+		  selector: aSelector;
+		  initialize;
+		  yourself
 ]
 
 { #category : #API }
-AbstractMethodWrapper class >> forMethods: aCollection selectMethod: methodBlock [
+AbstractMethodWrapper class >> compiledMethods: aCollection thenSelect: methodBlock [
 
-	| methods excludingClasses |
-	excludingClasses := (AbstractMethodWrapper withAllSubclasses
-	                     , AbstractProxy withAllSubclasses) asSet.
+	| excludingClasses |
+	excludingClasses := AbstractMethodWrapper withAllSubclasses asSet.
 
-	methods := aCollection select: [ :aMethod | 
-		           (excludingClasses includes: aMethod methodClass) not 
-			           and: [ methodBlock value: aMethod ] ].
+	^ aCollection
+		  select: [ :aMethod | 
+			  (excludingClasses includes: aMethod methodClass) not and: [ 
+				  methodBlock value: aMethod ] ]
+		  thenCollect: [ :each | self on: each ]
+]
 
-	^ methods collect: [ :each | self on: each ]
+{ #category : #API }
+AbstractMethodWrapper class >> forBaselineClass: aBaselineClass selectMethod: methodBlock [
+
+	| methods |
+	methods := (aBaselineClass allPackageNames collect: [ :each | 
+		            each asPackage ]) flatCollect: [ :each | each methods ].
+
+	^ self compiledMethods: methods thenSelect: methodBlock
 ]
 
 { #category : #API }
 AbstractMethodWrapper class >> forPackages: aCollection selectMethod: methodBlock [
-	
+
 	| methods |
-	methods := aCollection asOrderedCollection flatCollect: [ :each | each methods ].
-	
-	^ self forMethods: methods selectMethod: methodBlock
+	methods := aCollection asOrderedCollection flatCollect: [ :each | 
+		           each methods ].
+
+	^ self compiledMethods: methods thenSelect: methodBlock
 ]
 
-{ #category : #'instance creation' }
-AbstractMethodWrapper class >> on: aMethodReference [
+{ #category : #'as yet unclassified' }
+AbstractMethodWrapper class >> on: aCompiledMethod [
 
-	^ self new initializeOn: aMethodReference
+	^ self
+		  behavior: aCompiledMethod methodClass
+		  selector: aCompiledMethod selector
 ]
 
 { #category : #initialization }
 AbstractMethodWrapper class >> reset [
 
 	<script>
-	self allSubclassesDo: [ :each | 
+	AbstractMethodWrapper allSubclassesDo: [ :each | 
 		each allInstances do: [ :w | 
 			[ w uninstall ] onDNU: #uninstall do: [  ] ] ].
 	SpNullApplication reset.
 	Smalltalk garbageCollect
 ]
 
-{ #category : #actions }
-AbstractMethodWrapper >> disable [
+{ #category : #accessing }
+AbstractMethodWrapper >> behavior: anObject [
 
-	enabled := false
+	behavior := anObject
+]
+
+{ #category : #dispatched }
+AbstractMethodWrapper >> compiledMethod: aCompiledMethod [
+
+	compiledMethod := aCompiledMethod.
+
+	compiledMethod methodClass methodDict
+		at: compiledMethod selector
+		put: self
 ]
 
 { #category : #private }
 AbstractMethodWrapper >> doesNotUnderstand: aMessage [
 
-	^ method perform: aMessage selector withArguments: aMessage arguments
+	^ self
+		  ifInstalled: [ 
+			  compiledMethod
+				  perform: aMessage selector
+				  withArguments: aMessage arguments ]
+		  ifNotInstalled: [ super doesNotUnderstand: aMessage ]
 ]
 
-{ #category : #actions }
-AbstractMethodWrapper >> enable [
+{ #category : #accessing }
+AbstractMethodWrapper >> handler: anObject [
 
-	enabled := true
+	handler := anObject
 ]
 
-{ #category : #initialization }
-AbstractMethodWrapper >> initializeOn: aMethodReference [
+{ #category : #private }
+AbstractMethodWrapper >> ifInstalled: iBlock ifNotInstalled: niBlock [
 
-	aMethodReference == aMethodReference compiledMethod
-		ifTrue: [ 
-			method := aMethodReference.
-			installed := false.
-			enabled := false ]
-		ifFalse: [ Error signal ]
+	^ compiledMethod ifNil: niBlock ifNotNil: iBlock
 ]
 
 { #category : #actions }
 AbstractMethodWrapper >> install [
 
-	installed
-		ifTrue: [ Error signal ]
-		ifFalse: [ method installWrapper: self ]
+	self
+		ifInstalled: [ Warning signal: 'Already installed wrapper.' ]
+		ifNotInstalled: [ 
+			(behavior lookupSelector: selector) ifNotNil: [ :aMethodOrWrapper | 
+				aMethodOrWrapper installOnMethodWrapper: self ] ]
 ]
 
 { #category : #dispatched }
-AbstractMethodWrapper >> installCompiledMethod: aCompiledMethod [
-
-	method == aCompiledMethod
-		ifTrue: [ 
-			method methodClass methodDict at: method selector put: self.
-			installed := true ]
-		ifFalse: [ Error signal ]
-]
-
-{ #category : #dispatched }
-AbstractMethodWrapper >> installWrapper: aWrapper [
+AbstractMethodWrapper >> installOnMethodWrapper: aWrapper [
 
 	Warning signal: 'Attempting to wrap a wrapper'
 ]
 
-{ #category : #accessing }
-AbstractMethodWrapper >> method [
-	^ method
+{ #category : #printing }
+AbstractMethodWrapper >> printOn: aStream [
+
+	aStream nextPutAll: '[ '.
+
+	self
+		ifInstalled: [ compiledMethod printOn: aStream ]
+		ifNotInstalled: [ 
+			aStream
+				print: behavior;
+				nextPutAll: ' • ';
+				print: selector ].
+
+	aStream nextPutAll: ' ] π'
 ]
 
 { #category : #evaluation }
 AbstractMethodWrapper >> run: aSelector with: anArray in: aReceiver [
 
-	| carry result witness |
-	aSelector == method selector ifFalse: [ Error signal ].
+	^ aSelector = compiledMethod selector
+		  ifTrue: [ 
+			  self
+				  run: aSelector
+				  with: anArray
+				  in: aReceiver
+				  context: thisContext ]
+		  ifFalse: [ 
+			  Error signal:
+				  'Attempt to send a selector that is different from the compiledMethod''s one.' ]
+]
 
+{ #category : #evaluation }
+AbstractMethodWrapper >> run: aSelector with: anArray in: aReceiver context: aContext [
+
+	| carry result witness |
 	witness := Object new.
 
-	carry := enabled
-		         ifTrue: [ 
-			         self
-				         run: aSelector
-				         with: anArray
-				         in: aReceiver
-				         pre: thisContext ]
-		         ifFalse: [ witness ].
+	carry := handler ifNil: [ witness ] ifNotNil: [ 
+		         handler
+			         run: aSelector
+			         with: anArray
+			         in: aReceiver
+			         pre: aContext ].
 
-	result := aReceiver withArgs: anArray executeMethod: method.
+	result := aReceiver withArgs: anArray executeMethod: compiledMethod.
 
 	carry == witness ifFalse: [ 
-		self
+		handler
 			run: aSelector
 			with: anArray
 			in: aReceiver
-			post: thisContext
+			post: aContext
 			return: result
 			carry: carry ].
 
 	^ result
 ]
 
-{ #category : #evaluation }
-AbstractMethodWrapper >> run: aSelector with: anArray in: aReceiver post: aContext return: anObject carry: carry [
+{ #category : #accessing }
+AbstractMethodWrapper >> selector: anObject [
 
-	            
-]
-
-{ #category : #evaluation }
-AbstractMethodWrapper >> run: aSelector with: anArray in: aReceiver pre: aContext [
-
-	            
+	selector := anObject
 ]
 
 { #category : #actions }
 AbstractMethodWrapper >> uninstall [
 
-	installed
-		ifTrue: [ 
-			method methodClass methodDict at: method selector put: method.
-			installed := false ]
-		ifFalse: [ "Warning signal" ]
+	self
+		ifInstalled: [ 
+			compiledMethod methodClass methodDict
+				at: compiledMethod selector
+				put: compiledMethod.
+
+			compiledMethod := nil ]
+		ifNotInstalled: [ 
+		Warning signal: 'Attempted to uninstall a not installed wrapper.' ]
 ]

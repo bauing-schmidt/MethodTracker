@@ -3,7 +3,7 @@ I am a wrapper variant that pushes to the standard error output port the method 
 "
 Class {
 	#name : #MethodTracingWrapper,
-	#superclass : #AbstractMethodWrapper,
+	#superclass : #MethodWrapperHandler,
 	#category : #MethodWrappers
 }
 
@@ -19,6 +19,6 @@ MethodTracingWrapper >> run: aSelector with: anArray in: aReceiver pre: aContext
 	Stdio stderr
 		nextPutAll: aReceiver class name;
 		nextPutAll: '>>#';
-		nextPutAll: method selector;
+		nextPutAll: aSelector;
 		lf
 ]
