@@ -163,41 +163,35 @@ AbstractMethodWrapper >> run: aSelector with: anArray in: aReceiver [
 
 	^ aSelector = compiledMethod selector
 		  ifTrue: [ 
-			  self
-				  run: aSelector
-				  with: anArray
-				  in: aReceiver
-				  context: thisContext sender ]
+			  | carry result witness aContext |
+			  aContext := thisContext.
+
+			  witness := Object new.
+
+			  carry := handler ifNil: [ witness ] ifNotNil: [ 
+				           handler
+					           run: aSelector
+					           with: anArray
+					           in: aReceiver
+					           pre: aContext ].
+
+			  result := aReceiver
+				            withArgs: anArray
+				            executeMethod: compiledMethod.
+
+			  carry == witness ifFalse: [ 
+				  handler
+					  run: aSelector
+					  with: anArray
+					  in: aReceiver
+					  post: aContext
+					  return: result
+					  carry: carry ].
+
+			  ^ result ]
 		  ifFalse: [ 
 			  Error signal:
 				  'Attempt to send a selector that is different from the compiledMethod''s one.' ]
-]
-
-{ #category : #evaluation }
-AbstractMethodWrapper >> run: aSelector with: anArray in: aReceiver context: aContext [
-
-	| carry result witness |
-	witness := Object new.
-
-	carry := handler ifNil: [ witness ] ifNotNil: [ 
-		         handler
-			         run: aSelector
-			         with: anArray
-			         in: aReceiver
-			         pre: aContext ].
-
-	result := aReceiver withArgs: anArray executeMethod: compiledMethod.
-
-	carry == witness ifFalse: [ 
-		handler
-			run: aSelector
-			with: anArray
-			in: aReceiver
-			post: aContext
-			return: result
-			carry: carry ].
-
-	^ result
 ]
 
 { #category : #accessing }

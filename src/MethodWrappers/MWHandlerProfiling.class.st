@@ -7,10 +7,17 @@ Class {
 	#instVars : [
 		'callsLog',
 		'tree',
-		'tick'
+		'tick',
+		'table'
 	],
 	#category : #MethodWrappers
 }
+
+{ #category : #evaluation }
+MWHandlerProfiling >> at: aKey [
+
+	^ table at: aKey ifAbsent: [ nil ]
+]
 
 { #category : #'as yet unclassified' }
 MWHandlerProfiling >> callsLog [
@@ -29,7 +36,8 @@ MWHandlerProfiling >> initialize [
 	super initialize.
 
 	callsLog := OrderedCollection new.
-	tick := 0
+	tick := 0.
+	table := IdentityDictionary new
 ]
 
 { #category : #evaluation }
@@ -83,14 +91,16 @@ MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver post: aContext 
 { #category : #evaluation }
 MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver pre: aContext [
 
-	| messageSend span anAssoc |
+	| messageSend span anAssoc parentContext |
 	super
 		run: aSelector
 		with: anArray
 		in: aReceiver
 		pre: aContext.
 
-	tree parent: aContext sender sender sender child: aContext.
+	parentContext := aContext sender sender.
+
+	tree parent: parentContext child: aContext.
 
 	messageSend := (RSFullMessageSend
 		                receiver: aReceiver
@@ -112,6 +122,8 @@ MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver pre: aContext [
 	anAssoc := span -> messageSend.
 
 	callsLog add: anAssoc.
+
+	table at: aContext put: anAssoc.
 
 	"The following object will be received in the post run message."
 	^ anAssoc

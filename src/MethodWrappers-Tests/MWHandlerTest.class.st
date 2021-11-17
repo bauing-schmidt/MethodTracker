@@ -40,12 +40,44 @@ MWHandlerTest >> testProfileSlowFactorial [
 
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
-	presenter treePresenter display: [ :aContext | 
-		aContext receiver asString , ' ' , aContext selector ].
+	presenter treePresenter display: [ :aContext |  handler at: aContext "
+		aContext receiver asString , ' ' , aContext selector" ].
 
 	presenter openWithSpec.
 
 	self
 		assert: tree size equals: 7;
 		assert: result equals: 5 factorial
+]
+
+{ #category : #tests }
+MWHandlerTest >> testProfileSlowFibonacci [
+
+	| wrapper handler tree presenter result |
+	tree := CTOrderPreservingTree new.
+
+	handler := MWHandlerProfiling new
+		           tree: tree;
+		           yourself.
+
+	wrapper := (AbstractMethodWrapper on: Integer >> #slowFibonacci)
+		           handler: handler;
+		           yourself.
+
+	result := { wrapper } withWrappingDo: [ 5 slowFibonacci ].
+
+	presenter := CTOrderPreservingTreePresenter on: tree.
+
+	presenter treePresenter
+		display: [ :aContext | 
+			handler at: aContext "
+				          aContext receiver asString , ' ' , aContext selector" ];
+		expandAll.
+
+	presenter openWithSpec.
+
+
+	self
+		assert: tree size equals: 16;
+		assert: result equals: 6 fibonacciNumbers last
 ]
