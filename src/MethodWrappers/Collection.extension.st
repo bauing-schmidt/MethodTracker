@@ -8,5 +8,5 @@ Collection >> withWrappingDo: aBlock [
 		            select: [ :each | each isMethodWrapper ]
 		            thenCollect: [ :each | each install ].
 
-	aBlock ensure: [ wrappers do: [ :each | each uninstall ] ]
+	^ aBlock ensure: [ wrappers do: [ :each | each uninstall ] ]
 ]

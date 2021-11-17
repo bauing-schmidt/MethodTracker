@@ -25,7 +25,7 @@ MWHandlerTest >> testCountSlowFactorial [
 { #category : #tests }
 MWHandlerTest >> testProfileSlowFactorial [
 
-	| wrapper handler tree |
+	| wrapper handler tree presenter result |
 	tree := CTOrderPreservingTree new.
 
 	handler := MWHandlerProfiling new
@@ -36,9 +36,16 @@ MWHandlerTest >> testProfileSlowFactorial [
 		           handler: handler;
 		           yourself.
 
-	{ wrapper } withWrappingDo: [ 5 slowFactorial ].
+	result := { wrapper } withWrappingDo: [ 5 slowFactorial ].
 
-	(CTOrderPreservingTreePresenter on: tree) openWithSpec.
+	presenter := CTOrderPreservingTreePresenter on: tree.
 
-	self assert: tree size equals: 7
+	presenter treePresenter display: [ :aContext | 
+		aContext receiver asString , ' ' , aContext selector ].
+
+	presenter openWithSpec.
+
+	self
+		assert: tree size equals: 7;
+		assert: result equals: 5 factorial
 ]
