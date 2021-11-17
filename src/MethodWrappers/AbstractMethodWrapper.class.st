@@ -3,7 +3,7 @@ I am an abstract class that install a wrapper around a compiled method, and unin
 "
 Class {
 	#name : #AbstractMethodWrapper,
-	#superclass : #ProtoObject,
+	#superclass : #Object,
 	#instVars : [
 		'compiledMethod',
 		'handler',
@@ -128,6 +128,12 @@ AbstractMethodWrapper >> install [
 AbstractMethodWrapper >> installOnMethodWrapper: aWrapper [
 
 	Warning signal: 'Attempting to wrap a wrapper'
+]
+
+{ #category : #testing }
+AbstractMethodWrapper >> isCompiledMethod [
+
+	^ false
 ]
 
 { #category : #printing }
