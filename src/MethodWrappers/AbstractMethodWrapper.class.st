@@ -136,6 +136,12 @@ AbstractMethodWrapper >> isCompiledMethod [
 	^ false
 ]
 
+{ #category : #testing }
+AbstractMethodWrapper >> isMethodWrapper [
+
+	^ true
+]
+
 { #category : #printing }
 AbstractMethodWrapper >> printOn: aStream [
 
@@ -161,7 +167,7 @@ AbstractMethodWrapper >> run: aSelector with: anArray in: aReceiver [
 				  run: aSelector
 				  with: anArray
 				  in: aReceiver
-				  context: thisContext ]
+				  context: thisContext sender ]
 		  ifFalse: [ 
 			  Error signal:
 				  'Attempt to send a selector that is different from the compiledMethod''s one.' ]

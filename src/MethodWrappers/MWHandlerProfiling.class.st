@@ -90,7 +90,7 @@ MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver pre: aContext [
 		in: aReceiver
 		pre: aContext.
 
-	tree parent: aContext sender child: aContext.
+	tree parent: aContext sender sender sender child: aContext.
 
 	messageSend := (RSFullMessageSend
 		                receiver: aReceiver
