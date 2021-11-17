@@ -14,9 +14,9 @@ Class {
 }
 
 { #category : #evaluation }
-MWHandlerProfiling >> at: aKey [
+MWHandlerProfiling >> at: aKey ifAbsent: aBlock [
 
-	^ table at: aKey ifAbsent: [ nil ]
+	^ table at: aKey ifAbsent: aBlock
 ]
 
 { #category : #'as yet unclassified' }
