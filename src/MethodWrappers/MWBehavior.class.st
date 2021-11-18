@@ -175,7 +175,7 @@ MWBehavior >> printOn: aStream [
 MWBehavior >> run: aSelector with: anArray in: aReceiver [
 
 	| aContext |
-	aContext := thisContext.
+	aContext := thisContext sender.
 
 	aSelector = compiledMethod selector ifFalse: [ 
 		Error signal:

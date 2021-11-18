@@ -91,16 +91,16 @@ MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver post: aContext 
 { #category : #evaluation }
 MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver pre: aContext [
 
-	| messageSend span anAssoc parentContext |
+	| messageSend span anAssoc tmp |
 	super
 		run: aSelector
 		with: anArray
 		in: aReceiver
 		pre: aContext.
 
-	parentContext := aContext sender sender sender sender.
-
-	tree parent: parentContext child: aContext.
+	tree
+		parent: aContext findContextSuchThatReceiverIsntWrapping
+		child: aContext.
 
 	messageSend := (RSFullMessageSend
 		                receiver: aReceiver
