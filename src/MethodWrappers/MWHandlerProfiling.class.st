@@ -98,7 +98,7 @@ MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver pre: aContext [
 		in: aReceiver
 		pre: aContext.
 
-	parentContext := aContext sender sender.
+	parentContext := aContext sender sender sender sender.
 
 	tree parent: parentContext child: aContext.
 

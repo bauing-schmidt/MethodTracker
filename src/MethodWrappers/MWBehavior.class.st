@@ -187,33 +187,35 @@ MWBehavior >> run: aSelector with: anArray in: aReceiver [
 
 	| aContext |
 	aContext := thisContext.
-	
+
 	^ aSelector = compiledMethod selector
 		  ifTrue: [ 
-			  | carry result witness |
-			  witness := Object new.
+			  handler
+				  ifNil: [ self value: aReceiver withArguments: anArray ]
+				  ifNotNil: [ 
+					  | carry result |
+					  carry := handler
+						           run: aSelector
+						           with: anArray
+						           in: aReceiver
+						           pre: aContext.
 
-			  carry := handler ifNil: [ witness ] ifNotNil: [ 
-				           handler
-					           run: aSelector
-					           with: anArray
-					           in: aReceiver
-					           pre: aContext ].
+					  result := handler
+						            runWrapper: self
+						            with: anArray
+						            in: aReceiver
+						            context: aContext
+						            carry: carry.
 
-			  result := aReceiver
-				            withArgs: anArray
-				            executeMethod: compiledMethod.
+					  handler
+						  run: aSelector
+						  with: anArray
+						  in: aReceiver
+						  post: aContext
+						  return: result
+						  carry: carry.
 
-			  carry == witness ifFalse: [ 
-				  handler
-					  run: aSelector
-					  with: anArray
-					  in: aReceiver
-					  post: aContext
-					  return: result
-					  carry: carry ].
-
-			  result ]
+					  result ] ]
 		  ifFalse: [ 
 			  Error signal:
 				  'Attempt to send a selector that is different from the compiledMethod''s one.' ]
@@ -230,11 +232,17 @@ MWBehavior >> uninstall [
 
 	self
 		ifInstalled: [ 
-			compiledMethod methodClass methodDict
-				at: compiledMethod selector
-				put: compiledMethod.
+			compiledMethod methodClass
+				addSelector: compiledMethod selector
+				withMethod: compiledMethod.
 
 			compiledMethod := nil ]
 		ifNotInstalled: [ 
 		Warning signal: 'Attempted to uninstall a not installed wrapper.' ]
+]
+
+{ #category : #evaluation }
+MWBehavior >> value: aReceiver withArguments: anArray [
+
+	^ aReceiver withArgs: anArray executeMethod: compiledMethod
 ]
