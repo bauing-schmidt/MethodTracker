@@ -169,11 +169,12 @@ MWBehavior >> run: aSelector with: anArray in: aReceiver [
 				           pre: aContext.
 
 			  result := handler
-				            runWrapper: self
+				            run: aSelector
 				            with: anArray
 				            in: aReceiver
 				            context: aContext
-				            carry: carry.
+				            carry: carry
+				            wrapper: self.
 
 			  handler
 				  run: aSelector
