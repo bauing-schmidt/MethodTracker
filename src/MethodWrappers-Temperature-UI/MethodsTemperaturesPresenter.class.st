@@ -510,7 +510,7 @@ MethodsTemperaturesPresenter >> initializePresenters [
 					            String streamContents: [ :aStream | 
 							            | msg |
 							            aStream
-								            nextPutAll: anAssoc key asTimeString;
+								            nextPutAll: anAssoc key asTime asString;
 								            nextPutAll: ': '.
 							            msg := checkboxShowMessageSendsArgs state
 								                   ifTrue: [ anAssoc value asString ]

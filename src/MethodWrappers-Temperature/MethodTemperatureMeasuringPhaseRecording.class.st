@@ -10,7 +10,7 @@ Class {
 { #category : #operations }
 MethodTemperatureMeasuringPhaseRecording >> refreshInterval [
 
-	^ 100 milliseconds
+	^ 100 milliSeconds
 ]
 
 { #category : #operations }
