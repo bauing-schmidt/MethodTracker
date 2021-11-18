@@ -109,7 +109,7 @@ MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver pre: aContext [
 
 	(aContext findContextSuchThat: [ :ctx | 
 		 ctx selector = #run:with:in: and: [ 
-			 ctx receiver isKindOf: MWBehavior ] ]) ifNotNil: [ :parentContext | 
+			 ctx receiver isKindOf: MWDecorator ] ]) ifNotNil: [ :parentContext | 
 		tree parent: parentContext sender child: aContext ].
 
 	children := child at: aContext ifAbsentPut: [ OrderedCollection new ].

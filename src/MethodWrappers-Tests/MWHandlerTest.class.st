@@ -13,7 +13,7 @@ MWHandlerTest >> testCountIfTrue [
 	| wrappers handler |
 	handler := MWHandlerCounting new.
 
-	wrappers := (MWBehavior withAllImplementations:
+	wrappers := (MWDecorator withAllImplementations:
 			             { (Boolean >> #ifTrue:) })
 		            do: [ :each | each handler: handler ];
 		            yourself.
@@ -30,11 +30,11 @@ MWHandlerTest >> testCountIfTrueDuringSlowFactorial [
 	handler := MWHandlerCounting new.
 	ifTrueHandler := MWHandlerCounting new.
 
-	wrapper := (MWBehavior on: Integer >> #slowFactorial)
+	wrapper := (MWDecorator on: Integer >> #slowFactorial)
 		           handler: handler;
 		           yourself.
 
-	wrappers := (MWBehavior withAllImplementations: { (Boolean >> #ifTrue:) })
+	wrappers := (MWDecorator withAllImplementations: { (Boolean >> #ifTrue:) })
 		            do: [ :each | each handler: ifTrueHandler ];
 		            yourself.
 
@@ -51,7 +51,7 @@ MWHandlerTest >> testCountSlowFactorial [
 	| wrapper handler |
 	handler := MWHandlerCounting new.
 
-	wrapper := (MWBehavior on: Integer >> #slowFactorial)
+	wrapper := (MWDecorator on: Integer >> #slowFactorial)
 		           handler: handler;
 		           yourself.
 
@@ -70,7 +70,7 @@ MWHandlerTest >> testProfileSlowFactorial [
 		           tree: tree;
 		           yourself.
 
-	wrapper := (MWBehavior on: Integer >> #slowFactorial)
+	wrapper := (MWDecorator on: Integer >> #slowFactorial)
 		           handler: handler;
 		           yourself.
 
@@ -115,7 +115,7 @@ MWHandlerTest >> testProfileSlowFibonacci [
 		           tree: tree;
 		           yourself.
 
-	wrapper := (MWBehavior on: Integer >> #slowFibonacci)
+	wrapper := (MWDecorator on: Integer >> #slowFibonacci)
 		           handler: handler;
 		           yourself.
 
@@ -171,7 +171,7 @@ MWHandlerTest >> testProfileSlowFibonacciMemoing [
 		           handler: handlerProfiler;
 		           yourself.
 
-	wrapper := (MWBehavior on: Integer >> #slowFibonacci)
+	wrapper := (MWDecorator on: Integer >> #slowFibonacci)
 		           handler: handler;
 		           yourself.
 

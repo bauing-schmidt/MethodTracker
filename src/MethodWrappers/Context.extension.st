@@ -16,7 +16,7 @@ Context >> findContextSuchThatReceiverIsntWrapping [
 
 	recv := parentContext receiver.
 
-	(recv isKindOf: MWBehavior) or: [ recv isKindOf: MWHandler ] ]
+	(recv isKindOf: MWDecorator) or: [ recv isKindOf: MWHandler ] ]
 		whileTrue.
 
 	^ parentContext

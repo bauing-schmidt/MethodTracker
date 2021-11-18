@@ -2,7 +2,7 @@
 I am an abstract class that install a wrapper around a compiled method, and uninstall it when finished my scope.
 "
 Class {
-	#name : #MWBehavior,
+	#name : #MWDecorator,
 	#superclass : #Object,
 	#instVars : [
 		'compiledMethod',
@@ -12,10 +12,10 @@ Class {
 }
 
 { #category : #API }
-MWBehavior class >> compiledMethods: aCollection thenSelect: methodBlock [
+MWDecorator class >> compiledMethods: aCollection thenSelect: methodBlock [
 
 	| excludingClasses |
-	excludingClasses := MWBehavior withAllSubclasses asSet.
+	excludingClasses := MWDecorator withAllSubclasses asSet.
 
 	^ aCollection
 		  select: [ :aMethod | 
@@ -25,7 +25,7 @@ MWBehavior class >> compiledMethods: aCollection thenSelect: methodBlock [
 ]
 
 { #category : #API }
-MWBehavior class >> forBaselineClass: aBaselineClass selectMethod: methodBlock [
+MWDecorator class >> forBaselineClass: aBaselineClass selectMethod: methodBlock [
 
 	| methods |
 	methods := (aBaselineClass allPackageNames collect: [ :each | 
@@ -35,7 +35,7 @@ MWBehavior class >> forBaselineClass: aBaselineClass selectMethod: methodBlock [
 ]
 
 { #category : #API }
-MWBehavior class >> forPackages: aCollection selectMethod: methodBlock [
+MWDecorator class >> forPackages: aCollection selectMethod: methodBlock [
 
 	| methods |
 	methods := aCollection asOrderedCollection flatCollect: [ :each | 
@@ -45,7 +45,7 @@ MWBehavior class >> forPackages: aCollection selectMethod: methodBlock [
 ]
 
 { #category : #'instance creation' }
-MWBehavior class >> on: aCompiledMethod [
+MWDecorator class >> on: aCompiledMethod [
 
 	^ self new
 		  compiledMethod: aCompiledMethod;
@@ -53,10 +53,10 @@ MWBehavior class >> on: aCompiledMethod [
 ]
 
 { #category : #initialization }
-MWBehavior class >> reset [
+MWDecorator class >> reset [
 
 	<script>
-	MWBehavior allSubclassesDo: [ :each | 
+	MWDecorator allSubclassesDo: [ :each | 
 		each allInstances do: [ :w | 
 			[ w uninstall ] onDNU: #uninstall do: [  ] ] ].
 	SpNullApplication reset.
@@ -64,13 +64,13 @@ MWBehavior class >> reset [
 ]
 
 { #category : #'instance creation' }
-MWBehavior class >> withAll: aCollection [
+MWDecorator class >> withAll: aCollection [
 
 	^ self compiledMethods: aCollection thenSelect: [ :each | true ]
 ]
 
 { #category : #'instance creation' }
-MWBehavior class >> withAllImplementations: aCollection [
+MWDecorator class >> withAllImplementations: aCollection [
 
 	^ self
 		  compiledMethods:
@@ -79,13 +79,13 @@ MWBehavior class >> withAllImplementations: aCollection [
 ]
 
 { #category : #initialization }
-MWBehavior >> compiledMethod: aCompiledMethod [
+MWDecorator >> compiledMethod: aCompiledMethod [
 
 	compiledMethod := aCompiledMethod
 ]
 
 { #category : #private }
-MWBehavior >> doesNotUnderstand: aMessage [
+MWDecorator >> doesNotUnderstand: aMessage [
 
 	^ compiledMethod
 		  perform: aMessage selector
@@ -93,13 +93,13 @@ MWBehavior >> doesNotUnderstand: aMessage [
 ]
 
 { #category : #accessing }
-MWBehavior >> handler: anObject [
+MWDecorator >> handler: anObject [
 
 	handler := anObject
 ]
 
 { #category : #private }
-MWBehavior >> ifInstalled: iBlock ifNotInstalled: niBlock [
+MWDecorator >> ifInstalled: iBlock ifNotInstalled: niBlock [
 
 	^ compiledMethod methodClass methodDict
 		  at: compiledMethod selector
@@ -111,7 +111,7 @@ MWBehavior >> ifInstalled: iBlock ifNotInstalled: niBlock [
 ]
 
 { #category : #actions }
-MWBehavior >> install [
+MWDecorator >> install [
 
 	self
 		ifInstalled: [ Warning signal: 'Already installed wrapper.' ]
@@ -119,13 +119,13 @@ MWBehavior >> install [
 ]
 
 { #category : #testing }
-MWBehavior >> isMethodWrapper [
+MWDecorator >> isMethodWrapper [
 
 	^ true
 ]
 
 { #category : #printing }
-MWBehavior >> printOn: aStream [
+MWDecorator >> printOn: aStream [
 
 	aStream nextPutAll: '[ '.
 
@@ -141,7 +141,7 @@ MWBehavior >> printOn: aStream [
 ]
 
 { #category : #actions }
-MWBehavior >> put: aMethod [
+MWDecorator >> put: aMethod [
 
 	compiledMethod methodClass methodDict
 		at: compiledMethod selector
@@ -149,7 +149,7 @@ MWBehavior >> put: aMethod [
 ]
 
 { #category : #evaluation }
-MWBehavior >> run: aSelector with: anArray in: aReceiver [
+MWDecorator >> run: aSelector with: anArray in: aReceiver [
 
 	| aContext |
 	aContext := thisContext sender.
@@ -188,7 +188,7 @@ MWBehavior >> run: aSelector with: anArray in: aReceiver [
 ]
 
 { #category : #actions }
-MWBehavior >> uninstall [
+MWDecorator >> uninstall [
 
 	self
 		ifInstalled: [ self put: compiledMethod ]
@@ -197,7 +197,7 @@ MWBehavior >> uninstall [
 ]
 
 { #category : #evaluation }
-MWBehavior >> value: aReceiver withArguments: anArray [
+MWDecorator >> value: aReceiver withArguments: anArray [
 
 	^ aReceiver withArgs: anArray executeMethod: compiledMethod
 ]
