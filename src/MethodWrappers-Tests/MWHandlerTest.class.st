@@ -153,3 +153,55 @@ MWHandlerTest >> testProfileSlowFibonacci [
 		assert: tree size equals: 178;
 		assert: result equals: (receiver + 1) fibonacciNumbers last
 ]
+
+{ #category : #tests }
+MWHandlerTest >> testProfileSlowFibonacciMemoing [
+
+	| ctx wrapper handler tree presenter result start timespan receiver handlerProfiler |
+	tree := CTOrderPreservingTree new.
+
+	handlerProfiler := MWHandlerProfiling new
+		                   tree: tree;
+		                   yourself.
+
+	handler := MWHandlerMemoing new
+		           handler: handlerProfiler;
+		           yourself.
+
+	wrapper := (MWBehavior on: Integer >> #slowFibonacci)
+		           handler: handler;
+		           yourself.
+
+	receiver := 10.
+
+	start := DateAndTime now.
+	result := { wrapper } withWrappingDo: [ 
+		          ctx := thisContext.
+		          receiver slowFibonacci ].
+	timespan := Timespan
+		            starting: start
+		            duration: DateAndTime now - start.
+
+	presenter := CTOrderPreservingTreePresenter on: tree.
+
+	presenter treePresenter
+		display: [ :aContext | 
+			handlerProfiler at: aContext ifAbsent: [ 
+					| messageSend |
+					messageSend := (RSFullMessageSend
+						                receiver: ctx receiver
+						                selector: ctx selector
+						                arguments: ctx arguments) yourself.
+					" client: ctx client;
+						               callerSelector: ctx sender selector;"
+
+					timespan -> messageSend ] ];
+		expandAll.
+
+	presenter openWithSpec.
+
+
+	self
+		assert: tree size equals: 178;
+		assert: result equals: (receiver + 1) fibonacciNumbers last
+]
