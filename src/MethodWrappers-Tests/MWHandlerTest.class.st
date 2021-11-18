@@ -202,6 +202,6 @@ MWHandlerTest >> testProfileSlowFibonacciMemoing [
 
 
 	self
-		assert: tree size equals: 178;
+		assert: tree size equals: 29;
 		assert: result equals: (receiver + 1) fibonacciNumbers last
 ]

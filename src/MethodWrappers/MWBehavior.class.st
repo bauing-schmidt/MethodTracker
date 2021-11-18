@@ -93,20 +93,15 @@ MWBehavior class >> withAllImplementations: aCollection [
 { #category : #dispatched }
 MWBehavior >> compiledMethod: aCompiledMethod [
 
-	| dict |
 	compiledMethod := aCompiledMethod.
-
-	"self
-		methodClass: aCompiledMethod methodClass;
-		selector: aCompiledMethod selector."
 
 	compiledMethod methodClass
 		addSelector: compiledMethod selector
-		withMethod: self
-	"dict := (methodClass := compiledMethod methodClass) methodDict
-		        at: (selector := compiledMethod selector) put: self;
-		        rehash;
-		        yourself"
+		withMethod: self.
+
+	self
+		assert: selector == compiledMethod selector;
+		assert: methodClass == compiledMethod methodClass
 ]
 
 { #category : #private }
@@ -149,12 +144,6 @@ MWBehavior >> installOnMethodWrapper: aWrapper [
 ]
 
 { #category : #testing }
-MWBehavior >> isCompiledMethod [
-
-	^ false
-]
-
-{ #category : #testing }
 MWBehavior >> isMethodWrapper [
 
 	^ true
@@ -188,37 +177,36 @@ MWBehavior >> run: aSelector with: anArray in: aReceiver [
 	| aContext |
 	aContext := thisContext.
 
-	^ aSelector = compiledMethod selector
-		  ifTrue: [ 
+	aSelector = compiledMethod selector ifFalse: [ 
+		Error signal:
+			'Attempt to send a selector that is different from the compiledMethod''s one.' ].
+
+	^ handler
+		  ifNil: [ self value: aReceiver withArguments: anArray ]
+		  ifNotNil: [ 
+			  | carry result |
+			  carry := handler
+				           run: aSelector
+				           with: anArray
+				           in: aReceiver
+				           pre: aContext.
+
+			  result := handler
+				            runWrapper: self
+				            with: anArray
+				            in: aReceiver
+				            context: aContext
+				            carry: carry.
+
 			  handler
-				  ifNil: [ self value: aReceiver withArguments: anArray ]
-				  ifNotNil: [ 
-					  | carry result |
-					  carry := handler
-						           run: aSelector
-						           with: anArray
-						           in: aReceiver
-						           pre: aContext.
+				  run: aSelector
+				  with: anArray
+				  in: aReceiver
+				  post: aContext
+				  return: result
+				  carry: carry.
 
-					  result := handler
-						            runWrapper: self
-						            with: anArray
-						            in: aReceiver
-						            context: aContext
-						            carry: carry.
-
-					  handler
-						  run: aSelector
-						  with: anArray
-						  in: aReceiver
-						  post: aContext
-						  return: result
-						  carry: carry.
-
-					  result ] ]
-		  ifFalse: [ 
-			  Error signal:
-				  'Attempt to send a selector that is different from the compiledMethod''s one.' ]
+			  result ]
 ]
 
 { #category : #accessing }
