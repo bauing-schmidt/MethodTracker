@@ -96,11 +96,17 @@ MWBehavior >> compiledMethod: aCompiledMethod [
 	| dict |
 	compiledMethod := aCompiledMethod.
 
-	"methodClass addSelectorSilently: selector withMethod: compiledMethod"
-	dict := compiledMethod methodClass methodDict
-		        at: compiledMethod selector put: self;
+	"self
+		methodClass: aCompiledMethod methodClass;
+		selector: aCompiledMethod selector."
+
+	compiledMethod methodClass
+		addSelector: compiledMethod selector
+		withMethod: self
+	"dict := (methodClass := compiledMethod methodClass) methodDict
+		        at: (selector := compiledMethod selector) put: self;
 		        rehash;
-		        yourself
+		        yourself"
 ]
 
 { #category : #private }
@@ -179,11 +185,12 @@ MWBehavior >> printOn: aStream [
 { #category : #evaluation }
 MWBehavior >> run: aSelector with: anArray in: aReceiver [
 
+	| aContext |
+	aContext := thisContext.
+	
 	^ aSelector = compiledMethod selector
 		  ifTrue: [ 
-			  | carry result witness aContext |
-			  aContext := thisContext.
-
+			  | carry result witness |
 			  witness := Object new.
 
 			  carry := handler ifNil: [ witness ] ifNotNil: [ 
@@ -206,7 +213,7 @@ MWBehavior >> run: aSelector with: anArray in: aReceiver [
 					  return: result
 					  carry: carry ].
 
-			  ^ result ]
+			  result ]
 		  ifFalse: [ 
 			  Error signal:
 				  'Attempt to send a selector that is different from the compiledMethod''s one.' ]
