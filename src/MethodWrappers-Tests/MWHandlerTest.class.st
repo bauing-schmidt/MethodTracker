@@ -8,6 +8,28 @@ Class {
 }
 
 { #category : #tests }
+MWHandlerTest >> testCountIfTrueDuringSlowFactorial [
+
+	| wrapper wrappers handler ifTrueHandler |
+	handler := MWHandlerCounting new.
+	ifTrueHandler := MWHandlerCounting new.
+
+	wrapper := (AbstractMethodWrapper on: Integer >> #slowFactorial)
+		           handler: handler;
+		           yourself.
+
+	wrappers := (AbstractMethodWrapper withAllImplementations: { (Boolean >> #ifTrue:) })
+		            do: [ :each | each handler: ifTrueHandler ];
+		            yourself.
+
+	{ wrapper } , wrappers withWrappingDo: [ 5 slowFactorial ].
+
+	self
+		assert: handler count equals: 6;
+		assert: ifTrueHandler count equals: 0
+]
+
+{ #category : #tests }
 MWHandlerTest >> testCountSlowFactorial [
 
 	| wrapper handler |
@@ -46,17 +68,19 @@ MWHandlerTest >> testProfileSlowFactorial [
 
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
-	presenter treePresenter display: [ :aContext | 
-		handler at: aContext ifAbsent: [ 
-			| messageSend |
-			messageSend := (RSFullMessageSend
-				                receiver: ctx receiver
-				                selector: ctx selector
-				                arguments: ctx arguments) yourself.
-			" client: ctx client;
+	presenter treePresenter
+		display: [ :aContext | 
+			handler at: aContext ifAbsent: [ 
+					| messageSend |
+					messageSend := (RSFullMessageSend
+						                receiver: ctx receiver
+						                selector: ctx selector
+						                arguments: ctx arguments) yourself.
+					" client: ctx client;
 						               callerSelector: ctx sender selector;"
 
-			timespan -> messageSend ] ].
+					timespan -> messageSend ] ];
+		expandAll.
 
 	presenter openWithSpec.
 

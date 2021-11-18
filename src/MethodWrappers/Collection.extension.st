@@ -4,9 +4,7 @@ Extension { #name : #Collection }
 Collection >> withWrappingDo: aBlock [
 
 	| wrappers |
-	wrappers := self
-		            select: [ :each | each isMethodWrapper ]
-		            thenCollect: [ :each | each install ].
+	wrappers := self collect: [ :each | each install ].
 
 	^ aBlock ensure: [ wrappers do: [ :each | each uninstall ] ]
 ]

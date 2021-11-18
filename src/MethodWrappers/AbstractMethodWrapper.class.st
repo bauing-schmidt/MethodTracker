@@ -8,16 +8,16 @@ Class {
 		'compiledMethod',
 		'handler',
 		'selector',
-		'behavior'
+		'methodClass'
 	],
 	#category : #MethodWrappers
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #'instance creation' }
 AbstractMethodWrapper class >> behavior: aBehavior selector: aSelector [
 
 	^ self basicNew
-		  behavior: aBehavior;
+		  methodClass: aBehavior;
 		  selector: aSelector;
 		  initialize;
 		  yourself
@@ -56,7 +56,7 @@ AbstractMethodWrapper class >> forPackages: aCollection selectMethod: methodBloc
 	^ self compiledMethods: methods thenSelect: methodBlock
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'instance creation' }
 AbstractMethodWrapper class >> on: aCompiledMethod [
 
 	^ self
@@ -75,20 +75,31 @@ AbstractMethodWrapper class >> reset [
 	Smalltalk garbageCollect
 ]
 
-{ #category : #accessing }
-AbstractMethodWrapper >> behavior: anObject [
+{ #category : #'instance creation' }
+AbstractMethodWrapper class >> withAll: aCollection [
 
-	behavior := anObject
+	^ self compiledMethods: aCollection thenSelect: [ :each | true ]
+]
+
+{ #category : #'instance creation' }
+AbstractMethodWrapper class >> withAllImplementations: aCollection [
+
+	^ self
+		  compiledMethods:
+		  (aCollection flatCollect: [ :each | each allImplementations ])
+		  thenSelect: [ :each | true ]
 ]
 
 { #category : #dispatched }
 AbstractMethodWrapper >> compiledMethod: aCompiledMethod [
 
+	| dict |
 	compiledMethod := aCompiledMethod.
 
-	compiledMethod methodClass methodDict
-		at: compiledMethod selector
-		put: self
+	"methodClass addSelectorSilently: selector withMethod: compiledMethod"
+	dict := compiledMethod methodClass methodDict
+		        at: compiledMethod selector put: self;
+		        yourself
 ]
 
 { #category : #private }
@@ -120,7 +131,7 @@ AbstractMethodWrapper >> install [
 	self
 		ifInstalled: [ Warning signal: 'Already installed wrapper.' ]
 		ifNotInstalled: [ 
-			(behavior lookupSelector: selector) ifNotNil: [ :aMethodOrWrapper | 
+			(methodClass lookupSelector: selector) ifNotNil: [ :aMethodOrWrapper | 
 				aMethodOrWrapper installOnMethodWrapper: self ] ]
 ]
 
@@ -142,6 +153,12 @@ AbstractMethodWrapper >> isMethodWrapper [
 	^ true
 ]
 
+{ #category : #accessing }
+AbstractMethodWrapper >> methodClass: anObject [
+
+	methodClass := anObject
+]
+
 { #category : #printing }
 AbstractMethodWrapper >> printOn: aStream [
 
@@ -151,7 +168,7 @@ AbstractMethodWrapper >> printOn: aStream [
 		ifInstalled: [ compiledMethod printOn: aStream ]
 		ifNotInstalled: [ 
 			aStream
-				print: behavior;
+				print: methodClass;
 				nextPutAll: ' • ';
 				print: selector ].
 
