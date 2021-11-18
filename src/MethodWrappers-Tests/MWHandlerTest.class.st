@@ -101,7 +101,7 @@ MWHandlerTest >> testProfileSlowFactorial [
 	presenter openWithSpec.
 
 	self
-		assert: tree size equals: 7;
+		assert: tree size equals: 6;
 		assert: result equals: 5 factorial
 ]
 
@@ -185,7 +185,7 @@ MWHandlerTest >> testProfileSlowFibonacciMemoing [
 		            starting: start
 		            duration: DateAndTime now - start.
 
-	handlerProfiler adjustTree.
+"	handlerProfiler adjustTree."
 
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
@@ -208,6 +208,6 @@ MWHandlerTest >> testProfileSlowFibonacciMemoing [
 
 
 	self
-		assert: tree size equals: 13;
+		assert: tree size equals: 10;
 		assert: result equals: (receiver + 1) fibonacciNumbers last
 ]

@@ -144,8 +144,8 @@ MWBehavior >> printOn: aStream [
 MWBehavior >> put: aMethod [
 
 	compiledMethod methodClass methodDict
-		at: compiledMethod selector put: aMethod;
-		rehash
+		at: compiledMethod selector
+		put: aMethod
 ]
 
 { #category : #evaluation }

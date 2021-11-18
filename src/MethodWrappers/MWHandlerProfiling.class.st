@@ -98,21 +98,18 @@ MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver post: aContext 
 ]
 
 { #category : #evaluation }
-MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver pre: tmp [
+MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver pre: aContext [
 
-	| messageSend span anAssoc children aContext |
+	| messageSend span anAssoc children |
 	super
 		run: aSelector
 		with: anArray
 		in: aReceiver
-		pre: tmp.
+		pre: aContext.
 
-	aContext := (thisContext findContextSuchThat: [ :ctx | 
-		             ctx selector = #run:with:in: and: [ 
-			             ctx receiver isKindOf: MWBehavior ] ]) sender.
-
-	(aContext findContextSuchThat: [ :ctx | ctx selector = #run:with:in: ]) 
-		ifNotNil: [ :parentContext | 
+	(aContext findContextSuchThat: [ :ctx | 
+		 ctx selector = #run:with:in: and: [ 
+			 ctx receiver isKindOf: MWBehavior ] ]) ifNotNil: [ :parentContext | 
 		tree parent: parentContext sender child: aContext ].
 
 	children := child at: aContext ifAbsentPut: [ OrderedCollection new ].
