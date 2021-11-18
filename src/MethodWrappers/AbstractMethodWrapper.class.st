@@ -28,7 +28,7 @@ AbstractMethodWrapper class >> forMethods: aCollection selectMethod: methodBlock
 
 	| methods excludingClasses |
 	excludingClasses := (AbstractMethodWrapper withAllSubclasses
-	                     , AbstractProxy withAllSubclasses) asSet.
+	                     , MethodTemperatureAbstractProxy withAllSubclasses) asSet.
 
 	methods := aCollection select: [ :aMethod | 
 		           (excludingClasses includes: aMethod methodClass) not 
