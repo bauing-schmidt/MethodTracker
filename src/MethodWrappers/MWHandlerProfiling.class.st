@@ -8,10 +8,18 @@ Class {
 		'callsLog',
 		'tree',
 		'tick',
-		'table'
+		'table',
+		'child'
 	],
 	#category : #MethodWrappers
 }
+
+{ #category : #'as yet unclassified' }
+MWHandlerProfiling >> adjustTree [
+
+	tree leaves do: [ :each | 
+		(child at: each) do: [ :aChild | tree parent: each child: aChild ] ]
+]
 
 { #category : #evaluation }
 MWHandlerProfiling >> at: aKey ifAbsent: aBlock [
@@ -37,7 +45,8 @@ MWHandlerProfiling >> initialize [
 
 	callsLog := OrderedCollection new.
 	tick := 0.
-	table := IdentityDictionary new
+	table := IdentityDictionary new.
+	child := IdentityDictionary new
 ]
 
 { #category : #evaluation }
@@ -91,16 +100,31 @@ MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver post: aContext 
 { #category : #evaluation }
 MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver pre: aContext [
 
-	| messageSend span anAssoc tmp |
+	| messageSend span anAssoc children |
 	super
 		run: aSelector
 		with: anArray
 		in: aReceiver
 		pre: aContext.
 
+	"	tmp := thisContext findContextSuchThatReceiverIsntWrapping.
+
+	tree
+		parent: tmp sender findContextSuchThatReceiverIsntWrapping
+		child: tmp."
+
 	tree
 		parent: aContext findContextSuchThatReceiverIsntWrapping
 		child: aContext.
+
+	children := child at: aContext ifAbsentPut: [ OrderedCollection new ].
+	children add: (Context
+			 sender: aContext
+			 receiver: aReceiver
+			 method: (aReceiver class lookupSelector: aSelector)
+			 arguments: anArray).
+
+
 
 	messageSend := (RSFullMessageSend
 		                receiver: aReceiver

@@ -129,28 +129,31 @@ MWHandlerTest >> testProfileSlowFibonacci [
 		            starting: start
 		            duration: DateAndTime now - start.
 
+	handler adjustTree.
+
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
 	presenter treePresenter
 		display: [ :aContext | 
+			aContext receiver asString , ' ' , aContext method selector "
 			handler at: aContext ifAbsent: [ 
 					| messageSend |
 					messageSend := (RSFullMessageSend
 						                receiver: ctx receiver
 						                selector: ctx selector
 						                arguments: ctx arguments)
-						              " client: ctx client;
-						               callerSelector: ctx sender selector;"
+						              "" client: ctx client;
+						               callerSelector: ctx sender selector;""
 						               yourself.
 
-					timespan -> messageSend ] ];
+					timespan -> messageSend ]" ];
 		expandAll.
 
 	presenter openWithSpec.
 
 
 	self
-		assert: tree size equals: 178;
+		assert: tree size equals: 158;
 		assert: result equals: (receiver + 1) fibonacciNumbers last
 ]
 
@@ -182,26 +185,29 @@ MWHandlerTest >> testProfileSlowFibonacciMemoing [
 		            starting: start
 		            duration: DateAndTime now - start.
 
+	handlerProfiler adjustTree.
+
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
 	presenter treePresenter
 		display: [ :aContext | 
-			handlerProfiler at: aContext ifAbsent: [ 
+			aContext receiver asString , ' ' , aContext method selector
+			"handlerProfiler at: aContext ifAbsent: [ 
 					| messageSend |
 					messageSend := (RSFullMessageSend
 						                receiver: ctx receiver
 						                selector: ctx selector
 						                arguments: ctx arguments) yourself.
-					" client: ctx client;
-						               callerSelector: ctx sender selector;"
+					"" client: ctx client;
+						               callerSelector: ctx sender selector;""
 
-					timespan -> messageSend ] ];
+					timespan -> messageSend ] " ];
 		expandAll.
 
 	presenter openWithSpec.
 
 
 	self
-		assert: tree size equals: 29;
+		assert: tree size equals: 13;
 		assert: result equals: (receiver + 1) fibonacciNumbers last
 ]

@@ -210,6 +210,11 @@ MWBehavior >> run: aSelector with: anArray in: aReceiver [
 ]
 
 { #category : #accessing }
+MWBehavior >> selector [
+	^ selector
+]
+
+{ #category : #accessing }
 MWBehavior >> selector: anObject [
 
 	selector := anObject
