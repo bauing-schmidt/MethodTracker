@@ -8,6 +8,22 @@ Class {
 }
 
 { #category : #tests }
+MWHandlerTest >> testCountIfTrue [
+
+	| wrappers handler |
+	handler := MWHandlerCounting new.
+
+	wrappers := (MWBehavior withAllImplementations:
+			             { (Boolean >> #ifTrue:) })
+		            do: [ :each | each handler: handler ];
+		            yourself.
+
+	wrappers withWrappingDo: [ 5 slowFactorial ].
+
+	self assert: handler count equals: 0
+]
+
+{ #category : #tests }
 MWHandlerTest >> testCountIfTrueDuringSlowFactorial [
 
 	| wrapper wrappers handler ifTrueHandler |

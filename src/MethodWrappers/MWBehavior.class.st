@@ -99,6 +99,7 @@ MWBehavior >> compiledMethod: aCompiledMethod [
 	"methodClass addSelectorSilently: selector withMethod: compiledMethod"
 	dict := compiledMethod methodClass methodDict
 		        at: compiledMethod selector put: self;
+		        rehash;
 		        yourself
 ]
 
