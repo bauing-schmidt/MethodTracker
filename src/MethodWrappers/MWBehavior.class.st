@@ -6,22 +6,10 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'compiledMethod',
-		'handler',
-		'selector',
-		'methodClass'
+		'handler'
 	],
 	#category : #MethodWrappers
 }
-
-{ #category : #'instance creation' }
-MWBehavior class >> behavior: aBehavior selector: aSelector [
-
-	^ self basicNew
-		  methodClass: aBehavior;
-		  selector: aSelector;
-		  initialize;
-		  yourself
-]
 
 { #category : #API }
 MWBehavior class >> compiledMethods: aCollection thenSelect: methodBlock [
@@ -59,9 +47,9 @@ MWBehavior class >> forPackages: aCollection selectMethod: methodBlock [
 { #category : #'instance creation' }
 MWBehavior class >> on: aCompiledMethod [
 
-	^ self
-		  behavior: aCompiledMethod methodClass
-		  selector: aCompiledMethod selector
+	^ self new
+		  compiledMethod: aCompiledMethod;
+		  yourself
 ]
 
 { #category : #initialization }
@@ -90,29 +78,18 @@ MWBehavior class >> withAllImplementations: aCollection [
 		  thenSelect: [ :each | true ]
 ]
 
-{ #category : #dispatched }
+{ #category : #initialization }
 MWBehavior >> compiledMethod: aCompiledMethod [
 
-	compiledMethod := aCompiledMethod.
-
-	compiledMethod methodClass
-		addSelector: compiledMethod selector
-		withMethod: self.
-
-	self
-		assert: selector == compiledMethod selector;
-		assert: methodClass == compiledMethod methodClass
+	compiledMethod := aCompiledMethod
 ]
 
 { #category : #private }
 MWBehavior >> doesNotUnderstand: aMessage [
 
-	^ self
-		  ifInstalled: [ 
-			  compiledMethod
-				  perform: aMessage selector
-				  withArguments: aMessage arguments ]
-		  ifNotInstalled: [ super doesNotUnderstand: aMessage ]
+	^ compiledMethod
+		  perform: aMessage selector
+		  withArguments: aMessage arguments
 ]
 
 { #category : #accessing }
@@ -124,7 +101,13 @@ MWBehavior >> handler: anObject [
 { #category : #private }
 MWBehavior >> ifInstalled: iBlock ifNotInstalled: niBlock [
 
-	^ compiledMethod ifNil: niBlock ifNotNil: iBlock
+	^ compiledMethod methodClass methodDict
+		  at: compiledMethod selector
+		  ifPresent: [ :aMethod | 
+			  aMethod == self
+				  ifTrue: iBlock
+				  ifFalse: niBlock ]
+		  ifAbsent: [ Error signal ]
 ]
 
 { #category : #actions }
@@ -132,27 +115,13 @@ MWBehavior >> install [
 
 	self
 		ifInstalled: [ Warning signal: 'Already installed wrapper.' ]
-		ifNotInstalled: [ 
-			(methodClass lookupSelector: selector) ifNotNil: [ :aMethodOrWrapper | 
-				aMethodOrWrapper installOnMethodWrapper: self ] ]
-]
-
-{ #category : #dispatched }
-MWBehavior >> installOnMethodWrapper: aWrapper [
-
-	Warning signal: 'Attempting to wrap a wrapper'
+		ifNotInstalled: [ self put: self ]
 ]
 
 { #category : #testing }
 MWBehavior >> isMethodWrapper [
 
 	^ true
-]
-
-{ #category : #accessing }
-MWBehavior >> methodClass: anObject [
-
-	methodClass := anObject
 ]
 
 { #category : #printing }
@@ -164,11 +133,19 @@ MWBehavior >> printOn: aStream [
 		ifInstalled: [ compiledMethod printOn: aStream ]
 		ifNotInstalled: [ 
 			aStream
-				print: methodClass;
+				print: compiledMethod methodClass;
 				nextPutAll: ' • ';
-				print: selector ].
+				print: compiledMethod selector ].
 
 	aStream nextPutAll: ' ] π'
+]
+
+{ #category : #actions }
+MWBehavior >> put: aMethod [
+
+	compiledMethod methodClass methodDict
+		at: compiledMethod selector
+		put: aMethod
 ]
 
 { #category : #evaluation }
@@ -209,27 +186,11 @@ MWBehavior >> run: aSelector with: anArray in: aReceiver [
 			  result ]
 ]
 
-{ #category : #accessing }
-MWBehavior >> selector [
-	^ selector
-]
-
-{ #category : #accessing }
-MWBehavior >> selector: anObject [
-
-	selector := anObject
-]
-
 { #category : #actions }
 MWBehavior >> uninstall [
 
 	self
-		ifInstalled: [ 
-			compiledMethod methodClass
-				addSelector: compiledMethod selector
-				withMethod: compiledMethod.
-
-			compiledMethod := nil ]
+		ifInstalled: [ self put: compiledMethod ]
 		ifNotInstalled: [ 
 		Warning signal: 'Attempted to uninstall a not installed wrapper.' ]
 ]

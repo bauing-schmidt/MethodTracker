@@ -135,7 +135,7 @@ MWHandlerTest >> testProfileSlowFibonacci [
 
 	presenter treePresenter
 		display: [ :aContext | 
-			aContext receiver asString , ' ' , aContext method selector "
+			aContext receiver asString , ' ' , aContext methodSelector "
 			handler at: aContext ifAbsent: [ 
 					| messageSend |
 					messageSend := (RSFullMessageSend

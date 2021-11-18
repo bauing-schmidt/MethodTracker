@@ -12,9 +12,3 @@ CompiledMethod >> allImplementations [
 
 			  cm ifNotNil: [ aStream nextPut: cm ] ] ]
 ]
-
-{ #category : #'*MethodWrappers' }
-CompiledMethod >> installOnMethodWrapper: aWrapper [
-
-	aWrapper compiledMethod: self
-]
