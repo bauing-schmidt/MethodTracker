@@ -14,11 +14,11 @@ MWHandlerTest >> testCountIfTrueDuringSlowFactorial [
 	handler := MWHandlerCounting new.
 	ifTrueHandler := MWHandlerCounting new.
 
-	wrapper := (AbstractMethodWrapper on: Integer >> #slowFactorial)
+	wrapper := (MWBehavior on: Integer >> #slowFactorial)
 		           handler: handler;
 		           yourself.
 
-	wrappers := (AbstractMethodWrapper withAllImplementations: { (Boolean >> #ifTrue:) })
+	wrappers := (MWBehavior withAllImplementations: { (Boolean >> #ifTrue:) })
 		            do: [ :each | each handler: ifTrueHandler ];
 		            yourself.
 
@@ -35,7 +35,7 @@ MWHandlerTest >> testCountSlowFactorial [
 	| wrapper handler |
 	handler := MWHandlerCounting new.
 
-	wrapper := (AbstractMethodWrapper on: Integer >> #slowFactorial)
+	wrapper := (MWBehavior on: Integer >> #slowFactorial)
 		           handler: handler;
 		           yourself.
 
@@ -54,7 +54,7 @@ MWHandlerTest >> testProfileSlowFactorial [
 		           tree: tree;
 		           yourself.
 
-	wrapper := (AbstractMethodWrapper on: Integer >> #slowFactorial)
+	wrapper := (MWBehavior on: Integer >> #slowFactorial)
 		           handler: handler;
 		           yourself.
 
@@ -99,7 +99,7 @@ MWHandlerTest >> testProfileSlowFibonacci [
 		           tree: tree;
 		           yourself.
 
-	wrapper := (AbstractMethodWrapper on: Integer >> #slowFibonacci)
+	wrapper := (MWBehavior on: Integer >> #slowFibonacci)
 		           handler: handler;
 		           yourself.
 

@@ -2,7 +2,7 @@
 I am an abstract class that install a wrapper around a compiled method, and uninstall it when finished my scope.
 "
 Class {
-	#name : #AbstractMethodWrapper,
+	#name : #MWBehavior,
 	#superclass : #Object,
 	#instVars : [
 		'compiledMethod',
@@ -14,7 +14,7 @@ Class {
 }
 
 { #category : #'instance creation' }
-AbstractMethodWrapper class >> behavior: aBehavior selector: aSelector [
+MWBehavior class >> behavior: aBehavior selector: aSelector [
 
 	^ self basicNew
 		  methodClass: aBehavior;
@@ -24,10 +24,10 @@ AbstractMethodWrapper class >> behavior: aBehavior selector: aSelector [
 ]
 
 { #category : #API }
-AbstractMethodWrapper class >> compiledMethods: aCollection thenSelect: methodBlock [
+MWBehavior class >> compiledMethods: aCollection thenSelect: methodBlock [
 
 	| excludingClasses |
-	excludingClasses := AbstractMethodWrapper withAllSubclasses asSet.
+	excludingClasses := MWBehavior withAllSubclasses asSet.
 
 	^ aCollection
 		  select: [ :aMethod | 
@@ -37,7 +37,7 @@ AbstractMethodWrapper class >> compiledMethods: aCollection thenSelect: methodBl
 ]
 
 { #category : #API }
-AbstractMethodWrapper class >> forBaselineClass: aBaselineClass selectMethod: methodBlock [
+MWBehavior class >> forBaselineClass: aBaselineClass selectMethod: methodBlock [
 
 	| methods |
 	methods := (aBaselineClass allPackageNames collect: [ :each | 
@@ -47,7 +47,7 @@ AbstractMethodWrapper class >> forBaselineClass: aBaselineClass selectMethod: me
 ]
 
 { #category : #API }
-AbstractMethodWrapper class >> forPackages: aCollection selectMethod: methodBlock [
+MWBehavior class >> forPackages: aCollection selectMethod: methodBlock [
 
 	| methods |
 	methods := aCollection asOrderedCollection flatCollect: [ :each | 
@@ -57,7 +57,7 @@ AbstractMethodWrapper class >> forPackages: aCollection selectMethod: methodBloc
 ]
 
 { #category : #'instance creation' }
-AbstractMethodWrapper class >> on: aCompiledMethod [
+MWBehavior class >> on: aCompiledMethod [
 
 	^ self
 		  behavior: aCompiledMethod methodClass
@@ -65,10 +65,10 @@ AbstractMethodWrapper class >> on: aCompiledMethod [
 ]
 
 { #category : #initialization }
-AbstractMethodWrapper class >> reset [
+MWBehavior class >> reset [
 
 	<script>
-	AbstractMethodWrapper allSubclassesDo: [ :each | 
+	MWBehavior allSubclassesDo: [ :each | 
 		each allInstances do: [ :w | 
 			[ w uninstall ] onDNU: #uninstall do: [  ] ] ].
 	SpNullApplication reset.
@@ -76,13 +76,13 @@ AbstractMethodWrapper class >> reset [
 ]
 
 { #category : #'instance creation' }
-AbstractMethodWrapper class >> withAll: aCollection [
+MWBehavior class >> withAll: aCollection [
 
 	^ self compiledMethods: aCollection thenSelect: [ :each | true ]
 ]
 
 { #category : #'instance creation' }
-AbstractMethodWrapper class >> withAllImplementations: aCollection [
+MWBehavior class >> withAllImplementations: aCollection [
 
 	^ self
 		  compiledMethods:
@@ -91,7 +91,7 @@ AbstractMethodWrapper class >> withAllImplementations: aCollection [
 ]
 
 { #category : #dispatched }
-AbstractMethodWrapper >> compiledMethod: aCompiledMethod [
+MWBehavior >> compiledMethod: aCompiledMethod [
 
 	| dict |
 	compiledMethod := aCompiledMethod.
@@ -103,7 +103,7 @@ AbstractMethodWrapper >> compiledMethod: aCompiledMethod [
 ]
 
 { #category : #private }
-AbstractMethodWrapper >> doesNotUnderstand: aMessage [
+MWBehavior >> doesNotUnderstand: aMessage [
 
 	^ self
 		  ifInstalled: [ 
@@ -114,19 +114,19 @@ AbstractMethodWrapper >> doesNotUnderstand: aMessage [
 ]
 
 { #category : #accessing }
-AbstractMethodWrapper >> handler: anObject [
+MWBehavior >> handler: anObject [
 
 	handler := anObject
 ]
 
 { #category : #private }
-AbstractMethodWrapper >> ifInstalled: iBlock ifNotInstalled: niBlock [
+MWBehavior >> ifInstalled: iBlock ifNotInstalled: niBlock [
 
 	^ compiledMethod ifNil: niBlock ifNotNil: iBlock
 ]
 
 { #category : #actions }
-AbstractMethodWrapper >> install [
+MWBehavior >> install [
 
 	self
 		ifInstalled: [ Warning signal: 'Already installed wrapper.' ]
@@ -136,31 +136,31 @@ AbstractMethodWrapper >> install [
 ]
 
 { #category : #dispatched }
-AbstractMethodWrapper >> installOnMethodWrapper: aWrapper [
+MWBehavior >> installOnMethodWrapper: aWrapper [
 
 	Warning signal: 'Attempting to wrap a wrapper'
 ]
 
 { #category : #testing }
-AbstractMethodWrapper >> isCompiledMethod [
+MWBehavior >> isCompiledMethod [
 
 	^ false
 ]
 
 { #category : #testing }
-AbstractMethodWrapper >> isMethodWrapper [
+MWBehavior >> isMethodWrapper [
 
 	^ true
 ]
 
 { #category : #accessing }
-AbstractMethodWrapper >> methodClass: anObject [
+MWBehavior >> methodClass: anObject [
 
 	methodClass := anObject
 ]
 
 { #category : #printing }
-AbstractMethodWrapper >> printOn: aStream [
+MWBehavior >> printOn: aStream [
 
 	aStream nextPutAll: '[ '.
 
@@ -176,7 +176,7 @@ AbstractMethodWrapper >> printOn: aStream [
 ]
 
 { #category : #evaluation }
-AbstractMethodWrapper >> run: aSelector with: anArray in: aReceiver [
+MWBehavior >> run: aSelector with: anArray in: aReceiver [
 
 	^ aSelector = compiledMethod selector
 		  ifTrue: [ 
@@ -212,13 +212,13 @@ AbstractMethodWrapper >> run: aSelector with: anArray in: aReceiver [
 ]
 
 { #category : #accessing }
-AbstractMethodWrapper >> selector: anObject [
+MWBehavior >> selector: anObject [
 
 	selector := anObject
 ]
 
 { #category : #actions }
-AbstractMethodWrapper >> uninstall [
+MWBehavior >> uninstall [
 
 	self
 		ifInstalled: [ 
