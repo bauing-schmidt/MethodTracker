@@ -27,8 +27,8 @@ MWHandlerMemoing >> run: aSelector with: anArray in: aReceiver context: aContext
 
 	^ table
 		  at: { 
-				  aSelector.
-				  aReceiver } , anArray
+				  aReceiver.
+				  aSelector } , anArray
 		  ifAbsentPut: [ 
 			  handler
 				  run: aSelector

@@ -98,24 +98,22 @@ MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver post: aContext 
 ]
 
 { #category : #evaluation }
-MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver pre: aContext [
+MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver pre: tmp [
 
-	| messageSend span anAssoc children |
+	| messageSend span anAssoc children aContext |
 	super
 		run: aSelector
 		with: anArray
 		in: aReceiver
-		pre: aContext.
+		pre: tmp.
 
-	"	tmp := thisContext findContextSuchThatReceiverIsntWrapping.
+	aContext := (thisContext findContextSuchThat: [ :ctx | 
+		             ctx selector = #run:with:in: and: [ 
+			             ctx receiver isKindOf: MWBehavior ] ]) sender.
 
-	tree
-		parent: tmp sender findContextSuchThatReceiverIsntWrapping
-		child: tmp."
-
-	tree
-		parent: aContext findContextSuchThatReceiverIsntWrapping
-		child: aContext.
+	(aContext findContextSuchThat: [ :ctx | ctx selector = #run:with:in: ]) 
+		ifNotNil: [ :parentContext | 
+		tree parent: parentContext sender child: aContext ].
 
 	children := child at: aContext ifAbsentPut: [ OrderedCollection new ].
 	children add: (Context
@@ -123,8 +121,6 @@ MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver pre: aContext [
 			 receiver: aReceiver
 			 method: (aReceiver class lookupSelector: aSelector)
 			 arguments: anArray).
-
-
 
 	messageSend := (RSFullMessageSend
 		                receiver: aReceiver

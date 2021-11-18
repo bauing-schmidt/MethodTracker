@@ -18,7 +18,7 @@ MWHandlerTest >> testCountIfTrue [
 		            do: [ :each | each handler: handler ];
 		            yourself.
 
-	wrappers withWrappingDo: [ 5 slowFactorial ].
+	wrappers withWrappingDo: [ true ifTrue: [ 3 ] ].
 
 	self assert: handler count equals: 0
 ]
@@ -129,7 +129,7 @@ MWHandlerTest >> testProfileSlowFibonacci [
 		            starting: start
 		            duration: DateAndTime now - start.
 
-	handler adjustTree.
+	"handler adjustTree."
 
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
@@ -153,7 +153,7 @@ MWHandlerTest >> testProfileSlowFibonacci [
 
 
 	self
-		assert: tree size equals: 158;
+		assert: tree size equals: 89;
 		assert: result equals: (receiver + 1) fibonacciNumbers last
 ]
 
