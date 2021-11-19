@@ -141,10 +141,6 @@ MWDecorator >> printOn: aStream [
 { #category : #actions }
 MWDecorator >> put: aMethod [
 
-	"compiledMethod methodClass methodDict
-		at: compiledMethod selector put: aMethod;
-		rehash"
-
 	compiledMethod methodClass methodDict
 		at: compiledMethod selector put: aMethod;
 		rehash
@@ -161,30 +157,12 @@ MWDecorator >> run: aSelector with: anArray in: aReceiver [
 	^ handler
 		  ifNil: [ self valueWithReceiver: aReceiver arguments: anArray ]
 		  ifNotNil: [ 
-			  | carry result |
-			  carry := handler
-				           run: aSelector
-				           with: anArray
-				           in: aReceiver
-				           pre: aContext.
-
-			  result := handler
-				            run: aSelector
-				            with: anArray
-				            in: aReceiver
-				            context: aContext
-				            carry: carry
-				            wrapper: self.
-
 			  handler
 				  run: aSelector
 				  with: anArray
 				  in: aReceiver
-				  post: aContext
-				  return: result
-				  carry: carry.
-
-			  result ]
+				  context: aContext
+				  wrapper: self ]
 ]
 
 { #category : #actions }

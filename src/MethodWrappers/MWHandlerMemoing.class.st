@@ -25,6 +25,24 @@ MWHandlerMemoing >> initialize [
 { #category : #'as yet unclassified' }
 MWHandlerMemoing >> run: aSelector with: anArray in: aReceiver context: aContext carry: carry wrapper: aWrapper [
 
+	| key |
+	key := { 
+		       aReceiver.
+		       aSelector } , anArray.
+
+	^ table at: key ifAbsentPut: [ 
+		  handler
+			  run: aSelector
+			  with: anArray
+			  in: aReceiver
+			  context: aContext
+			  carry: carry
+			  wrapper: aWrapper ]
+]
+
+{ #category : #'as yet unclassified' }
+MWHandlerMemoing >> run: aSelector with: anArray in: aReceiver context: aContext wrapper: aWrapper [
+
 	^ table
 		  at: { 
 				  aReceiver.
@@ -35,7 +53,6 @@ MWHandlerMemoing >> run: aSelector with: anArray in: aReceiver context: aContext
 				  with: anArray
 				  in: aReceiver
 				  context: aContext
-				  carry: carry
 				  wrapper: aWrapper ]
 ]
 

@@ -58,7 +58,7 @@ MWHandlerTest >> testCountIfTrue [
 
 	wrappers withWrappingDo: [ true ifTrue: [ 3 ] ].
 
-	self assert: handler count equals: 1
+	self assert: handler count equals: 0
 ]
 
 { #category : #tests }
@@ -106,7 +106,7 @@ MWHandlerTest >> testCountIfTrueSingleWrapper [
 
 	self deny: (wrapper ifInstalled: [ true ] ifNotInstalled: [ false ]).
 
-	self assert: handler count equals: 1
+	self assert: handler count equals: 0
 ]
 
 { #category : #tests }
@@ -129,7 +129,7 @@ MWHandlerTest >> testCountIfTrueSingleWrapperWithMethodProxy [
 
 	self assert: wrapper isEnabled.
 
-	self assert: handler count equals: 1
+	self assert: handler count equals: 0
 ]
 
 { #category : #tests }
@@ -155,7 +155,7 @@ MWHandlerTest >> testCountSelfIfTrueSingleWrapper [
 
 	self deny: (wrapper ifInstalled: [ true ] ifNotInstalled: [ false ]).
 
-	self assert: handler count equals: 1
+	self assert: handler count equals: 0
 ]
 
 { #category : #tests }

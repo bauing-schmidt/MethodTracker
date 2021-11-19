@@ -94,7 +94,15 @@ MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver post: aContext 
 			start: timespan end;
 			duration: Duration zero;
 			logicalStart: timespan logicalStart;
-			logicalDuration: timespan logicalDuration ]
+			logicalDuration: timespan logicalDuration ].
+
+	^ super
+		  run: aSelector
+		  with: anArray
+		  in: aReceiver
+		  post: aContext
+		  return: anObject
+		  carry: anAssoc
 ]
 
 { #category : #evaluation }
