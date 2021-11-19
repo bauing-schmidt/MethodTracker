@@ -24,6 +24,13 @@ MWDecorator class >> compiledMethods: aCollection thenSelect: methodBlock [
 	^ methods collect: [ :each | self on: each ]
 ]
 
+{ #category : #initialization }
+MWDecorator class >> doInspectAllInstances [
+
+	<script>
+	MWDecorator inspectAllInstances
+]
+
 { #category : #API }
 MWDecorator class >> forBaselineClass: aBaselineClass selectMethod: methodBlock [
 
@@ -47,7 +54,9 @@ MWDecorator class >> forPackages: aCollection selectMethod: methodBlock [
 { #category : #'instance creation' }
 MWDecorator class >> on: aCompiledMethod [
 
-	^ self new compiledMethod: aCompiledMethod
+	^ self new
+		  compiledMethod: aCompiledMethod;
+		  yourself
 ]
 
 { #category : #initialization }

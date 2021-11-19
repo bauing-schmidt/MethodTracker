@@ -17,8 +17,15 @@ Class {
 { #category : #'as yet unclassified' }
 MWHandlerProfiling >> adjustTree [
 
-	tree leaves do: [ :each | 
-		(child at: each) do: [ :aChild | tree parent: each child: aChild ] ]
+	tree children keysAndValuesDo: [ :aParent :children | 
+		| localChildren i |
+		localChildren := child at: aParent.
+		i := children greatestCommonIndex: localChildren.
+
+		i + 1 to: localChildren size do: [ :j | 
+			| each |
+			each := localChildren at: j.
+			tree parent: aParent child: each ] ]
 ]
 
 { #category : #evaluation }

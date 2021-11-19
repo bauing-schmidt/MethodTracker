@@ -40,22 +40,6 @@ MWHandlerMemoing >> run: aSelector with: anArray in: aReceiver context: aContext
 			  wrapper: aWrapper ]
 ]
 
-{ #category : #'as yet unclassified' }
-MWHandlerMemoing >> run: aSelector with: anArray in: aReceiver context: aContext wrapper: aWrapper [
-
-	^ table
-		  at: { 
-				  aReceiver.
-				  aSelector } , anArray
-		  ifAbsentPut: [ 
-			  handler
-				  run: aSelector
-				  with: anArray
-				  in: aReceiver
-				  context: aContext
-				  wrapper: aWrapper ]
-]
-
 { #category : #evaluation }
 MWHandlerMemoing >> run: aSelector with: anArray in: aReceiver post: aContext return: anObject carry: carry [
 
