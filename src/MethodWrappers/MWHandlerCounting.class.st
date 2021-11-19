@@ -41,11 +41,5 @@ MWHandlerCounting >> initialize [
 { #category : #evaluation }
 MWHandlerCounting >> run: aSelector with: anArray in: aReceiver pre: aContext [
 
-	super
-		run: aSelector
-		with: anArray
-		in: aReceiver
-		pre: aContext.
-
 	count := count + 1
 ]

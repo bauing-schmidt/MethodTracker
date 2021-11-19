@@ -7,6 +7,44 @@ Class {
 	#category : #'MethodWrappers-Tests'
 }
 
+{ #category : #accessing }
+MWHandlerTest >> foo [
+]
+
+{ #category : #accessing }
+MWHandlerTest >> ifTrue: aBlock [
+
+	"Fake version of `Boolean>>#ifTrue:`"
+
+	
+]
+
+{ #category : #tests }
+MWHandlerTest >> testCountFooSingleWrapper [
+
+	| wrapper handler |
+	handler := MWHandlerCounting new.
+
+	wrapper := (MWDecorator on: self class >> #foo)
+		           handler: handler;
+		           yourself.
+
+	wrapper install.
+
+	self assert:
+		(wrapper ifInstalled: [ true ] ifNotInstalled: [ false ]).
+
+	self assert: (self class methodDict at: #foo) equals: wrapper.
+
+	self foo.
+
+	wrapper uninstall.
+
+	self deny: (wrapper ifInstalled: [ true ] ifNotInstalled: [ false ]).
+
+	self assert: handler count equals: 1
+]
+
 { #category : #tests }
 MWHandlerTest >> testCountIfTrue [
 
@@ -20,12 +58,6 @@ MWHandlerTest >> testCountIfTrue [
 
 	wrappers withWrappingDo: [ true ifTrue: [ 3 ] ].
 
-	"	wrappers do: #install.
-"
-	"true ifTrue: [ 3 ].
-
-	wrappers do: #uninstall.
-"
 	self assert: handler count equals: 1
 ]
 
@@ -66,6 +98,8 @@ MWHandlerTest >> testCountIfTrueSingleWrapper [
 	self assert:
 		(wrapper ifInstalled: [ true ] ifNotInstalled: [ false ]).
 
+	self assert: (true class methodDict at: #ifTrue:) equals: wrapper.
+
 	true ifTrue: [ 3 ].
 
 	wrapper uninstall.
@@ -94,6 +128,32 @@ MWHandlerTest >> testCountIfTrueSingleWrapperWithMethodProxy [
 	wrapper uninstall.
 
 	self assert: wrapper isEnabled.
+
+	self assert: handler count equals: 1
+]
+
+{ #category : #tests }
+MWHandlerTest >> testCountSelfIfTrueSingleWrapper [
+
+	| wrapper handler |
+	handler := MWHandlerCounting new.
+
+	wrapper := (MWDecorator on: self class >> #ifTrue:)
+		           handler: handler;
+		           yourself.
+
+	wrapper install.
+
+	self assert:
+		(wrapper ifInstalled: [ true ] ifNotInstalled: [ false ]).
+
+	self assert: (self class methodDict at: #ifTrue:) equals: wrapper.
+
+	self ifTrue: [  ].
+
+	wrapper uninstall.
+
+	self deny: (wrapper ifInstalled: [ true ] ifNotInstalled: [ false ]).
 
 	self assert: handler count equals: 1
 ]

@@ -199,15 +199,5 @@ MWDecorator >> uninstall [
 { #category : #evaluation }
 MWDecorator >> valueWithReceiver: aReceiver arguments: anArray [
 
-	^ self
-		  valueWithReceiver: aReceiver
-		  arguments: anArray
-		  compiledMethod: compiledMethod
-]
-
-{ #category : #evaluation }
-MWDecorator >> valueWithReceiver: aReceiver arguments: anArray compiledMethod: aCompiledMethod [
-
-	<primitive: 188>
-"	self primitiveFailed"
+	^ aReceiver withArgs: anArray executeMethod: compiledMethod
 ]
