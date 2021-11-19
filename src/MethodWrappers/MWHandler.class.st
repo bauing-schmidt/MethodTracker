@@ -4,7 +4,7 @@ Class {
 	#category : #MethodWrappers
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #hooks }
 MWHandler >> run: aSelector with: anArray in: aReceiver context: aContext carry: carry wrapper: aWrapper [
 
 	^ aWrapper valueWithReceiver: aReceiver arguments: anArray
@@ -37,13 +37,13 @@ MWHandler >> run: aSelector with: anArray in: aReceiver context: aContext wrappe
 		  carry: carry
 ]
 
-{ #category : #evaluation }
+{ #category : #hooks }
 MWHandler >> run: aSelector with: anArray in: aReceiver post: aContext return: anObject carry: carry [
 
 	^ anObject
 ]
 
-{ #category : #evaluation }
+{ #category : #hooks }
 MWHandler >> run: aSelector with: anArray in: aReceiver pre: aContext [
 
 	            
