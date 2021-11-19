@@ -161,7 +161,7 @@ MWDecorator >> run: aSelector with: anArray in: aReceiver [
 	| aContext |
 	self assert: aSelector = compiledMethod selector.
 
-	aContext := thisContext sender.
+	aContext := thisContext .
 
 	^ handler
 		  ifNil: [ self valueWithReceiver: aReceiver arguments: anArray ]
@@ -186,5 +186,7 @@ MWDecorator >> uninstall [
 { #category : #evaluation }
 MWDecorator >> valueWithReceiver: aReceiver arguments: anArray [
 
-	^ compiledMethod valueWithReceiver: aReceiver arguments: anArray
+	^ aReceiver withArgs: anArray executeMethod: compiledMethod
+
+	"^ compiledMethod valueWithReceiver: aReceiver arguments: anArray"
 ]
