@@ -221,7 +221,7 @@ MWHandlerTest >> testProfileSlowFactorial [
 { #category : #tests }
 MWHandlerTest >> testProfileSlowFibonacci [
 
-	| ctx wrapper handler tree presenter result start timespan receiver |
+	| wrapper handler tree presenter result |
 	tree := CTOrderPreservingTree new.
 
 	handler := MWHandlerProfiling new
@@ -232,17 +232,11 @@ MWHandlerTest >> testProfileSlowFibonacci [
 		           handler: handler;
 		           yourself.
 
-	receiver := 10.
+	result := { wrapper } withWrappingDo: [ 10 slowFibonacci ].
 
-	start := DateAndTime now.
-	result := { wrapper } withWrappingDo: [ 
-		          ctx := thisContext.
-		          receiver slowFibonacci ].
-	timespan := Timespan
-		            starting: start
-		            duration: DateAndTime now - start.
-
-	"handler adjustTree."
+	handler adjustTree.
+	
+	self halt.
 
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
@@ -253,17 +247,18 @@ MWHandlerTest >> testProfileSlowFibonacci [
 
 	presenter openWithSpec.
 
-
 	self
-		assert: tree size equals: 89;
-		assert: result equals: (receiver + 1) fibonacciNumbers last
+		assert: tree size equals: 178;
+		assert: result equals: 11 fibonacciNumbers last
 ]
 
 { #category : #tests }
 MWHandlerTest >> testProfileSlowFibonacciMemoing [
 
-	| ctx wrapper handler tree presenter result start timespan receiver handlerProfiler |
+	| wrapper plusWrappers handlerCounting handler tree presenter result handlerProfiler |
 	tree := CTOrderPreservingTree new.
+
+	handlerCounting := MWHandlerCounting new.
 
 	handlerProfiler := MWHandlerProfiling new
 		                   tree: tree;
@@ -277,39 +272,27 @@ MWHandlerTest >> testProfileSlowFibonacciMemoing [
 		           handler: handler;
 		           yourself.
 
-	receiver := 10.
+	plusWrappers := (MWDecorator withAllImplementations:
+			                 { (SmallInteger >> #+) })
+		                do: [ :each | each handler: handlerCounting ];
+		                yourself.
 
-	start := DateAndTime now.
-	result := { wrapper } withWrappingDo: [ 
-		          ctx := thisContext.
-		          receiver slowFibonacci ].
-	timespan := Timespan
-		            starting: start
-		            duration: DateAndTime now - start.
+	result := { wrapper } , plusWrappers withWrappingDo: [ 
+		          10 slowFibonacci ].
 
-"	handlerProfiler adjustTree."
+	handlerProfiler adjustTree.
 
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
 	presenter treePresenter
 		display: [ :aContext | 
-			aContext receiver asString , ' ' , aContext method selector
-			"handlerProfiler at: aContext ifAbsent: [ 
-					| messageSend |
-					messageSend := (RSFullMessageSend
-						                receiver: ctx receiver
-						                selector: ctx selector
-						                arguments: ctx arguments) yourself.
-					"" client: ctx client;
-						               callerSelector: ctx sender selector;""
-
-					timespan -> messageSend ] " ];
+			aContext receiver asString , ' ' , aContext method selector ];
 		expandAll.
 
 	presenter openWithSpec.
 
-
 	self
-		assert: tree size equals: 10;
-		assert: result equals: (receiver + 1) fibonacciNumbers last
+		assert: tree size equals: 20;
+		assert: result equals: 11 fibonacciNumbers last;
+		assert: (handlerCounting count between: 980 and: 995)
 ]

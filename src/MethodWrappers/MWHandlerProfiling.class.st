@@ -18,11 +18,10 @@ Class {
 MWHandlerProfiling >> adjustTree [
 
 	tree children keysAndValuesDo: [ :aParent :children | 
-		| localChildren i |
+		| localChildren |
 		localChildren := child at: aParent.
-		i := children greatestCommonIndex: localChildren.
 
-		i + 1 to: localChildren size do: [ :j | 
+		children size + 1 to: localChildren size do: [ :j | 
 			| each |
 			each := localChildren at: j.
 			tree parent: aParent child: each ] ]
@@ -115,7 +114,7 @@ MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver post: aContext 
 { #category : #evaluation }
 MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver pre: aContext [
 
-	| messageSend span anAssoc children |
+	| messageSend span anAssoc children  |
 	super
 		run: aSelector
 		with: anArray
@@ -123,8 +122,8 @@ MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver pre: aContext [
 		pre: aContext.
 
 	(aContext findContextSuchThat: [ :ctx | 
-		 ctx selector = #run:with:in: and: [ 
-			 ctx receiver isKindOf: MWDecorator ] ]) ifNotNil: [ :parentContext | 
+		 ctx selector = #run:with:in: and: [ ctx receiver isMethodWrapper ] ]) 
+		ifNotNil: [ :parentContext | 
 		tree parent: parentContext sender child: aContext ].
 
 	children := child at: aContext ifAbsentPut: [ OrderedCollection new ].
