@@ -14,14 +14,14 @@ Class {
 { #category : #API }
 MWDecorator class >> compiledMethods: aCollection thenSelect: methodBlock [
 
-	| excludingClasses |
+	| excludingClasses methods |
 	excludingClasses := MWDecorator withAllSubclasses asSet.
 
-	^ aCollection
-		  select: [ :aMethod | 
-			  (excludingClasses includes: aMethod methodClass) not and: [ 
-				  methodBlock value: aMethod ] ]
-		  thenCollect: [ :each | self on: each ]
+	methods := aCollection select: [ :aMethod | 
+		           (excludingClasses includes: aMethod methodClass) not 
+			           and: [ methodBlock value: aMethod ] ].
+
+	^ methods collect: [ :each | self on: each ]
 ]
 
 { #category : #API }
@@ -47,9 +47,7 @@ MWDecorator class >> forPackages: aCollection selectMethod: methodBlock [
 { #category : #'instance creation' }
 MWDecorator class >> on: aCompiledMethod [
 
-	^ self new
-		  compiledMethod: aCompiledMethod;
-		  yourself
+	^ self new compiledMethod: aCompiledMethod
 ]
 
 { #category : #initialization }
@@ -143,23 +141,25 @@ MWDecorator >> printOn: aStream [
 { #category : #actions }
 MWDecorator >> put: aMethod [
 
+	"compiledMethod methodClass methodDict
+		at: compiledMethod selector put: aMethod;
+		rehash"
+
 	compiledMethod methodClass methodDict
-		at: compiledMethod selector
-		put: aMethod
+		at: compiledMethod selector put: aMethod;
+		rehash
 ]
 
 { #category : #evaluation }
 MWDecorator >> run: aSelector with: anArray in: aReceiver [
 
 	| aContext |
+	self assert: aSelector = compiledMethod selector.
+
 	aContext := thisContext sender.
 
-	aSelector = compiledMethod selector ifFalse: [ 
-		Error signal:
-			'Attempt to send a selector that is different from the compiledMethod''s one.' ].
-
 	^ handler
-		  ifNil: [ self value: aReceiver withArguments: anArray ]
+		  ifNil: [ self valueWithReceiver: aReceiver arguments: anArray ]
 		  ifNotNil: [ 
 			  | carry result |
 			  carry := handler
@@ -197,7 +197,17 @@ MWDecorator >> uninstall [
 ]
 
 { #category : #evaluation }
-MWDecorator >> value: aReceiver withArguments: anArray [
+MWDecorator >> valueWithReceiver: aReceiver arguments: anArray [
 
-	^ aReceiver withArgs: anArray executeMethod: compiledMethod
+	^ self
+		  valueWithReceiver: aReceiver
+		  arguments: anArray
+		  compiledMethod: compiledMethod
+]
+
+{ #category : #evaluation }
+MWDecorator >> valueWithReceiver: aReceiver arguments: anArray compiledMethod: aCompiledMethod [
+
+	<primitive: 188>
+"	self primitiveFailed"
 ]

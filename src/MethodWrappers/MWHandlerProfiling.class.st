@@ -147,6 +147,18 @@ MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver pre: aContext [
 ]
 
 { #category : #accessing }
+MWHandlerProfiling >> tree [
+
+	| finalTree |
+	finalTree := CTOrderPreservingTree new.
+
+	child keysAndValuesDo: [ :aParent :children | 
+		children do: [ :aChild | finalTree parent: aParent child: aChild ] ].
+
+	^ finalTree
+]
+
+{ #category : #accessing }
 MWHandlerProfiling >> tree: aTree [
 
 	tree := aTree

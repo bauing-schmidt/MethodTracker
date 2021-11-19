@@ -20,7 +20,13 @@ MWHandlerTest >> testCountIfTrue [
 
 	wrappers withWrappingDo: [ true ifTrue: [ 3 ] ].
 
-	self assert: handler count equals: 0
+	"	wrappers do: #install.
+"
+	"true ifTrue: [ 3 ].
+
+	wrappers do: #uninstall.
+"
+	self assert: handler count equals: 1
 ]
 
 { #category : #tests }
@@ -43,6 +49,53 @@ MWHandlerTest >> testCountIfTrueDuringSlowFactorial [
 	self
 		assert: handler count equals: 6;
 		assert: ifTrueHandler count equals: 0
+]
+
+{ #category : #tests }
+MWHandlerTest >> testCountIfTrueSingleWrapper [
+
+	| wrapper handler |
+	handler := MWHandlerCounting new.
+
+	wrapper := (MWDecorator on: true class >> #ifTrue:)
+		           handler: handler;
+		           yourself.
+
+	wrapper install.
+
+	self assert:
+		(wrapper ifInstalled: [ true ] ifNotInstalled: [ false ]).
+
+	true ifTrue: [ 3 ].
+
+	wrapper uninstall.
+
+	self deny: (wrapper ifInstalled: [ true ] ifNotInstalled: [ false ]).
+
+	self assert: handler count equals: 1
+]
+
+{ #category : #tests }
+MWHandlerTest >> testCountIfTrueSingleWrapperWithMethodProxy [
+
+	| wrapper handler |
+	handler := MpCountingHandler new.
+
+	wrapper := MpMethodProxy
+		           onMethod: true class >> #ifTrue:
+		           handler: handler.
+
+	wrapper install.
+
+	self assert: wrapper isEnabled.
+
+	true ifTrue: [ 3 ].
+
+	wrapper uninstall.
+
+	self assert: wrapper isEnabled.
+
+	self assert: handler count equals: 1
 ]
 
 { #category : #tests }
@@ -135,18 +188,7 @@ MWHandlerTest >> testProfileSlowFibonacci [
 
 	presenter treePresenter
 		display: [ :aContext | 
-			aContext receiver asString , ' ' , aContext methodSelector "
-			handler at: aContext ifAbsent: [ 
-					| messageSend |
-					messageSend := (RSFullMessageSend
-						                receiver: ctx receiver
-						                selector: ctx selector
-						                arguments: ctx arguments)
-						              "" client: ctx client;
-						               callerSelector: ctx sender selector;""
-						               yourself.
-
-					timespan -> messageSend ]" ];
+			aContext receiver asString , ' ' , aContext methodSelector ];
 		expandAll.
 
 	presenter openWithSpec.

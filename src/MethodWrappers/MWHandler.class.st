@@ -7,7 +7,7 @@ Class {
 { #category : #'as yet unclassified' }
 MWHandler >> run: aSelector with: anArray in: aReceiver context: aContext carry: carry wrapper: aWrapper [
 
-	^ aWrapper value: aReceiver withArguments: anArray
+	^ aWrapper valueWithReceiver: aReceiver arguments: anArray
 ]
 
 { #category : #evaluation }
