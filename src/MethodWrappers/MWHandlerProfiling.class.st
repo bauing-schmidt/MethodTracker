@@ -109,7 +109,8 @@ MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver pre: aContext [
 		pre: aContext.
 
 	(aContext sender findContextSuchThat: [ :ctx | 
-		 ctx selector = #run:with:in: and: [ ctx receiver isMethodWrapper ] ]) 
+		 ctx selector = #run:with:in: and: [ ctx receiver isMethodWrapper ] ])
+		ifNil: [ tree parent: aContext child: aContext ]
 		ifNotNil: [ :parentContext | 
 		tree parent: parentContext child: aContext ].
 
