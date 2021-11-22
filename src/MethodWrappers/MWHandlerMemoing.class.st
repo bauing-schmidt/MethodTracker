@@ -1,18 +1,11 @@
 Class {
 	#name : #MWHandlerMemoing,
-	#superclass : #MWHandler,
+	#superclass : #MWHandlerDecorating,
 	#instVars : [
-		'table',
-		'handler'
+		'table'
 	],
 	#category : #MethodWrappers
 }
-
-{ #category : #accessing }
-MWHandlerMemoing >> handler: aHandler [
-
-	handler := aHandler
-]
 
 { #category : #'as yet unclassified' }
 MWHandlerMemoing >> initialize [
@@ -31,33 +24,11 @@ MWHandlerMemoing >> run: aSelector with: anArray in: aReceiver context: aContext
 		       aSelector } , anArray.
 
 	^ table at: key ifAbsentPut: [ 
-		  handler
+		  super
 			  run: aSelector
 			  with: anArray
 			  in: aReceiver
 			  context: aContext
 			  carry: carry
 			  wrapper: aWrapper ]
-]
-
-{ #category : #evaluation }
-MWHandlerMemoing >> run: aSelector with: anArray in: aReceiver post: aContext return: anObject carry: carry [
-
-	^ handler
-		  run: aSelector
-		  with: anArray
-		  in: aReceiver
-		  post: aContext
-		  return: anObject
-		  carry: carry
-]
-
-{ #category : #evaluation }
-MWHandlerMemoing >> run: aSelector with: anArray in: aReceiver pre: aContext [
-
-	^ handler
-		  run: aSelector
-		  with: anArray
-		  in: aReceiver
-		  pre: aContext
 ]

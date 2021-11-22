@@ -189,7 +189,12 @@ MWHandlerTest >> testProfileSlowFactorial [
 
 	result := { wrapper } withWrappingDo: [ 5 slowFactorial ].
 
-	presenter := self treePresenterOn: tree handlerProfiling: handler.
+	presenter := CTOrderPreservingTreePresenter on: tree.
+
+	presenter withTreePresenterDo: [ :treePresenter | 
+		handler addColumnsInPresenter: treePresenter.
+
+		treePresenter expandAll ].
 
 	presenter openWithSpec.
 
@@ -214,8 +219,12 @@ MWHandlerTest >> testProfileSlowFibonacci [
 
 	result := { wrapper } withWrappingDo: [ 10 slowFibonacci ].
 
-	presenter := self treePresenterOn: tree handlerProfiling: handler.
+	presenter := CTOrderPreservingTreePresenter on: tree.
 
+	presenter withTreePresenterDo: [ :treePresenter | 
+		handler addColumnsInPresenter: treePresenter.
+
+		treePresenter expandAll ].
 	presenter openWithSpec.
 
 	self
@@ -251,9 +260,12 @@ MWHandlerTest >> testProfileSlowFibonacciMemoing [
 	result := { wrapper } , plusWrappers withWrappingDo: [ 
 		          10 slowFibonacci ].
 
-	presenter := self
-		             treePresenterOn: tree
-		             handlerProfiling: handlerProfiler.
+	presenter := CTOrderPreservingTreePresenter on: tree.
+
+	presenter withTreePresenterDo: [ :treePresenter | 
+		handlerProfiler addColumnsInPresenter: treePresenter.
+
+		treePresenter expandAll ].
 
 	presenter openWithSpec.
 
@@ -286,8 +298,12 @@ MWHandlerTest >> testProfileSlowFibonacciTailWithAdd [
 		          wrapperAdd } withWrappingDo: [ 
 		          10 slowFibonacci: 0 tail: 1 ].
 
-	presenter := self treePresenterOn: tree handlerProfiling: handler.
+	presenter := CTOrderPreservingTreePresenter on: tree.
 
+	presenter withTreePresenterDo: [ :treePresenter | 
+		handler addColumnsInPresenter: treePresenter.
+
+		treePresenter expandAll ].
 	presenter openWithSpec.
 
 	self
@@ -317,8 +333,12 @@ MWHandlerTest >> testProfileSlowFibonacciWithAdd [
 		          wrapper.
 		          wrapperAdd } withWrappingDo: [ 10 slowFibonacci ].
 
-	presenter := self treePresenterOn: tree handlerProfiling: handler.
+	presenter := CTOrderPreservingTreePresenter on: tree.
 
+	presenter withTreePresenterDo: [ :treePresenter | 
+		handler addColumnsInPresenter: treePresenter.
+
+		treePresenter expandAll ].
 	presenter openWithSpec.
 
 	self
@@ -342,8 +362,12 @@ MWHandlerTest >> testProfileSlowFibonacciWithAddOnly [
 
 	result := { wrapperAdd } withWrappingDo: [ 10 slowFibonacci ].
 
-	presenter := self treePresenterOn: tree handlerProfiling: handler.
+	presenter := CTOrderPreservingTreePresenter on: tree.
 
+	presenter withTreePresenterDo: [ :treePresenter | 
+		handler addColumnsInPresenter: treePresenter.
+
+		treePresenter expandAll ].
 	presenter openWithSpec.
 
 	self
@@ -352,17 +376,45 @@ MWHandlerTest >> testProfileSlowFibonacciWithAddOnly [
 ]
 
 { #category : #tests }
-MWHandlerTest >> treePresenterOn: tree handlerProfiling: handler [
+MWHandlerTest >> testTimingSlowFibonacciMemoing [
 
-	| presenter |
+	| wrapper plusWrappers handlerTiming handlerMemoing tree presenter result handlerProfiler |
+	tree := CTOrderPreservingTree new.
+
+	handlerProfiler := MWHandlerProfiling new
+		                   tree: tree;
+		                   yourself.
+
+	handlerMemoing := MWHandlerMemoing new
+		                  handler: handlerProfiler;
+		                  yourself.
+
+	handlerTiming := MWHandlerTiming new
+		                 handler: handlerMemoing;
+		                 yourself.
+
+	wrapper := (MWDecorator on: Integer >> #slowFibonacci)
+		           handler: handlerTiming;
+		           yourself.
+
+	plusWrappers := (MWDecorator withAllImplementations:
+			                 { (Number >> #add:) })
+		                do: [ :each | each handler: handlerTiming ];
+		                yourself.
+
+	result := { wrapper } withWrappingDo: [ 10 slowFibonacci ]. ", plusWrappers"
+
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
-	presenter treePresenter
-		display: [ :aContext | 
-			aContext asContextReifiedFromWrapping
-				asStringInterpolationOfReceiverSelectorArguments , ' → '
-			, (handler returnAt: aContext ifAbsent: [ '•' ]) asString ];
-		expandAll.
+	presenter withTreePresenterDo: [ :treePresenter | 
+		handlerProfiler addColumnsInPresenter: treePresenter.
+		handlerTiming addColumnsInPresenter: treePresenter.
 
-	^ presenter
+		treePresenter expandAll ].
+
+	presenter openWithSpec.
+
+	self
+		assert: tree size equals: 19;
+		assert: result equals: 11 fibonacciNumbers last
 ]
