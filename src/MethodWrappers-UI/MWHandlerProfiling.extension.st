@@ -14,7 +14,7 @@ MWHandlerProfiling >> addColumnsInPresenter: aPresenter [
 
 	tree
 		pre: [ :each | 
-			| ctx occ key count |
+			| ctx occ key |
 			ctx := each asContextReifiedFromWrapping.
 			key := { 
 				       ctx receiver.
@@ -28,8 +28,10 @@ MWHandlerProfiling >> addColumnsInPresenter: aPresenter [
 			visit at: each put: ticks @ -1.
 			ticks := ticks + 1.
 
-			count := selector at: ctx selector ifAbsent: [ 0 ].
-			selector at: ctx selector put: count + 1 ]
+			ctx method in: [ :aMethod | 
+				| count |
+				count := selector at: aMethod ifAbsent: [ 0 ].
+				selector at: aMethod put: count + 1 ] ]
 		post: [ :each | 
 			visit
 				at: each
@@ -51,7 +53,7 @@ MWHandlerProfiling >> addColumnsInPresenter: aPresenter [
 		addColumn: (SpStringTableColumn
 				 title: 'Selector sends'
 				 evaluated: [ :aContext | 
-					 selector at: aContext asContextReifiedFromWrapping selector ]);
+					 selector at: aContext asContextReifiedFromWrapping method ]);
 		addColumn: (SpStringTableColumn
 				 title: 'Entry time @ Exit time'
 				 evaluated: [ :aContext | visit at: aContext ])
