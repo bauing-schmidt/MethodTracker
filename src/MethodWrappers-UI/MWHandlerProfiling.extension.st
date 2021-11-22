@@ -54,13 +54,10 @@ MWHandlerProfiling >> addColumnsInPresenter: aPresenter [
 					 , (returns at: aContext ifAbsent: [ '•' ]) asString ]);
 		addColumn:
 			(SpStringTableColumn title: 'Client' evaluated: [ :aContext | 
-					 | client |
-					 client := (parent at: aContext) asContextReifiedFromWrapping
-						           receiver.
-
-					 aContext asContextReifiedFromWrapping receiver == client
+					 (parent at: aContext) == aContext
 						 ifTrue: [ '•' ]
-						 ifFalse: [ client ] ]);
+						 ifFalse: [ 
+							 (parent at: aContext) asContextReifiedFromWrapping receiver ] ]);
 		addColumn: (SpStringTableColumn
 				 title: 'Send occurrence'
 				 evaluated: [ :aContext | dict at: aContext ]);

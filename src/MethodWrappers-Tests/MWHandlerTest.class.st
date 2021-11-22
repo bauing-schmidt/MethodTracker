@@ -206,15 +206,19 @@ MWHandlerTest >> testProfileSlowFactorial [
 { #category : #tests }
 MWHandlerTest >> testProfileSlowFibonacci [
 
-	| wrapper handler tree presenter result |
+	| wrapper handler tree presenter result handlerTiming |
 	tree := CTOrderPreservingTree new.
 
 	handler := MWHandlerProfiling new
 		           tree: tree;
 		           yourself.
 
+	handlerTiming := MWHandlerTiming new
+		                 handler: handler;
+		                 yourself.
+
 	wrapper := (MWDecorator on: Integer >> #slowFibonacci)
-		           handler: handler;
+		           handler: handlerTiming;
 		           yourself.
 
 	result := { wrapper } withWrappingDo: [ 10 slowFibonacci ].
@@ -223,7 +227,7 @@ MWHandlerTest >> testProfileSlowFibonacci [
 
 	presenter withTreePresenterDo: [ :treePresenter | 
 		handler addColumnsInPresenter: treePresenter.
-
+		handlerTiming addColumnsInPresenter: treePresenter.
 		treePresenter expandAll ].
 	presenter openWithSpec.
 
