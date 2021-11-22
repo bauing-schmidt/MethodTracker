@@ -380,6 +380,48 @@ MWHandlerTest >> testProfileSlowFibonacciWithAddOnly [
 ]
 
 { #category : #tests }
+MWHandlerTest >> testSequenceableCollectionMergeSort [
+
+	| handlerTiming handlerMemoing tree presenter result handlerProfiler |
+	tree := CTOrderPreservingTree new.
+
+	handlerProfiler := MWHandlerProfiling new
+		                   tree: tree;
+		                   yourself.
+
+	handlerMemoing := MWHandlerMemoing new
+		                  handler: handlerProfiler;
+		                  yourself.
+
+	handlerTiming := MWHandlerTiming new
+		                 handler: handlerMemoing;
+		                 yourself.
+
+	result := (MWDecorator withAllImplementations: { 
+				           (SequenceableCollection
+				            >> #mergeFirst:middle:last:into:by:).
+				           (SequenceableCollection
+				            >> #mergeSortFrom:to:src:dst:by:) })
+		          do: [ :each | each handler: handlerTiming ];
+		          withWrappingDo: [ (1 to: 20) shuffled sort ].
+
+
+	presenter := CTOrderPreservingTreePresenter on: tree.
+
+	presenter withTreePresenterDo: [ :treePresenter | 
+		handlerProfiler addColumnsInPresenter: treePresenter.
+		handlerTiming addColumnsInPresenter: treePresenter.
+
+		treePresenter expandAll ].
+
+	presenter openWithSpec.
+
+	self
+		assert: tree size equals: 58;
+		assert: result equals: (1 to: 20) asArray
+]
+
+{ #category : #tests }
 MWHandlerTest >> testTimingSlowFibonacciMemoing [
 
 	| wrapper plusWrappers handlerTiming handlerMemoing tree presenter result handlerProfiler |
