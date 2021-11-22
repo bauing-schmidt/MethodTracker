@@ -7,15 +7,6 @@ Class {
 	#category : #MethodWrappers
 }
 
-{ #category : #evaluation }
-MWHandlerTiming >> durationAt: aContext [
-
-	| interval |
-	interval := timing at: aContext.
-
-	^ Duration nanoSeconds: interval size * 1000
-]
-
 { #category : #initialization }
 MWHandlerTiming >> initialize [
 

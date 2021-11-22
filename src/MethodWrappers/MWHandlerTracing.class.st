@@ -10,15 +10,15 @@ Class {
 { #category : #evaluation }
 MWHandlerTracing >> run: aSelector with: anArray in: aReceiver pre: aContext [
 
-	super
-		run: aSelector
-		with: anArray
-		in: aReceiver
-		pre: aContext.
-
 	Stdio stderr
 		nextPutAll: aReceiver class name;
 		nextPutAll: '>>#';
 		nextPutAll: aSelector;
-		lf
+		lf.
+
+	^ super
+		  run: aSelector
+		  with: anArray
+		  in: aReceiver
+		  pre: aContext
 ]
