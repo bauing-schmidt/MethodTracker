@@ -20,6 +20,45 @@ MWHandlerTest >> ifTrue: aBlock [
 ]
 
 { #category : #tests }
+MWHandlerTest >> testAddWithinDo [
+
+	| handlerTiming handlerMemoing tree presenter result handlerProfiler |
+	tree := CTOrderPreservingTree new.
+
+	handlerProfiler := MWHandlerProfiling new
+		                   tree: tree;
+		                   yourself.
+
+	handlerMemoing := MWHandlerMemoing new
+		                  handler: handlerProfiler;
+		                  yourself.
+
+	handlerTiming := MWHandlerTiming new
+		                 handler: handlerMemoing;
+		                 yourself.
+
+	result := (MWDecorator withAllImplementations: { 
+				           (Collection >> #doª:).
+				           (Number >> #add:) })
+		          do: [ :each | each handler: handlerTiming ];
+		          withWrappingDo: [ (1 to: 20) doª: [ :each | each add: 4 ] ].
+
+	presenter := CTOrderPreservingTreePresenter on: tree.
+
+	presenter withTreePresenterDo: [ :treePresenter | 
+		handlerProfiler addColumnsInPresenter: treePresenter.
+		handlerTiming addColumnsInPresenter: treePresenter.
+
+		treePresenter expandAll ].
+
+	presenter openWithSpec.
+
+	self
+		assert: tree size equals: 21;
+		assert: result equals: (1 to: 20) asArray
+]
+
+{ #category : #tests }
 MWHandlerTest >> testCountFooSingleWrapper [
 
 	| wrapper handler |
