@@ -3,22 +3,35 @@ Extension { #name : #MWHandlerProfiling }
 { #category : #'*MethodWrappers-UI' }
 MWHandlerProfiling >> addColumnsInPresenter: aPresenter [
 
-	| occurrences dict |
+	| occurrences dict ticks visit |
+	ticks := 1.
+
 	occurrences := Dictionary new.
 
 	dict := IdentityDictionary new.
+	visit := IdentityDictionary new.
 
-	tree do: [ :each | 
-		| ctx occ key |
-		ctx := each asContextReifiedFromWrapping.
-		key := { 
-			       ctx receiver.
-			       ctx selector }.
-			
-		occ := occurrences at: key ifAbsent: [ 0 ].
-		occ := occurrences at: key put: occ + 1.
+	tree
+		pre: [ :each | 
+			| ctx occ key |
+			ctx := each asContextReifiedFromWrapping.
+			key := { 
+				       ctx receiver.
+				       ctx selector }.
 
-		dict at: each put: occ ].
+			occ := occurrences at: key ifAbsent: [ 0 ].
+			occ := occurrences at: key put: occ + 1.
+
+			dict at: each put: occ.
+
+			visit at: each put: ticks @ -1.
+			ticks := ticks + 1 ]
+		post: [ :each | 
+			visit
+				at: each
+				ifPresent: [ :aPoint | aPoint setX: aPoint x setY: ticks ]
+				ifAbsent: [ Error signal ].
+			ticks := ticks + 1 ].
 
 	aPresenter
 		addColumn:
@@ -30,5 +43,8 @@ MWHandlerProfiling >> addColumnsInPresenter: aPresenter [
 					 , (self returnAt: aContext ifAbsent: [ '•' ]) asString ]);
 		addColumn: (SpStringTableColumn
 				 title: 'Send occurrence'
-				 evaluated: [ :aContext | dict at: aContext ])
+				 evaluated: [ :aContext | dict at: aContext ]);
+		addColumn: (SpStringTableColumn
+				 title: 'Entry time @ Exit time'
+				 evaluated: [ :aContext | visit at: aContext ])
 ]
