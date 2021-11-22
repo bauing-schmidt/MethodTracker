@@ -9,7 +9,7 @@ Class {
 		'tree',
 		'tick',
 		'table',
-		'child'
+		'returns'
 	],
 	#category : #MethodWrappers
 }
@@ -39,55 +39,19 @@ MWHandlerProfiling >> initialize [
 	callsLog := OrderedCollection new.
 	tick := 0.
 	table := IdentityDictionary new.
-	child := IdentityDictionary new
+	returns := IdentityDictionary new
 ]
 
 { #category : #evaluation }
-MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver post: aContext return: anObject carry: anAssoc [
+MWHandlerProfiling >> returnAt: aKey ifAbsent: aBlock [
 
-	| logicalDuration timespan returnTimespan index |
-	timespan := anAssoc key.
+	^ returns at: aKey ifAbsent: aBlock
+]
 
-	[ 
-	logicalDuration := 0.
-	index := callsLog size ]
-		for: [ index > 0 ]
-		collect: [ callsLog at: index ]
-		do: [ :break :each | 
-			| v |
-			v := each value
-				     ifMessageSend: [ 1 ]
-				     ifReturnMessageSend: [ :aMessageSend | 
-				     aMessageSend ifSelfSend: [ 1 ] ifNotSelfSend: [ 0 ] ].
+{ #category : #evaluation }
+MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver post: aContext return: anObject carry: carry [
 
-			logicalDuration := logicalDuration + v.
-
-			each == anAssoc ifTrue: break ]
-		then: [ index := index - 1 ].
-
-	anAssoc value in: [ :fullMessageSend | 
-		| returnMessageSend |
-		returnMessageSend := fullMessageSend asReturnMessageSend
-			                     return: anObject;
-			                     yourself.
-		fullMessageSend
-			ifSelfSend: [ 
-				anAssoc value: returnMessageSend.
-				returnTimespan := nil ]
-			ifNotSelfSend: [ 
-				returnTimespan := TimespanDiscrete new.
-				callsLog add: returnTimespan -> returnMessageSend ] ].
-
-	timespan
-		duration: DateAndTime now - timespan start;
-		logicalDuration: logicalDuration.
-
-	returnTimespan ifNotNil: [ 
-		returnTimespan
-			start: timespan end;
-			duration: Duration zero;
-			logicalStart: timespan logicalStart;
-			logicalDuration: timespan logicalDuration ].
+	returns at: aContext put: anObject.
 
 	^ super
 		  run: aSelector
@@ -95,13 +59,13 @@ MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver post: aContext 
 		  in: aReceiver
 		  post: aContext
 		  return: anObject
-		  carry: anAssoc
+		  carry: carry
 ]
 
 { #category : #evaluation }
 MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver pre: aContext [
 
-	| messageSend span anAssoc children |
+	| messageSend span anAssoc |
 	super
 		run: aSelector
 		with: anArray
@@ -113,13 +77,6 @@ MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver pre: aContext [
 		ifNil: [ tree parent: aContext child: aContext ]
 		ifNotNil: [ :parentContext | 
 		tree parent: parentContext child: aContext ].
-
-	children := child at: aContext ifAbsentPut: [ OrderedCollection new ].
-	children add: (Context
-			 sender: aContext
-			 receiver: aReceiver
-			 method: (aReceiver class lookupSelector: aSelector)
-			 arguments: anArray).
 
 	messageSend := (RSFullMessageSend
 		                receiver: aReceiver
@@ -146,18 +103,6 @@ MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver pre: aContext [
 
 	"The following object will be received in the post run message."
 	^ anAssoc
-]
-
-{ #category : #accessing }
-MWHandlerProfiling >> tree [
-
-	| finalTree |
-	finalTree := CTOrderPreservingTree new.
-
-	child keysAndValuesDo: [ :aParent :children | 
-		children do: [ :aChild | finalTree parent: aParent child: aChild ] ].
-
-	^ finalTree
 ]
 
 { #category : #accessing }
