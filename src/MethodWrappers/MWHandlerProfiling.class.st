@@ -5,10 +5,7 @@ Class {
 	#name : #MWHandlerProfiling,
 	#superclass : #MWHandler,
 	#instVars : [
-		'callsLog',
 		'tree',
-		'tick',
-		'table',
 		'returns'
 	],
 	#category : #MethodWrappers

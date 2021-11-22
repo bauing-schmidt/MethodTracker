@@ -3,7 +3,7 @@ Extension { #name : #MWHandlerProfiling }
 { #category : #'*MethodWrappers-UI' }
 MWHandlerProfiling >> addColumnsInPresenter: aPresenter [
 
-	| occurrences dict ticks visit selector |
+	| occurrences dict ticks visit selector methods |
 	ticks := 1.
 
 	occurrences := Dictionary new.
@@ -11,6 +11,7 @@ MWHandlerProfiling >> addColumnsInPresenter: aPresenter [
 	dict := IdentityDictionary new.
 	visit := IdentityDictionary new.
 	selector := Dictionary new.
+	methods := Dictionary new.
 
 	tree
 		pre: [ :each | 
@@ -31,7 +32,9 @@ MWHandlerProfiling >> addColumnsInPresenter: aPresenter [
 			ctx method in: [ :aMethod | 
 				| count |
 				count := selector at: aMethod ifAbsent: [ 0 ].
-				selector at: aMethod put: count + 1 ] ]
+				count := selector at: aMethod put: count + 1.
+
+				methods at: each put: count ] ]
 		post: [ :each | 
 			visit
 				at: each
@@ -50,10 +53,12 @@ MWHandlerProfiling >> addColumnsInPresenter: aPresenter [
 		addColumn: (SpStringTableColumn
 				 title: 'Send occurrence'
 				 evaluated: [ :aContext | dict at: aContext ]);
-		addColumn: (SpStringTableColumn
-				 title: 'Selector sends'
+		addColumn:
+			(SpStringTableColumn
+				 title: 'Send progress'
 				 evaluated: [ :aContext | 
-					 selector at: aContext asContextReifiedFromWrapping method ]);
+					 (methods at: aContext)
+					 @ (selector at: aContext asContextReifiedFromWrapping method) ]);
 		addColumn: (SpStringTableColumn
 				 title: 'Entry time @ Exit time'
 				 evaluated: [ :aContext | visit at: aContext ])
