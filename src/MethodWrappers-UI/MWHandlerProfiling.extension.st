@@ -3,7 +3,7 @@ Extension { #name : #MWHandlerProfiling }
 { #category : #'*MethodWrappers-UI' }
 MWHandlerProfiling >> addColumnsInPresenter: aPresenter [
 
-	| occurrences dict ticks visit selector methods |
+	| occurrences dict ticks visit selector methods parent |
 	ticks := 1.
 
 	occurrences := Dictionary new.
@@ -12,6 +12,8 @@ MWHandlerProfiling >> addColumnsInPresenter: aPresenter [
 	visit := IdentityDictionary new.
 	selector := Dictionary new.
 	methods := Dictionary new.
+
+	parent := tree parent.
 
 	tree
 		pre: [ :each | 
@@ -50,6 +52,15 @@ MWHandlerProfiling >> addColumnsInPresenter: aPresenter [
 					 aContext asContextReifiedFromWrapping
 						 asStringInterpolationOfReceiverSelectorArguments , ' → '
 					 , (returns at: aContext ifAbsent: [ '•' ]) asString ]);
+		addColumn:
+			(SpStringTableColumn title: 'Client' evaluated: [ :aContext | 
+					 | client |
+					 client := (parent at: aContext) asContextReifiedFromWrapping
+						           receiver.
+
+					 aContext asContextReifiedFromWrapping receiver == client
+						 ifTrue: [ '•' ]
+						 ifFalse: [ client ] ]);
 		addColumn: (SpStringTableColumn
 				 title: 'Send occurrence'
 				 evaluated: [ :aContext | dict at: aContext ]);
