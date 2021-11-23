@@ -50,8 +50,12 @@ MWHandlerProfiling >> addColumnsInPresenter: aPresenter [
 				 title: 'Message send'
 				 evaluated: [ :aContext | 
 					 aContext asContextReifiedFromWrapping
-						 asStringInterpolationOfReceiverSelectorArguments , ' → '
-					 , (returns at: aContext ifAbsent: [ '•' ]) asString ]);
+						 asStringInterpolationOfReceiverSelectorArguments ", ' → '
+					 , (returns at: aContext ifAbsent: [ '•' ]) asString "]);
+		addColumn: (SpStringTableColumn
+				 title: 'Return'
+				 evaluated: [ :aContext | 
+					 (returns at: aContext ifAbsent: [ '•' ]) asString ]);
 		addColumn:
 			(SpStringTableColumn title: 'Client' evaluated: [ :aContext | 
 					 (parent at: aContext) == aContext
