@@ -20,21 +20,60 @@ MWHandlerTest >> ifTrue: aBlock [
 ]
 
 { #category : #tests }
-MWHandlerTest >> testAddWithinDo [
+MWHandlerTest >> testAddWithinDoObjectCentric [
 
-	| handlerTiming handlerMemoing tree presenter result handlerProfiler |
+	| handlerTiming tree presenter result handlerProfiler handlerCentric interval |
 	tree := CTOrderPreservingTree new.
 
 	handlerProfiler := MWHandlerProfiling new
 		                   tree: tree;
 		                   yourself.
 
-	handlerMemoing := MWHandlerMemoing new
-		                  handler: handlerProfiler;
+	handlerTiming := MWHandlerTiming new
+		                 handler: handlerProfiler;
+		                 yourself.
+
+	interval := 1 to: 20.
+
+	handlerCentric := MWHandlerObjectCentric new
+		                  predicate: [ :recv :args | 
+			                  recv == interval or: [ recv even ] ];
+		                  handler: handlerTiming;
 		                  yourself.
 
+	result := (MWDecorator withAllImplementations: { 
+				           (Collection >> #do:).
+				           (Number >> #add:) })
+		          do: [ :each | each handler: handlerCentric ];
+		          withWrappingDo: [ interval do: [ :each | each add: 4 ] ].
+
+	presenter := CTOrderPreservingTreePresenter on: tree.
+
+	presenter withTreePresenterDo: [ :treePresenter | 
+		handlerProfiler addColumnsInPresenter: treePresenter.
+		handlerTiming addColumnsInPresenter: treePresenter.
+
+		treePresenter expandAll ].
+
+	presenter openWithSpec.
+
+	self
+		assert: tree size equals: 11;
+		assert: result equals: (1 to: 20) asArray
+]
+
+{ #category : #tests }
+MWHandlerTest >> testAddWithinDoª [
+
+	| handlerTiming tree presenter result handlerProfiler |
+	tree := CTOrderPreservingTree new.
+
+	handlerProfiler := MWHandlerProfiling new
+		                   tree: tree;
+		                   yourself.
+
 	handlerTiming := MWHandlerTiming new
-		                 handler: handlerMemoing;
+		                 handler: handlerProfiler;
 		                 yourself.
 
 	result := (MWDecorator withAllImplementations: { 
