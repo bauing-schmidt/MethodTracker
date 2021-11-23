@@ -30,13 +30,27 @@ MWHandlerObjectCentric >> run: aSelector with: anArray in: aReceiver context: aC
 		                 do: [ false ].
 
 	^ shouldForward
-		  ifTrue: [ 
-			  super
-				  run: aSelector
-				  with: anArray
-				  in: aReceiver
-				  context: aContext
-				  wrapper: aWrapper ]
-		  ifFalse: [ 
-		  aWrapper valueWithReceiver: aReceiver arguments: anArray ]
+		  run: aSelector
+		  with: anArray
+		  in: aReceiver
+		  context: aContext
+		  wrapper: aWrapper
+		  handler: self
+]
+
+{ #category : #API }
+MWHandlerObjectCentric >> run: aSelector with: anArray in: aReceiver context: aContext wrapper: aWrapper false: aFalse [
+
+	^ aWrapper valueWithReceiver: aReceiver arguments: anArray
+]
+
+{ #category : #API }
+MWHandlerObjectCentric >> run: aSelector with: anArray in: aReceiver context: aContext wrapper: aWrapper true: aTrue [
+
+	^ super
+		  run: aSelector
+		  with: anArray
+		  in: aReceiver
+		  context: aContext
+		  wrapper: aWrapper
 ]
