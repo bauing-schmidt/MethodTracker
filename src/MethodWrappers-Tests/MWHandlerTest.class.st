@@ -53,6 +53,8 @@ MWHandlerTest >> testAddWithinDoObjectCentric [
 		handlerProfiler addColumnsInPresenter: treePresenter.
 		handlerTiming addColumnsInPresenter: treePresenter.
 
+		treePresenter whenSelectionChangedDo: [ :selection | selection  selectedItem ].
+
 		treePresenter expandAll ].
 
 	presenter openWithSpec.
@@ -80,7 +82,9 @@ MWHandlerTest >> testAddWithinDoª [
 				           (Collection >> #doª:).
 				           (Number >> #add:) })
 		          do: [ :each | each handler: handlerTiming ];
-		          withWrappingDo: [ (1 to: 20) doª: [ :each | each add: 4 ] ].
+		          withWrappingDo: [ 
+			          (1 to: 20) doª: [ :each | each add: 4 ].
+			          (1 to: 5) doª: [ :each | each - 4 ] ].
 
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
@@ -93,8 +97,8 @@ MWHandlerTest >> testAddWithinDoª [
 	presenter openWithSpec.
 
 	self
-		assert: tree size equals: 21;
-		assert: result equals: (1 to: 20) asArray
+		assert: tree size equals: 22;
+		assert: result equals: (1 to: 5) asArray
 ]
 
 { #category : #tests }

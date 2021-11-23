@@ -3,46 +3,8 @@ Extension { #name : #MWHandlerProfiling }
 { #category : #'*MethodWrappers-UI' }
 MWHandlerProfiling >> addColumnsInPresenter: aPresenter [
 
-	| occurrences dict ticks visit selector methods parent |
-	ticks := 1.
-
-	occurrences := Dictionary new.
-
-	dict := IdentityDictionary new.
-	visit := IdentityDictionary new.
-	selector := Dictionary new.
-	methods := Dictionary new.
-
-	parent := tree parent.
-
-	tree
-		pre: [ :each | 
-			| ctx occ key |
-			ctx := each asContextReifiedFromWrapping.
-			key := { 
-				       ctx receiver.
-				       ctx selector }.
-
-			occ := occurrences at: key ifAbsent: [ 0 ].
-			occ := occurrences at: key put: occ + 1.
-
-			dict at: each put: occ.
-
-			visit at: each put: ticks @ -1.
-			ticks := ticks + 1.
-
-			ctx method in: [ :aMethod | 
-				| count |
-				count := selector at: aMethod ifAbsent: [ 0 ].
-				count := selector at: aMethod put: count + 1.
-
-				methods at: each put: count ] ]
-		post: [ :each | 
-			visit
-				at: each
-				ifPresent: [ :aPoint | aPoint setX: aPoint x setY: ticks ]
-				ifAbsent: [ Error signal ].
-			ticks := ticks + 1 ].
+	| metadata |
+	metadata := self metadata.
 
 	aPresenter
 		addColumn:
@@ -50,28 +12,80 @@ MWHandlerProfiling >> addColumnsInPresenter: aPresenter [
 				 title: 'Message send'
 				 evaluated: [ :aContext | 
 					 aContext asContextReifiedFromWrapping
-						 asStringInterpolationOfReceiverSelectorArguments ", ' → '
-					 , (returns at: aContext ifAbsent: [ '•' ]) asString "]);
-		addColumn: (SpStringTableColumn
-				 title: 'Return'
-				 evaluated: [ :aContext | 
-					 (returns at: aContext ifAbsent: [ '•' ]) asString ]);
+						 asStringInterpolationOfReceiverSelectorArguments ]);
+		addColumn:
+			(SpStringTableColumn title: 'Return' evaluated: [ :aContext | 
+					 (metadata at: aContext) return
+						 ifNil: [ '•' ]
+						 ifEnclosed: [ :anObj | anObj ] ]);
 		addColumn:
 			(SpStringTableColumn title: 'Client' evaluated: [ :aContext | 
-					 (parent at: aContext) == aContext
-						 ifTrue: [ '•' ]
-						 ifFalse: [ 
-							 (parent at: aContext) asContextReifiedFromWrapping receiver ] ]);
+					 (metadata at: aContext) parent in: [ :aParent | 
+							 aParent == aContext
+								 ifTrue: [ '•' ]
+								 ifFalse: [ aParent asContextReifiedFromWrapping receiver ] ] ]);
 		addColumn: (SpStringTableColumn
 				 title: 'Send occurrence'
-				 evaluated: [ :aContext | dict at: aContext ]);
-		addColumn:
-			(SpStringTableColumn
-				 title: 'Send progress'
-				 evaluated: [ :aContext | 
-					 (methods at: aContext)
-					 @ (selector at: aContext asContextReifiedFromWrapping method) ]);
+				 evaluated: [ :aContext | (metadata at: aContext) occurrence ]);
 		addColumn: (SpStringTableColumn
-				 title: 'Entry time @ Exit time'
-				 evaluated: [ :aContext | visit at: aContext ])
+				 title: 'Send progress'
+				 evaluated: [ :aContext | (metadata at: aContext) ratio ]);
+		addColumn: (SpStringTableColumn
+				 title: 'Entry @ Exit ticks'
+				 evaluated: [ :aContext | (metadata at: aContext) visit ])
+]
+
+{ #category : #'*MethodWrappers-UI' }
+MWHandlerProfiling >> metadata [
+
+	| occurrences ticks selector metadata |
+	metadata := IdentityDictionary new.
+
+	ticks := 1.
+
+	occurrences := Dictionary new.
+
+	selector := Dictionary new.
+
+	tree
+		pre: [ :each | 
+			| eachReified key model |
+			eachReified := each asContextReifiedFromWrapping.
+
+			model := metadata at: each put: MWModelHandlerProfiling new.
+
+			model parent: (tree parent: each ifAbsent: [ Error signal ]).
+
+			model return: (returns
+					 at: each
+					 ifPresent: [ :anObj | CollectionElement with: anObj ]
+					 ifAbsent: [ CollectionElement withNil ]).
+
+			key := Array with: eachReified receiver with: eachReified selector.
+
+			model occurrence:
+				((occurrences at: key ifAbsent: [ 0 ]) in: [ :occ | 
+					 occurrences at: key put: occ + 1 ]).
+
+			model visit: ticks @ 0.
+			ticks := ticks + 1.
+
+			eachReified method in: [ :aMethod | 
+				model count:
+					((selector at: aMethod ifAbsent: [ 0 ]) in: [ :count | 
+						 selector at: aMethod put: count + 1 ]) ] ]
+		post: [ :each | 
+			metadata
+				at: each
+				ifPresent: [ :aMetadata | 
+					aMetadata visit in: [ :aPoint | 
+						aPoint setX: aPoint x setY: ticks ].
+					ticks := ticks + 1 ]
+				ifAbsent: [ Error signal ] ].
+
+	metadata keysAndValuesDo: [ :each :model | 
+		(selector at: each asContextReifiedFromWrapping method) in: [ :total | 
+			model ratio: model count @ total ] ].
+
+	^ metadata
 ]
