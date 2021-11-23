@@ -20,6 +20,90 @@ MWHandlerTest >> ifTrue: aBlock [
 ]
 
 { #category : #tests }
+MWHandlerTest >> sequenceDiagramTree: aTree metadata: metadata [
+
+	| builder shapes orderedCalls |
+	shapes := OrderedCollection new.
+
+	orderedCalls := OrderedCollection new.
+
+	aTree
+		pre: [ :each | 
+			| messageSend ctx ctxParent span model |
+			ctx := each asContextReifiedFromWrapping.
+			ctxParent := aTree parent: each ifAbsent: [ Error signal ].
+			model := metadata at: each.
+
+			messageSend := (RSFullMessageSend
+				                receiver: ctx receiver
+				                selector: ctx selector
+				                arguments: ctx arguments)
+				               client:
+					               ctxParent asContextReifiedFromWrapping receiver;
+				               callerSelector:
+					               ctxParent asContextReifiedFromWrapping selector;
+				               yourself.
+
+			span := TimespanDiscrete new
+				        start: model startTime asDateAndTime;
+				        duration: model duration;
+				        logicalStart: model visit x;
+				        logicalDuration: model visitDuration;
+				        yourself.
+
+			span -> messageSend yourself: [ :anAssoc | 
+				orderedCalls add: anAssoc ] ]
+		post: [ :each :anAssoc | 
+			anAssoc value in: [ :fullMessageSend | 
+				| returnMessageSend return |
+				return := (metadata at: each) return
+					          ifNil: [ nil ]
+					          ifEnclosed: [ :v | v ].
+
+				returnMessageSend := fullMessageSend asReturnMessageSend
+					                     return: return;
+					                     yourself.
+				fullMessageSend
+					ifSelfSend: [ anAssoc value: returnMessageSend ]
+					ifNotSelfSend: [ 
+						| timespan returnTimespan |
+						timespan := anAssoc key.
+
+						returnTimespan := TimespanDiscrete new
+							                  start: timespan end;
+							                  duration: Duration zero;
+							                  logicalStart: timespan logicalStart;
+							                  logicalDuration: timespan logicalDuration.
+
+						orderedCalls add: returnTimespan -> returnMessageSend ] ] ].
+
+	builder := RSUMLSequenceBuilder new
+		           objectsSeenSoFar: IdentityDictionary new;
+		           messagesSends: orderedCalls;
+		           previousHeaders: OrderedCollection new;
+		           previousMessagesSends: OrderedCollection new;
+		           build;
+		           yourself.
+
+	shapes add: builder canvas asShape.
+
+	RSVerticalLineLayout new
+		verticalGap: -5;
+		alignLeft;
+		on: shapes.
+
+	RSCanvas new
+		addAll: shapes;
+		zoomToFit;
+		"in: [ :c | 
+			c svgExporter
+				zoomToShapes;
+				export ];"
+		addInteraction: RSCanvasController new;
+		open
+]
+
+{ #category : #tests }
 MWHandlerTest >> testAddWithinDoObjectCentric [
 
 	| handlerTiming tree presenter result handlerProfiler handlerCentric interval |
@@ -50,10 +134,15 @@ MWHandlerTest >> testAddWithinDoObjectCentric [
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
 	presenter withTreePresenterDo: [ :treePresenter | 
-		handlerProfiler addColumnsInPresenter: treePresenter.
-		handlerTiming addColumnsInPresenter: treePresenter.
+		| metadata |
+		metadata := IdentityDictionary new.
 
-		treePresenter whenSelectionChangedDo: [ :selection | selection  selectedItem ].
+		handlerProfiler
+			addColumnsInPresenter: treePresenter
+			metadata: metadata.
+		handlerTiming
+			addColumnsInPresenter: treePresenter
+			metadata: metadata.
 
 		treePresenter expandAll ].
 
@@ -89,8 +178,15 @@ MWHandlerTest >> testAddWithinDoª [
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
 	presenter withTreePresenterDo: [ :treePresenter | 
-		handlerProfiler addColumnsInPresenter: treePresenter.
-		handlerTiming addColumnsInPresenter: treePresenter.
+		| metadata |
+		metadata := IdentityDictionary new.
+
+		handlerProfiler
+			addColumnsInPresenter: treePresenter
+			metadata: metadata.
+		handlerTiming
+			addColumnsInPresenter: treePresenter
+			metadata: metadata.
 
 		treePresenter expandAll ].
 
@@ -274,7 +370,10 @@ MWHandlerTest >> testProfileSlowFactorial [
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
 	presenter withTreePresenterDo: [ :treePresenter | 
-		handler addColumnsInPresenter: treePresenter.
+		| metadata |
+		metadata := IdentityDictionary new.
+
+		handler addColumnsInPresenter: treePresenter metadata: metadata.
 
 		treePresenter expandAll ].
 
@@ -308,9 +407,21 @@ MWHandlerTest >> testProfileSlowFibonacci [
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
 	presenter withTreePresenterDo: [ :treePresenter | 
-		handler addColumnsInPresenter: treePresenter.
-		handlerTiming addColumnsInPresenter: treePresenter.
+		| metadata |
+		metadata := IdentityDictionary new.
+
+		handler addColumnsInPresenter: treePresenter metadata: metadata.
+
+		handlerTiming
+			addColumnsInPresenter: treePresenter
+			metadata: metadata.
+
+		treePresenter whenSelectionChangedDo: [ :selectedItem | 
+			presenter treeShown in: [ :treeShown | 
+				self sequenceDiagramTree: treeShown metadata: metadata ] ].
+
 		treePresenter expandAll ].
+
 	presenter openWithSpec.
 
 	self
@@ -349,7 +460,12 @@ MWHandlerTest >> testProfileSlowFibonacciMemoing [
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
 	presenter withTreePresenterDo: [ :treePresenter | 
-		handlerProfiler addColumnsInPresenter: treePresenter.
+		| metadata |
+		metadata := IdentityDictionary new.
+
+		handlerProfiler
+			addColumnsInPresenter: treePresenter
+			metadata: metadata.
 
 		treePresenter expandAll ].
 
@@ -387,7 +503,10 @@ MWHandlerTest >> testProfileSlowFibonacciTailWithAdd [
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
 	presenter withTreePresenterDo: [ :treePresenter | 
-		handler addColumnsInPresenter: treePresenter.
+		| metadata |
+		metadata := IdentityDictionary new.
+
+		handler addColumnsInPresenter: treePresenter metadata: metadata.
 
 		treePresenter expandAll ].
 	presenter openWithSpec.
@@ -422,7 +541,10 @@ MWHandlerTest >> testProfileSlowFibonacciWithAdd [
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
 	presenter withTreePresenterDo: [ :treePresenter | 
-		handler addColumnsInPresenter: treePresenter.
+		| metadata |
+		metadata := IdentityDictionary new.
+
+		handler addColumnsInPresenter: treePresenter metadata: metadata.
 
 		treePresenter expandAll ].
 	presenter openWithSpec.
@@ -451,7 +573,10 @@ MWHandlerTest >> testProfileSlowFibonacciWithAddOnly [
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
 	presenter withTreePresenterDo: [ :treePresenter | 
-		handler addColumnsInPresenter: treePresenter.
+		| metadata |
+		metadata := IdentityDictionary new.
+
+		handler addColumnsInPresenter: treePresenter metadata: metadata.
 
 		treePresenter expandAll ].
 	presenter openWithSpec.
@@ -487,8 +612,15 @@ MWHandlerTest >> testSequenceableCollectionMergeSort [
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
 	presenter withTreePresenterDo: [ :treePresenter | 
-		handlerProfiler addColumnsInPresenter: treePresenter.
-		handlerTiming addColumnsInPresenter: treePresenter.
+		| metadata |
+		metadata := IdentityDictionary new.
+
+		handlerProfiler
+			addColumnsInPresenter: treePresenter
+			metadata: metadata.
+		handlerTiming
+			addColumnsInPresenter: treePresenter
+			metadata: metadata.
 
 		treePresenter expandAll ].
 
@@ -531,8 +663,15 @@ MWHandlerTest >> testTimingSlowFibonacciMemoing [
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
 	presenter withTreePresenterDo: [ :treePresenter | 
-		handlerProfiler addColumnsInPresenter: treePresenter.
-		handlerTiming addColumnsInPresenter: treePresenter.
+		| metadata |
+		metadata := IdentityDictionary new.
+
+		handlerProfiler
+			addColumnsInPresenter: treePresenter
+			metadata: metadata.
+		handlerTiming
+			addColumnsInPresenter: treePresenter
+			metadata: metadata.
 
 		treePresenter expandAll ].
 

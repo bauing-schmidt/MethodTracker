@@ -7,7 +7,9 @@ Class {
 		'count',
 		'parent',
 		'return',
-		'ratio'
+		'ratio',
+		'duration',
+		'startTime'
 	],
 	#category : #MethodWrappers
 }
@@ -22,6 +24,18 @@ MWModelHandlerProfiling >> count [
 MWModelHandlerProfiling >> count: anObject [
 
 	count := anObject
+]
+
+{ #category : #accessing }
+MWModelHandlerProfiling >> duration [
+
+	^ duration
+]
+
+{ #category : #accessing }
+MWModelHandlerProfiling >> duration: anObject [
+
+	duration := anObject
 ]
 
 { #category : #accessing }
@@ -73,6 +87,18 @@ MWModelHandlerProfiling >> return: anObject [
 ]
 
 { #category : #accessing }
+MWModelHandlerProfiling >> startTime [
+
+	^ startTime
+]
+
+{ #category : #accessing }
+MWModelHandlerProfiling >> startTime: anObject [
+
+	startTime := anObject
+]
+
+{ #category : #accessing }
 MWModelHandlerProfiling >> visit [
 
 	^ visit
@@ -82,4 +108,10 @@ MWModelHandlerProfiling >> visit [
 MWModelHandlerProfiling >> visit: anObject [
 
 	visit := anObject
+]
+
+{ #category : #visiting }
+MWModelHandlerProfiling >> visitDuration [
+
+	^ self visit yMinusX
 ]
