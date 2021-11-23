@@ -464,19 +464,15 @@ MWHandlerTest >> testProfileSlowFibonacciWithAddOnly [
 { #category : #tests }
 MWHandlerTest >> testSequenceableCollectionMergeSort [
 
-	| handlerTiming handlerMemoing tree presenter result handlerProfiler |
+	| handlerTiming tree presenter result handlerProfiler |
 	tree := CTOrderPreservingTree new.
 
 	handlerProfiler := MWHandlerProfiling new
 		                   tree: tree;
 		                   yourself.
 
-	handlerMemoing := MWHandlerMemoing new
-		                  handler: handlerProfiler;
-		                  yourself.
-
 	handlerTiming := MWHandlerTiming new
-		                 handler: handlerMemoing;
+		                 handler: handlerProfiler;
 		                 yourself.
 
 	result := (MWDecorator withAllImplementations: { 
