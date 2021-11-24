@@ -106,6 +106,20 @@ MWHandlerTest >> sequenceDiagramTree: aTree metadata: metadata [
 { #category : #tests }
 MWHandlerTest >> testAddWithinDoObjectCentric [
 
+	"
+(MWHandlerObjectCentric forKindOf: Interval)
+
+
+	wrappers := (MWDecoratorCollection withAllImplementations: { 
+			           (Collection >> #do:) 
+			           (Number >> #add:) }) withHandlers: {  handlerCentric . nil}.
+			
+	wrappers do: [ :each | each handler: handlerCentric ].
+	
+   [ interval do: [ :each | each add: 4 ] ] valueWithWrapping: wrappers.
+
+	[ wrappers do: [ :each | each install ] ] value:    [ interval do: [ :each | each add: 4 ] ] then: 	[ wrappers do: [ :each | each uninstall ] ]."
+
 	| handlerTiming tree presenter result handlerProfiler handlerCentric interval |
 	tree := CTOrderPreservingTree new.
 
