@@ -12,7 +12,7 @@ MWHandlerTiming >> addColumnsInPresenter: aPresenter metadata: metadata [
 		model duration: (Duration nanoSeconds: interval size * 1000).
 
 		model startTime:
-			(Time seconds: 0 nanoSeconds: interval first * 1000) ].
+			(DateAndTime fromSeconds: interval first / 1e6) asTime ].
 
 	aPresenter
 		addColumn:

@@ -7,9 +7,9 @@ Class {
 		'count',
 		'parent',
 		'return',
-		'ratio',
 		'duration',
-		'startTime'
+		'startTime',
+		'total'
 	],
 	#category : #MethodWrappers
 }
@@ -65,13 +65,7 @@ MWModelHandlerProfiling >> parent: anObject [
 { #category : #accessing }
 MWModelHandlerProfiling >> ratio [
 
-	^ ratio
-]
-
-{ #category : #accessing }
-MWModelHandlerProfiling >> ratio: anObject [
-
-	ratio := anObject
+	^ self count @ self total
 ]
 
 { #category : #accessing }
@@ -96,6 +90,18 @@ MWModelHandlerProfiling >> startTime [
 MWModelHandlerProfiling >> startTime: anObject [
 
 	startTime := anObject
+]
+
+{ #category : #accessing }
+MWModelHandlerProfiling >> total [
+
+	^ total
+]
+
+{ #category : #accessing }
+MWModelHandlerProfiling >> total: anObject [
+
+	total := anObject
 ]
 
 { #category : #accessing }

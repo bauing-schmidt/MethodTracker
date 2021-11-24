@@ -11,78 +11,12 @@ Class {
 	#category : #MethodWrappers
 }
 
-{ #category : #'as yet unclassified' }
-MWHandlerProfiling >> callsLog [
-
-	^ callsLog select: [ :anAssocOrLookupKey | 
-		  anAssocOrLookupKey isAssociation and: [ 
-			  | messageSend |
-			  messageSend := anAssocOrLookupKey value.
-			  messageSend selector = method selector and: [ 
-				  messageSend receiver isKindOf: method methodClass ] ] ]
-]
-
 { #category : #initialization }
 MWHandlerProfiling >> initialize [
 
 	super initialize.
 
 	returns := IdentityDictionary new
-]
-
-{ #category : #accessing }
-MWHandlerProfiling >> metadata [
-
-	| occurrences ticks selector metadata |
-	metadata := IdentityDictionary new.
-
-	ticks := 1.
-
-	occurrences := Dictionary new.
-
-	selector := Dictionary new.
-
-	tree
-		pre: [ :each | 
-			| eachReified key model |
-			eachReified := each asContextReifiedFromWrapping.
-
-			model := metadata at: each put: MWModelHandlerProfiling new.
-
-			model parent: (tree parent: each ifAbsent: [ Error signal ]).
-
-			model return: (returns
-					 at: each
-					 ifPresent: [ :anObj | CollectionElement with: anObj ]
-					 ifAbsent: [ CollectionElement withNil ]).
-
-			key := Array with: eachReified receiver with: eachReified selector.
-
-			model occurrence:
-				((occurrences at: key ifAbsent: [ 0 ]) in: [ :occ | 
-					 occurrences at: key put: occ + 1 ]).
-
-			model visit: ticks @ 0.
-			ticks := ticks + 1.
-
-			eachReified method in: [ :aMethod | 
-				model count:
-					((selector at: aMethod ifAbsent: [ 0 ]) in: [ :count | 
-						 selector at: aMethod put: count + 1 ]) ] ]
-		post: [ :each | 
-			metadata
-				at: each
-				ifPresent: [ :aMetadata | 
-					aMetadata visit in: [ :aPoint | 
-						aPoint setX: aPoint x setY: ticks ].
-					ticks := ticks + 1 ]
-				ifAbsent: [ Error signal ] ].
-
-	metadata keysAndValuesDo: [ :each :model | 
-		(selector at: each asContextReifiedFromWrapping method) in: [ :total | 
-			model ratio: model count @ total ] ].
-
-	^ metadata
 ]
 
 { #category : #accessing }
@@ -132,8 +66,7 @@ MWHandlerProfiling >> metadata: metadata [
 				ifAbsent: [ Error signal ] ].
 
 	metadata keysAndValuesDo: [ :each :model | 
-		(selector at: each asContextReifiedFromWrapping method) in: [ :total | 
-			model ratio: model count @ total ] ].
+		model total: (selector at: each asContextReifiedFromWrapping method) ].
 
 	^ metadata
 ]
