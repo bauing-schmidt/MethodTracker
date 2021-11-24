@@ -2,7 +2,7 @@
 I am a variant that waits a delay before returning from the hook notification message.
 "
 Class {
-	#name : #MWHandlerProfiling,
+	#name : #MWHandlerExecution,
 	#superclass : #MWHandler,
 	#instVars : [
 		'tree',
@@ -12,7 +12,7 @@ Class {
 }
 
 { #category : #initialization }
-MWHandlerProfiling >> initialize [
+MWHandlerExecution >> initialize [
 
 	super initialize.
 
@@ -20,7 +20,7 @@ MWHandlerProfiling >> initialize [
 ]
 
 { #category : #accessing }
-MWHandlerProfiling >> metadata: metadata [
+MWHandlerExecution >> metadata: metadata [
 
 	| occurrences ticks selector |
 	ticks := 1.
@@ -72,7 +72,7 @@ MWHandlerProfiling >> metadata: metadata [
 ]
 
 { #category : #evaluation }
-MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver post: aContext return: anObject carry: carry [
+MWHandlerExecution >> run: aSelector with: anArray in: aReceiver post: aContext return: anObject carry: carry [
 
 	returns at: aContext put: anObject.
 
@@ -86,13 +86,16 @@ MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver post: aContext 
 ]
 
 { #category : #evaluation }
-MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver pre: aContext [
+MWHandlerExecution >> run: aSelector with: anArray in: aReceiver pre: aContext [
 
-	(aContext sender findContextSuchThat: [ :ctx | 
-		 ctx selector = #run:with:in: and: [ ctx receiver isMethodWrapper ] ])
+	| aParent |
+	aParent := aContext sender findContextSuchThat: [ :ctx | 
+		           ctx receiver isMethodWrapper and: [ 
+			           ctx selector = #run:with:in: ] ].
+
+	aParent
 		ifNil: [ tree parent: aContext child: aContext ]
-		ifNotNil: [ :parentContext | 
-		tree parent: parentContext child: aContext ].
+		ifNotNil: [ tree parent: aParent child: aContext ].
 
 	^ super
 		  run: aSelector
@@ -102,7 +105,7 @@ MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver pre: aContext [
 ]
 
 { #category : #accessing }
-MWHandlerProfiling >> tree: aTree [
+MWHandlerExecution >> tree: aTree [
 
 	tree := aTree
 ]

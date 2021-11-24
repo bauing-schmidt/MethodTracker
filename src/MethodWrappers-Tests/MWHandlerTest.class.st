@@ -109,7 +109,7 @@ MWHandlerTest >> testAddWithinDoObjectCentric [
 	| handlerTiming tree presenter result handlerProfiler handlerCentric interval |
 	tree := CTOrderPreservingTree new.
 
-	handlerProfiler := MWHandlerProfiling new
+	handlerProfiler := MWHandlerExecution new
 		                   tree: tree;
 		                   yourself.
 
@@ -159,7 +159,7 @@ MWHandlerTest >> testAddWithinDoª [
 	| handlerTiming tree presenter result handlerProfiler |
 	tree := CTOrderPreservingTree new.
 
-	handlerProfiler := MWHandlerProfiling new
+	handlerProfiler := MWHandlerExecution new
 		                   tree: tree;
 		                   yourself.
 
@@ -357,7 +357,7 @@ MWHandlerTest >> testProfileSlowFactorial [
 	| wrapper handler tree presenter result |
 	tree := CTOrderPreservingTree new.
 
-	handler := MWHandlerProfiling new
+	handler := MWHandlerExecution new
 		           tree: tree;
 		           yourself.
 
@@ -387,15 +387,15 @@ MWHandlerTest >> testProfileSlowFactorial [
 { #category : #tests }
 MWHandlerTest >> testProfileSlowFibonacci [
 
-	| wrapper handler tree presenter result handlerTiming |
+	| wrapper handlerExecution tree presenter result handlerTiming |
 	tree := CTOrderPreservingTree new.
 
-	handler := MWHandlerProfiling new
-		           tree: tree;
-		           yourself.
+	handlerExecution := MWHandlerExecution new
+		                    tree: tree;
+		                    yourself.
 
 	handlerTiming := MWHandlerTiming new
-		                 handler: handler;
+		                 handler: handlerExecution;
 		                 yourself.
 
 	wrapper := (MWDecorator on: Integer >> #slowFibonacci)
@@ -410,7 +410,9 @@ MWHandlerTest >> testProfileSlowFibonacci [
 		| metadata |
 		metadata := IdentityDictionary new.
 
-		handler addColumnsInPresenter: treePresenter metadata: metadata.
+		handlerExecution
+			addColumnsInPresenter: treePresenter
+			metadata: metadata.
 
 		handlerTiming
 			addColumnsInPresenter: treePresenter
@@ -437,7 +439,7 @@ MWHandlerTest >> testProfileSlowFibonacciMemoing [
 
 	handlerCounting := MWHandlerCounting new.
 
-	handlerProfiler := MWHandlerProfiling new
+	handlerProfiler := MWHandlerExecution new
 		                   tree: tree;
 		                   yourself.
 
@@ -483,7 +485,7 @@ MWHandlerTest >> testProfileSlowFibonacciTailWithAdd [
 	| wrapper handler tree presenter result wrapperAdd |
 	tree := CTOrderPreservingTree new.
 
-	handler := MWHandlerProfiling new
+	handler := MWHandlerExecution new
 		           tree: tree;
 		           yourself.
 
@@ -522,7 +524,7 @@ MWHandlerTest >> testProfileSlowFibonacciWithAdd [
 	| wrapper handler tree presenter result wrapperAdd |
 	tree := CTOrderPreservingTree new.
 
-	handler := MWHandlerProfiling new
+	handler := MWHandlerExecution new
 		           tree: tree;
 		           yourself.
 
@@ -560,7 +562,7 @@ MWHandlerTest >> testProfileSlowFibonacciWithAddOnly [
 	| handler tree presenter result wrapperAdd |
 	tree := CTOrderPreservingTree new.
 
-	handler := MWHandlerProfiling new
+	handler := MWHandlerExecution new
 		           tree: tree;
 		           yourself.
 
@@ -589,18 +591,19 @@ MWHandlerTest >> testProfileSlowFibonacciWithAddOnly [
 { #category : #tests }
 MWHandlerTest >> testSequenceableCollectionMergeSort [
 
-	| handlerTiming tree presenter result handlerProfiler |
+	| handlerTiming tree presenter result handlerExecution |
 	tree := CTOrderPreservingTree new.
 
-	handlerProfiler := MWHandlerProfiling new
-		                   tree: tree;
-		                   yourself.
+	handlerExecution := MWHandlerExecution new
+		                    tree: tree;
+		                    yourself.
 
 	handlerTiming := MWHandlerTiming new
-		                 handler: handlerProfiler;
+		                 handler: handlerExecution;
 		                 yourself.
 
 	result := (MWDecorator withAllImplementations: { 
+				           (SequenceableCollection >> #sort).
 				           (SequenceableCollection
 				            >> #mergeFirst:middle:last:into:by:).
 				           (SequenceableCollection
@@ -615,7 +618,7 @@ MWHandlerTest >> testSequenceableCollectionMergeSort [
 		| metadata |
 		metadata := IdentityDictionary new.
 
-		handlerProfiler
+		handlerExecution
 			addColumnsInPresenter: treePresenter
 			metadata: metadata.
 		handlerTiming
@@ -627,7 +630,7 @@ MWHandlerTest >> testSequenceableCollectionMergeSort [
 	presenter openWithSpec.
 
 	self
-		assert: tree size equals: 58;
+		assert: tree size equals: 59;
 		assert: result equals: (1 to: 20) asArray
 ]
 
@@ -637,7 +640,7 @@ MWHandlerTest >> testTimingSlowFibonacciMemoing [
 	| wrapper plusWrappers handlerTiming handlerMemoing tree presenter result handlerProfiler |
 	tree := CTOrderPreservingTree new.
 
-	handlerProfiler := MWHandlerProfiling new
+	handlerProfiler := MWHandlerExecution new
 		                   tree: tree;
 		                   yourself.
 

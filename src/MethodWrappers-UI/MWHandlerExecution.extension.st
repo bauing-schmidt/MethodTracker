@@ -1,7 +1,7 @@
-Extension { #name : #MWHandlerProfiling }
+Extension { #name : #MWHandlerExecution }
 
 { #category : #'*MethodWrappers-UI' }
-MWHandlerProfiling >> addColumnsInPresenter: aPresenter metadata: metadata [
+MWHandlerExecution >> addColumnsInPresenter: aPresenter metadata: metadata [
 
 	self metadata: metadata.
 

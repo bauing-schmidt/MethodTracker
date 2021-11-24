@@ -742,7 +742,7 @@ MethodsTemperaturesPresenter >> runInstallMethodTemperatureWrappersStCommand: aC
 
 	self installingWrappers: [ "First, allocate a wrapper for each compiled method selected by
 		 the given block (edited in the corresponding block presenter)."
-		wrappers := MWHandlerProfiling
+		wrappers := MWHandlerExecution
 			            tick: 0;
 			            forPackages: selectedPackages
 			            selectMethod: [ :aMethod | 
@@ -766,7 +766,7 @@ MethodsTemperaturesPresenter >> runMeasureMethodsTemperaturesStCommand: aCommand
 MethodsTemperaturesPresenter >> runSequenceDiagramMethodsTemperaturesStCommand: aCommand [
 
 	| orderedCalls shapes stackSelected objectsSeenSoFar |
-	orderedCalls := MWHandlerProfiling callsLog.
+	orderedCalls := MWHandlerExecution callsLog.
 
 	shapes := OrderedCollection new.
 	objectsSeenSoFar := IdentityDictionary new.
