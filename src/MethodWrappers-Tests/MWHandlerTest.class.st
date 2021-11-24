@@ -604,10 +604,12 @@ MWHandlerTest >> testSequenceableCollectionMergeSort [
 
 	result := (MWDecorator withAllImplementations: { 
 				           (SequenceableCollection >> #sort).
+				           (SequenceableCollection >> #mergeSortFrom:to:by:).
 				           (SequenceableCollection
 				            >> #mergeFirst:middle:last:into:by:).
 				           (SequenceableCollection
-				            >> #mergeSortFrom:to:src:dst:by:) })
+				            >> #mergeSortFrom:to:src:dst:by:).
+				           (SequenceableCollection >> #replaceFrom:to:with:startingAt:) })
 		          do: [ :each | each handler: handlerTiming ];
 		          withWrappingDo: [ (1 to: 20) shuffled sort ].
 
@@ -625,12 +627,16 @@ MWHandlerTest >> testSequenceableCollectionMergeSort [
 			addColumnsInPresenter: treePresenter
 			metadata: metadata.
 
+		treePresenter whenSelectionChangedDo: [ :selectedItem | 
+			presenter treeShown in: [ :treeShown | 
+				self sequenceDiagramTree: treeShown metadata: metadata ] ].
+
 		treePresenter expandAll ].
 
 	presenter openWithSpec.
 
 	self
-		assert: tree size equals: 59;
+		assert: tree size equals: 81;
 		assert: result equals: (1 to: 20) asArray
 ]
 
