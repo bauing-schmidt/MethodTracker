@@ -1,7 +1,7 @@
 Extension { #name : #CompiledMethod }
 
 { #category : #'*MethodWrappers' }
-CompiledMethod >> allImplementations [
+CompiledMethod >> overriddenMethods [
 
 	^ Array streamContents: [ :aStream | 
 		  self methodClass withAllSubclassesDo: [ :aClass | 

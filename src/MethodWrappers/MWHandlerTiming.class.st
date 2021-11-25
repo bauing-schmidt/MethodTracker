@@ -28,33 +28,48 @@ MWHandlerTiming >> run: aSelector with: anArray in: aReceiver context: aContext 
 ]
 
 { #category : #evaluation }
-MWHandlerTiming >> run: aSelector with: anArray in: aReceiver post: aContext return: anObject carry: anAssoc [
+MWHandlerTiming >> run: aSelector with: anArray in: aReceiver post: aContext carry: carry return: anObject wrapper: aWrapper [
 
-	| now by start |
-	now := Time microsecondClockValue.
-	start := anAssoc key.
-	by := 1.
-	now = start ifTrue: [ now := now + by ].
+	| result |
+	result := super
+		          run: aSelector
+		          with: anArray
+		          in: aReceiver
+		          post: aContext
+		          carry: carry
+		          return: anObject
+		          wrapper: aWrapper.
 
-	timing at: aContext put: (start to: now by: by).
+	aWrapper
+		withSuspendWrapping: [ 
+			| now start by |
+			now := Time microsecondClockValue.
+			start := timing at: aContext.
+			by := 1.
+			now = start ifTrue: [ now := now + by ].
+
+			timing at: aContext put: (start to: now by: by) ]
+		context: aContext.
+
+	^ result
+]
+
+{ #category : #evaluation }
+MWHandlerTiming >> run: aSelector with: anArray in: aReceiver pre: aContext wrapper: aWrapper [
+
+	"It is important to keep the given order to properly record timings."
+
+	| now |
+	aWrapper
+		withSuspendWrapping: [ 
+			now := Time microsecondClockValue.
+			timing at: aContext put: now ]
+		context: aContext.
 
 	^ super
 		  run: aSelector
 		  with: anArray
 		  in: aReceiver
-		  post: aContext
-		  return: anObject
-		  carry: anAssoc value
-]
-
-{ #category : #evaluation }
-MWHandlerTiming >> run: aSelector with: anArray in: aReceiver pre: aContext [
-
-	"It is important to keep the given order to properly record timings."
-
-	^ Time microsecondClockValue -> (super
-		   run: aSelector
-		   with: anArray
-		   in: aReceiver
-		   pre: aContext)
+		  pre: aContext
+		  wrapper: aWrapper
 ]

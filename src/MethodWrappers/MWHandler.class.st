@@ -18,7 +18,8 @@ MWHandler >> run: aSelector with: anArray in: aReceiver context: aContext wrappe
 		         run: aSelector
 		         with: anArray
 		         in: aReceiver
-		         pre: aContext.
+		         pre: aContext
+		         wrapper: aWrapper.
 
 	result := self
 		          run: aSelector
@@ -33,18 +34,19 @@ MWHandler >> run: aSelector with: anArray in: aReceiver context: aContext wrappe
 		  with: anArray
 		  in: aReceiver
 		  post: aContext
-		  return: result
 		  carry: carry
+		  return: result
+		  wrapper: aWrapper
 ]
 
 { #category : #hooks }
-MWHandler >> run: aSelector with: anArray in: aReceiver post: aContext return: anObject carry: carry [
+MWHandler >> run: aSelector with: anArray in: aReceiver post: aContext carry: carry return: anObject wrapper: aWrapper [
 
 	^ anObject
 ]
 
 { #category : #hooks }
-MWHandler >> run: aSelector with: anArray in: aReceiver pre: aContext [
+MWHandler >> run: aSelector with: anArray in: aReceiver pre: aContext wrapper: aWrapper [
 
-	            
+	
 ]

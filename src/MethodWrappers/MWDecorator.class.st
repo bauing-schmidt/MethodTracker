@@ -6,83 +6,30 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'compiledMethod',
-		'handler'
+		'handler',
+		'owner'
 	],
 	#category : #MethodWrappers
 }
-
-{ #category : #API }
-MWDecorator class >> compiledMethods: aCollection thenSelect: methodBlock [
-
-	| excludingClasses methods |
-	excludingClasses := MWDecorator withAllSubclasses asSet.
-
-	methods := aCollection select: [ :aMethod | 
-		           (excludingClasses includes: aMethod methodClass) not 
-			           and: [ methodBlock value: aMethod ] ].
-
-	^ methods collect: [ :each | self on: each ]
-]
 
 { #category : #initialization }
 MWDecorator class >> doInspectAllInstances [
 
 	<script>
-	MWDecorator inspectAllInstances
-]
-
-{ #category : #API }
-MWDecorator class >> forBaselineClass: aBaselineClass selectMethod: methodBlock [
-
-	| methods |
-	methods := (aBaselineClass allPackageNames collect: [ :each | 
-		            each asPackage ]) flatCollect: [ :each | each methods ].
-
-	^ self compiledMethods: methods thenSelect: methodBlock
-]
-
-{ #category : #API }
-MWDecorator class >> forPackages: aCollection selectMethod: methodBlock [
-
-	| methods |
-	methods := aCollection asOrderedCollection flatCollect: [ :each | 
-		           each methods ].
-
-	^ self compiledMethods: methods thenSelect: methodBlock
-]
-
-{ #category : #'instance creation' }
-MWDecorator class >> on: aCompiledMethod [
-
-	^ self new
-		  compiledMethod: aCompiledMethod;
-		  yourself
+	self inspectAllInstances
 ]
 
 { #category : #initialization }
 MWDecorator class >> reset [
 
 	<script>
-	MWDecorator allSubclassesDo: [ :each | 
+	self allSubclassesDo: [ :each | 
 		each allInstances do: [ :w | 
 			[ w uninstall ] onDNU: #uninstall do: [  ] ] ].
+
 	SpNullApplication reset.
+
 	Smalltalk garbageCollect
-]
-
-{ #category : #'instance creation' }
-MWDecorator class >> withAll: aCollection [
-
-	^ self compiledMethods: aCollection thenSelect: [ :each | true ]
-]
-
-{ #category : #'instance creation' }
-MWDecorator class >> withAllImplementations: aCollection [
-
-	^ self
-		  compiledMethods:
-		  (aCollection flatCollect: [ :each | each allImplementations ])
-		  thenSelect: [ :each | true ]
 ]
 
 { #category : #initialization }
@@ -131,6 +78,12 @@ MWDecorator >> isMethodWrapper [
 	^ true
 ]
 
+{ #category : #accessing }
+MWDecorator >> owner: anObject [
+
+	owner := anObject
+]
+
 { #category : #printing }
 MWDecorator >> printOn: aStream [
 
@@ -161,11 +114,11 @@ MWDecorator >> run: aSelector with: anArray in: aReceiver [
 	| aContext |
 	self assert: aSelector = compiledMethod selector.
 
-	aContext := thisContext .
+	aContext := thisContext.
 
-	^ handler
-		  ifNil: [ self valueWithReceiver: aReceiver arguments: anArray ]
-		  ifNotNil: [ 
+	^ (handler isNil or: [ owner content isNotNil ])
+		  ifTrue: [ self valueWithReceiver: aReceiver arguments: anArray ]
+		  ifFalse: [ 
 			  handler
 				  run: aSelector
 				  with: anArray
@@ -187,6 +140,12 @@ MWDecorator >> uninstall [
 MWDecorator >> valueWithReceiver: aReceiver arguments: anArray [
 
 	^ aReceiver withArgs: anArray executeMethod: compiledMethod
+]
 
-	"^ compiledMethod valueWithReceiver: aReceiver arguments: anArray"
+{ #category : #'as yet unclassified' }
+MWDecorator >> withSuspendWrapping: aBlock context: aContext [
+
+	^ [ owner content: aContext ~~> owner content ]
+		  value: aBlock
+		  then: [ owner content: owner content nextLink ]
 ]

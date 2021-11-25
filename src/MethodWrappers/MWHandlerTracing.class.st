@@ -8,7 +8,7 @@ Class {
 }
 
 { #category : #evaluation }
-MWHandlerTracing >> run: aSelector with: anArray in: aReceiver pre: aContext [
+MWHandlerTracing >> run: aSelector with: anArray in: aReceiver pre: aContext wrapper: aWrapper [
 
 	Stdio stderr
 		nextPutAll: aReceiver class name;
@@ -21,4 +21,5 @@ MWHandlerTracing >> run: aSelector with: anArray in: aReceiver pre: aContext [
 		  with: anArray
 		  in: aReceiver
 		  pre: aContext
+		  wrapper: aWrapper
 ]

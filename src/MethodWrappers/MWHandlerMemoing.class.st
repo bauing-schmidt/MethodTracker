@@ -18,17 +18,31 @@ MWHandlerMemoing >> initialize [
 { #category : #'as yet unclassified' }
 MWHandlerMemoing >> run: aSelector with: anArray in: aReceiver context: aContext carry: carry wrapper: aWrapper [
 
-	| key |
-	key := { 
-		       aReceiver.
-		       aSelector } , anArray.
+	| key witness resolved |
+	resolved := aWrapper
+		            withSuspendWrapping: [ 
+			            witness := Object new.
 
-	^ table at: key ifAbsentPut: [ 
-		  super
-			  run: aSelector
-			  with: anArray
-			  in: aReceiver
-			  context: aContext
-			  carry: carry
-			  wrapper: aWrapper ]
+			            key := { 
+				                   aReceiver.
+				                   aSelector } , anArray.
+
+			            table at: key ifAbsent: [ witness ] ]
+		            context: aContext.
+
+	^ resolved == witness
+		  ifTrue: [ 
+			  | value |
+			  value := super
+				           run: aSelector
+				           with: anArray
+				           in: aReceiver
+				           context: aContext
+				           carry: carry
+				           wrapper: aWrapper.
+
+			  aWrapper
+				  withSuspendWrapping: [ table at: key put: value ]
+				  context: aContext ]
+		  ifFalse: [ resolved ]
 ]

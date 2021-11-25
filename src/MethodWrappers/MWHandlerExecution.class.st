@@ -72,7 +72,7 @@ MWHandlerExecution >> metadata: metadata [
 ]
 
 { #category : #evaluation }
-MWHandlerExecution >> run: aSelector with: anArray in: aReceiver post: aContext return: anObject carry: carry [
+MWHandlerExecution >> run: aSelector with: anArray in: aReceiver post: aContext carry: carry return: anObject wrapper: aWrapper [
 
 	returns at: aContext put: anObject.
 
@@ -81,14 +81,16 @@ MWHandlerExecution >> run: aSelector with: anArray in: aReceiver post: aContext 
 		  with: anArray
 		  in: aReceiver
 		  post: aContext
-		  return: anObject
 		  carry: carry
+		  return: anObject
+		  wrapper: aWrapper
 ]
 
 { #category : #evaluation }
-MWHandlerExecution >> run: aSelector with: anArray in: aReceiver pre: aContext [
+MWHandlerExecution >> run: aSelector with: anArray in: aReceiver pre: aContext wrapper: aWrapper [
 
 	| aParent |
+	"hacking.""(1 to: 20) shuffled sort."
 	aParent := aContext sender findContextSuchThat: [ :ctx | 
 		           ctx receiver isMethodWrapper and: [ 
 			           ctx selector = #run:with:in: ] ].
@@ -102,6 +104,7 @@ MWHandlerExecution >> run: aSelector with: anArray in: aReceiver pre: aContext [
 		  with: anArray
 		  in: aReceiver
 		  pre: aContext
+		  wrapper: aWrapper
 ]
 
 { #category : #accessing }

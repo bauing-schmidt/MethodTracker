@@ -139,7 +139,7 @@ MWHandlerTest >> testAddWithinDoObjectCentric [
 		                  handler: handlerTiming;
 		                  yourself.
 
-	result := (MWDecorator withAllImplementations: { 
+	result := (MWDecoratorCollection withAllImplementations: { 
 				           (Collection >> #do:).
 				           (Number >> #add:) })
 		          do: [ :each | each handler: handlerCentric ];
@@ -181,7 +181,7 @@ MWHandlerTest >> testAddWithinDoª [
 		                 handler: handlerProfiler;
 		                 yourself.
 
-	result := (MWDecorator withAllImplementations: { 
+	result := (MWDecoratorCollection withAllImplementations: { 
 				           (Collection >> #doª:).
 				           (Number >> #add:) })
 		          do: [ :each | each handler: handlerTiming ];
@@ -217,7 +217,9 @@ MWHandlerTest >> testCountFooSingleWrapper [
 	| wrapper handler |
 	handler := MWHandlerCounting new.
 
-	wrapper := (MWDecorator on: self class >> #foo)
+	wrapper := MWDecorator new
+		           owner: (Maybe just: nil);
+		           compiledMethod: self class >> #foo;
 		           handler: handler;
 		           yourself.
 
@@ -243,7 +245,7 @@ MWHandlerTest >> testCountIfTrue [
 	| wrappers handler |
 	handler := MWHandlerCounting new.
 
-	wrappers := (MWDecorator withAllImplementations:
+	wrappers := (MWDecoratorCollection withAllImplementations:
 			             { (Boolean >> #ifTrue:) })
 		            do: [ :each | each handler: handler ];
 		            yourself.
@@ -260,15 +262,18 @@ MWHandlerTest >> testCountIfTrueDuringSlowFactorial [
 	handler := MWHandlerCounting new.
 	ifTrueHandler := MWHandlerCounting new.
 
-	wrapper := (MWDecorator on: Integer >> #slowFactorial)
+	wrapper := MWDecorator new
+		           compiledMethod: Integer >> #slowFactorial;
 		           handler: handler;
 		           yourself.
 
-	wrappers := (MWDecorator withAllImplementations: { (Boolean >> #ifTrue:) })
+	wrappers := (MWDecoratorCollection withAllImplementations:
+			             { (Boolean >> #ifTrue:) })
 		            do: [ :each | each handler: ifTrueHandler ];
+		            add: wrapper;
 		            yourself.
 
-	{ wrapper } , wrappers withWrappingDo: [ 5 slowFactorial ].
+	wrappers withWrappingDo: [ 5 slowFactorial ].
 
 	self
 		assert: handler count equals: 6;
@@ -281,7 +286,9 @@ MWHandlerTest >> testCountIfTrueSingleWrapper [
 	| wrapper handler |
 	handler := MWHandlerCounting new.
 
-	wrapper := (MWDecorator on: true class >> #ifTrue:)
+	wrapper := MWDecorator new
+		           owner: (Maybe just: nil);
+		           compiledMethod: true class >> #ifTrue:;
 		           handler: handler;
 		           yourself.
 
@@ -330,7 +337,9 @@ MWHandlerTest >> testCountSelfIfTrueSingleWrapper [
 	| wrapper handler |
 	handler := MWHandlerCounting new.
 
-	wrapper := (MWDecorator on: self class >> #ifTrue:)
+	wrapper := MWDecorator new
+		           owner: (Maybe just: nil);
+		           compiledMethod: self class >> #ifTrue:;
 		           handler: handler;
 		           yourself.
 
@@ -356,7 +365,9 @@ MWHandlerTest >> testCountSlowFactorial [
 	| wrapper handler |
 	handler := MWHandlerCounting new.
 
-	wrapper := (MWDecorator on: Integer >> #slowFactorial)
+	wrapper := MWDecorator new
+		           owner: (Maybe just: nil);
+		           compiledMethod: Integer >> #slowFactorial;
 		           handler: handler;
 		           yourself.
 
@@ -375,7 +386,9 @@ MWHandlerTest >> testProfileSlowFactorial [
 		           tree: tree;
 		           yourself.
 
-	wrapper := (MWDecorator on: Integer >> #slowFactorial)
+	wrapper := MWDecorator new
+		           owner: (Maybe just: nil);
+		           compiledMethod: Integer >> #slowFactorial;
 		           handler: handler;
 		           yourself.
 
@@ -412,7 +425,9 @@ MWHandlerTest >> testProfileSlowFibonacci [
 		                 handler: handlerExecution;
 		                 yourself.
 
-	wrapper := (MWDecorator on: Integer >> #slowFibonacci)
+	wrapper := MWDecorator new
+		           owner: (Maybe just: nil);
+		           compiledMethod: Integer >> #slowFibonacci;
 		           handler: handlerTiming;
 		           yourself.
 
@@ -448,30 +463,32 @@ MWHandlerTest >> testProfileSlowFibonacci [
 { #category : #tests }
 MWHandlerTest >> testProfileSlowFibonacciMemoing [
 
-	| wrapper plusWrappers handlerCounting handler tree presenter result handlerProfiler |
+	| wrapper wrappers handlerCounting handler tree presenter result handlerExecution |
 	tree := CTOrderPreservingTree new.
 
 	handlerCounting := MWHandlerCounting new.
 
-	handlerProfiler := MWHandlerExecution new
-		                   tree: tree;
-		                   yourself.
+	handlerExecution := MWHandlerExecution new
+		                    tree: tree;
+		                    yourself.
 
 	handler := MWHandlerMemoing new
-		           handler: handlerProfiler;
+		           handler: handlerExecution;
 		           yourself.
 
-	wrapper := (MWDecorator on: Integer >> #slowFibonacci)
+	wrapper := MWDecorator new
+		           compiledMethod: Integer >> #slowFibonacci;
 		           handler: handler;
 		           yourself.
 
-	plusWrappers := (MWDecorator withAllImplementations:
-			                 { (Number >> #add:) })
-		                do: [ :each | each handler: handlerCounting ];
-		                yourself.
+	wrappers := (MWDecoratorCollection withAllImplementations:
+			             { (Number >> #add:) })
+		            do: [ :each | each handler: handlerCounting ];
+		            yourself.
 
-	result := { wrapper } , plusWrappers withWrappingDo: [ 
-		          10 slowFibonacci ].
+	wrappers add: wrapper.
+
+	result := wrappers withWrappingDo: [ 10 slowFibonacci ].
 
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
@@ -479,7 +496,7 @@ MWHandlerTest >> testProfileSlowFibonacciMemoing [
 		| metadata |
 		metadata := IdentityDictionary new.
 
-		handlerProfiler
+		handlerExecution
 			addColumnsInPresenter: treePresenter
 			metadata: metadata.
 
@@ -503,18 +520,20 @@ MWHandlerTest >> testProfileSlowFibonacciTailWithAdd [
 		           tree: tree;
 		           yourself.
 
-	wrapper := (MWDecorator on: Integer >> #slowFibonacci:tail:)
+	wrapper := MWDecorator new
+		           compiledMethod: Integer >> #slowFibonacci:tail:;
 		           handler: handler;
 		           yourself.
 
-	wrapperAdd := (MWDecorator on: Number >> #add:)
+	wrapperAdd := MWDecorator new
+		              compiledMethod: Number >> #add:;
 		              handler: handler;
 		              yourself.
 
-	result := { 
-		          wrapper.
-		          wrapperAdd } withWrappingDo: [ 
-		          10 slowFibonacci: 0 tail: 1 ].
+	result := MWDecoratorCollection new
+		          add: wrapper;
+		          add: wrapperAdd;
+		          withWrappingDo: [ 10 slowFibonacci: 0 tail: 1 ].
 
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
@@ -542,17 +561,20 @@ MWHandlerTest >> testProfileSlowFibonacciWithAdd [
 		           tree: tree;
 		           yourself.
 
-	wrapper := (MWDecorator on: Integer >> #slowFibonacci)
+	wrapper := MWDecorator new
+		           compiledMethod: Integer >> #slowFibonacci;
 		           handler: handler;
 		           yourself.
 
-	wrapperAdd := (MWDecorator on: Number >> #add:)
+	wrapperAdd := MWDecorator new
+		              compiledMethod: Number >> #add:;
 		              handler: handler;
 		              yourself.
 
-	result := { 
-		          wrapper.
-		          wrapperAdd } withWrappingDo: [ 10 slowFibonacci ].
+	result := result := MWDecoratorCollection new
+		                    add: wrapper;
+		                    add: wrapperAdd;
+		                    withWrappingDo: [ 10 slowFibonacci ].
 
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
@@ -580,11 +602,14 @@ MWHandlerTest >> testProfileSlowFibonacciWithAddOnly [
 		           tree: tree;
 		           yourself.
 
-	wrapperAdd := (MWDecorator on: Number >> #add:)
+	wrapperAdd := MWDecorator new
+		              compiledMethod: Number >> #add:;
 		              handler: handler;
 		              yourself.
 
-	result := { wrapperAdd } withWrappingDo: [ 10 slowFibonacci ].
+	result := MWDecoratorCollection new
+		          add: wrapperAdd;
+		          withWrappingDo: [ 10 slowFibonacci ].
 
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
@@ -616,17 +641,17 @@ MWHandlerTest >> testSequenceableCollectionMergeSort [
 		                 handler: handlerExecution;
 		                 yourself.
 
-	result := (MWDecorator withAllImplementations: { 
+	result := (MWDecoratorCollection withAllImplementations: { 
 				           (SequenceableCollection >> #sort).
 				           (SequenceableCollection >> #mergeSortFrom:to:by:).
 				           (SequenceableCollection
 				            >> #mergeFirst:middle:last:into:by:).
 				           (SequenceableCollection
 				            >> #mergeSortFrom:to:src:dst:by:).
-				           (SequenceableCollection >> #replaceFrom:to:with:startingAt:) })
+				           (SequenceableCollection
+				            >> #replaceFrom:to:with:startingAt:) })
 		          do: [ :each | each handler: handlerTiming ];
 		          withWrappingDo: [ (1 to: 20) shuffled sort ].
-
 
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
@@ -637,6 +662,7 @@ MWHandlerTest >> testSequenceableCollectionMergeSort [
 		handlerExecution
 			addColumnsInPresenter: treePresenter
 			metadata: metadata.
+
 		handlerTiming
 			addColumnsInPresenter: treePresenter
 			metadata: metadata.
@@ -672,16 +698,19 @@ MWHandlerTest >> testTimingSlowFibonacciMemoing [
 		                 handler: handlerMemoing;
 		                 yourself.
 
-	wrapper := (MWDecorator on: Integer >> #slowFibonacci)
+	wrapper := MWDecorator new
+		           compiledMethod: Integer >> #slowFibonacci;
 		           handler: handlerTiming;
 		           yourself.
 
-	plusWrappers := (MWDecorator withAllImplementations:
+	plusWrappers := (MWDecoratorCollection withAllImplementations:
 			                 { (Number >> #add:) })
 		                do: [ :each | each handler: handlerTiming ];
 		                yourself.
 
-	result := { wrapper } withWrappingDo: [ 10 slowFibonacci ]. ", plusWrappers"
+	result := MWDecoratorCollection new
+		          add: wrapper;
+		          withWrappingDo: [ 10 slowFibonacci ]. ", plusWrappers"
 
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
