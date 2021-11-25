@@ -56,9 +56,7 @@ MWHandlerTest >> sequenceDiagramTree: aTree metadata: metadata [
 		post: [ :each :anAssoc | 
 			anAssoc value in: [ :fullMessageSend | 
 				| returnMessageSend return |
-				return := (metadata at: each) return
-					          ifNil: [ nil ]
-					          ifEnclosed: [ :v | v ].
+				return := (metadata at: each) return.
 
 				returnMessageSend := fullMessageSend asReturnMessageSend
 					                     return: return;

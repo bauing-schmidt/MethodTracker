@@ -34,7 +34,9 @@ MWHandlerExecution >> metadata: metadata [
 			| eachReified key model |
 			eachReified := each asContextReifiedFromWrapping.
 
-			model := metadata at: each put: MWModelHandlerProfiling new.
+			model := metadata
+				         at: each
+				         ifAbsentPut: [ MWModelHandlerProfiling new ].
 
 			model reifiedContext: eachReified.
 
@@ -92,10 +94,11 @@ MWHandlerExecution >> run: aSelector with: anArray in: aReceiver pre: aContext w
 
 	aWrapper
 		withSuspendWrapping: [ :aJust | 
-			| aParent |
+			| aParent runWithInMethod |
+			runWithInMethod := MWDecorator >> #run:with:in:.
+
 			aParent := aContext sender findContextSuchThat: [ :ctx | 
-				           ctx receiver isMethodWrapper and: [ 
-					           ctx selector = #run:with:in: ] ].
+				           runWithInMethod = ctx method ].
 
 			aParent
 				ifNil: [ tree parent: aContext child: aContext ]
