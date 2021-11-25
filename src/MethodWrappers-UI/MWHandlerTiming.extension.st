@@ -3,7 +3,7 @@ Extension { #name : #MWHandlerTiming }
 { #category : #'*MethodWrappers-UI' }
 MWHandlerTiming >> addColumnsInPresenter: aPresenter metadata: metadata [
 
-	timing keysAndValuesDo: [ :each :interval | 
+	table keysAndValuesDo: [ :each :interval | 
 		| model |
 		model := metadata
 			         at: each

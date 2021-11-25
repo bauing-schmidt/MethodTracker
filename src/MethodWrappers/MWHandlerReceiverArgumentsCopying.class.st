@@ -7,14 +7,6 @@ Class {
 	#category : #MethodWrappers
 }
 
-{ #category : #adding }
-MWHandlerReceiverArgumentsCopying >> addColumnsInPresenter: aPresenter metadata: metadata [
-
-	aPresenter addColumn: (SpStringTableColumn
-			 title: 'Return copied'
-			 evaluated: [ :aContext | (table at: aContext) return ])
-]
-
 { #category : #initialization }
 MWHandlerReceiverArgumentsCopying >> initialize [
 
@@ -29,11 +21,12 @@ MWHandlerReceiverArgumentsCopying >> run: aSelector with: anArray in: aReceiver 
 	aWrapper
 		withSuspendWrapping: [ 
 			| message |
-			message := MessageSent
+			message := MessageSend
 				           receiver: aReceiver copy
 				           selector: aSelector
 				           arguments: (anArray collect: [ :each | each copy ]).
-			message return: anObject copy.
+				
+			message := message return: anObject copy.
 
 			table at: aContext put: message ]
 		context: aContext.

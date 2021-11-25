@@ -2,7 +2,7 @@ Class {
 	#name : #MWHandlerTiming,
 	#superclass : #MWHandlerDecorating,
 	#instVars : [
-		'timing'
+		'table'
 	],
 	#category : #MethodWrappers
 }
@@ -12,7 +12,7 @@ MWHandlerTiming >> initialize [
 
 	super initialize.
 
-	timing := IdentityDictionary new
+	table := IdentityDictionary new
 ]
 
 { #category : #evaluation }
@@ -32,11 +32,11 @@ MWHandlerTiming >> run: aSelector with: anArray in: aReceiver post: aContext car
 		withSuspendWrapping: [ 
 			| now start by |
 			now := Time microsecondClockValue.
-			start := timing at: aContext.
+			start := table at: aContext.
 			by := 1.
 			now = start ifTrue: [ now := now + by ].
 
-			timing at: aContext put: (start to: now by: by) ]
+			table at: aContext put: (start to: now by: by) ]
 		context: aContext.
 
 	^ result
@@ -51,7 +51,7 @@ MWHandlerTiming >> run: aSelector with: anArray in: aReceiver pre: aContext wrap
 		withSuspendWrapping: [ 
 			| now |
 			now := Time microsecondClockValue.
-			timing at: aContext put: now ]
+			table at: aContext put: now ]
 		context: aContext.
 
 	^ super
