@@ -212,6 +212,22 @@ MWHandlerTest >> testAddWithinDoª [
 ]
 
 { #category : #tests }
+MWHandlerTest >> testCountAdd [
+
+	| wrappers handler |
+	handler := MWHandlerCounting new.
+
+	wrappers := (MWDecoratorCollection withAllImplementations:
+			             { (Number >> #add:) })
+		            do: [ :each | each handler: handler ];
+		            yourself.
+
+	wrappers withWrappingDo: [ handler add: 3 to: 4 ].
+
+	self assert: handler count equals: 1
+]
+
+{ #category : #tests }
 MWHandlerTest >> testCountFooSingleWrapper [
 
 	| wrapper handler |

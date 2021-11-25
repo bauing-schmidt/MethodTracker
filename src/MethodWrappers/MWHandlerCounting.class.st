@@ -24,6 +24,12 @@ Class {
 	#category : #MethodWrappers
 }
 
+{ #category : #evaluation }
+MWHandlerCounting >> add: a to: b [
+
+	^ a add: b
+]
+
 { #category : #accessing }
 MWHandlerCounting >> count [ 
 
@@ -42,7 +48,7 @@ MWHandlerCounting >> initialize [
 MWHandlerCounting >> run: aSelector with: anArray in: aReceiver pre: aContext wrapper: aWrapper [
 
 	aWrapper
-		withSuspendWrapping: [ count := count add: 1 ]
+		withSuspendWrapping: [ count := self add: count to: 1 ]
 		context: aContext.
 
 	^ super

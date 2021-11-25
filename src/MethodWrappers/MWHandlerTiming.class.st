@@ -15,18 +15,6 @@ MWHandlerTiming >> initialize [
 	timing := IdentityDictionary new
 ]
 
-{ #category : #hooks }
-MWHandlerTiming >> run: aSelector with: anArray in: aReceiver context: aContext carry: anAssoc wrapper: aWrapper [
-
-	^ super
-		  run: aSelector
-		  with: anArray
-		  in: aReceiver
-		  context: aContext
-		  carry: anAssoc value
-		  wrapper: aWrapper
-]
-
 { #category : #evaluation }
 MWHandlerTiming >> run: aSelector with: anArray in: aReceiver post: aContext carry: carry return: anObject wrapper: aWrapper [
 

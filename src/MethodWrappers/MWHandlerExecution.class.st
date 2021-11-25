@@ -74,7 +74,9 @@ MWHandlerExecution >> metadata: metadata [
 { #category : #evaluation }
 MWHandlerExecution >> run: aSelector with: anArray in: aReceiver post: aContext carry: carry return: anObject wrapper: aWrapper [
 
-	returns at: aContext put: anObject.
+	aWrapper
+		withSuspendWrapping: [ returns at: aContext put: anObject ]
+		context: aContext.
 
 	^ super
 		  run: aSelector
@@ -89,15 +91,18 @@ MWHandlerExecution >> run: aSelector with: anArray in: aReceiver post: aContext 
 { #category : #evaluation }
 MWHandlerExecution >> run: aSelector with: anArray in: aReceiver pre: aContext wrapper: aWrapper [
 
-	| aParent |
-	"hacking.""(1 to: 20) shuffled sort."
-	aParent := aContext sender findContextSuchThat: [ :ctx | 
-		           ctx receiver isMethodWrapper and: [ 
-			           ctx selector = #run:with:in: ] ].
+	aWrapper
+		withSuspendWrapping: [ 
+			| aParent |
+			"hacking.""(1 to: 20) shuffled sort."
+			aParent := aContext sender findContextSuchThat: [ :ctx | 
+				           ctx receiver isMethodWrapper and: [ 
+					           ctx selector = #run:with:in: ] ].
 
-	aParent
-		ifNil: [ tree parent: aContext child: aContext ]
-		ifNotNil: [ tree parent: aParent child: aContext ].
+			aParent
+				ifNil: [ tree parent: aContext child: aContext ]
+				ifNotNil: [ tree parent: aParent child: aContext ] ]
+		context: aContext.
 
 	^ super
 		  run: aSelector
