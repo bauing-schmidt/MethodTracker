@@ -75,7 +75,7 @@ MWDecoratorCollection class >> withAllImplementations: aCollection [
 
 	^ self
 		  compiledMethods:
-		  (aCollection flatCollect: [ :each | each overriddenMethods ])
+		  (aCollection flatCollect: [ :each | each allImplementations ])
 		  thenSelect: [ :each | true ]
 ]
 
