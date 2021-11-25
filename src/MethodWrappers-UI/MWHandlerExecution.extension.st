@@ -10,13 +10,11 @@ MWHandlerExecution >> addColumnsInPresenter: aPresenter metadata: metadata [
 			(SpStringTableColumn
 				 title: 'Message send'
 				 evaluated: [ :aContext | 
-					 aContext asContextReifiedFromWrapping
+					 (metadata at: aContext) reifiedContext
 						 asStringInterpolationOfReceiverSelectorArguments ]);
-		addColumn:
-			(SpStringTableColumn title: 'Return' evaluated: [ :aContext | 
-					 (metadata at: aContext) return
-						 ifNil: [ '•' ]
-						 ifEnclosed: [ :anObj | anObj ] ]);
+		addColumn: (SpStringTableColumn
+				 title: 'Return'
+				 evaluated: [ :aContext | (metadata at: aContext) return ]);
 		addColumn:
 			(SpStringTableColumn title: 'Client' evaluated: [ :aContext | 
 					 (metadata at: aContext) parent in: [ :aParent | 

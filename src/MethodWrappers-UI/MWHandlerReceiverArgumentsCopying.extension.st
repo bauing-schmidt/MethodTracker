@@ -3,7 +3,17 @@ Extension { #name : #MWHandlerReceiverArgumentsCopying }
 { #category : #'*MethodWrappers-UI' }
 MWHandlerReceiverArgumentsCopying >> addColumnsInPresenter: aPresenter metadata: metadata [
 
-	aPresenter addColumn: (SpStringTableColumn
-			 title: 'Return copied'
-			 evaluated: [ :aContext | (table at: aContext) return ])
+	table keysAndValuesDo: [ :each :messageSent | 
+		| model ctx messageSend |
+		messageSend := messageSent messageSend.
+		model := metadata at: each.
+
+		ctx := model reifiedContext.
+		model reifiedContext: (Context
+				 sender: ctx sender
+				 receiver: messageSend receiver
+				 method: ctx method
+				 arguments: messageSend arguments).
+
+		model return: messageSent return ]
 ]

@@ -9,7 +9,8 @@ Class {
 		'return',
 		'duration',
 		'startTime',
-		'total'
+		'total',
+		'reifiedContext'
 	],
 	#category : #MethodWrappers
 }
@@ -66,6 +67,18 @@ MWModelHandlerProfiling >> parent: anObject [
 MWModelHandlerProfiling >> ratio [
 
 	^ self count @ self total
+]
+
+{ #category : #accessing }
+MWModelHandlerProfiling >> reifiedContext [
+
+	^ reifiedContext
+]
+
+{ #category : #accessing }
+MWModelHandlerProfiling >> reifiedContext: anObject [
+
+	reifiedContext := anObject
 ]
 
 { #category : #accessing }

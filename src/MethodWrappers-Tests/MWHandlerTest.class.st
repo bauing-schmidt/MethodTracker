@@ -761,6 +761,71 @@ MWHandlerTest >> testSequenceableCollectionMergeSortCopying [
 ]
 
 { #category : #tests }
+MWHandlerTest >> testSequenceableCollectionMergeSortCopyingDetailed [
+
+	| handlerTiming tree presenter result handlerExecution handlerCopying |
+	tree := CTOrderPreservingTree new.
+
+	handlerExecution := MWHandlerExecution new
+		                    tree: tree;
+		                    yourself.
+
+	handlerTiming := MWHandlerTiming new
+		                 handler: handlerExecution;
+		                 yourself.
+
+	handlerCopying := MWHandlerReceiverArgumentsCopying new
+		                  handler: handlerTiming;
+		                  yourself.
+
+	result := (MWDecoratorCollection withAllImplementations: { 
+				           (SequenceableCollection >> #sort).
+				           (SequenceableCollection >> #mergeSortFrom:to:by:).
+				           (SequenceableCollection
+				            >> #mergeFirst:middle:last:into:by:).
+				           (SequenceableCollection
+				            >> #mergeSortFrom:to:src:dst:by:).
+				           (SequenceableCollection
+				            >> #replaceFrom:to:with:startingAt:).
+				           (SequenceableCollection >> #shuffled).
+				           (SequenceableCollection >> #shuffle).
+				           (SequenceableCollection >> #shuffleBy:).
+				           (SequenceableCollection >> #swap:with:) })
+		          do: [ :each | each handler: handlerCopying ];
+		          withWrappingDo: [ (1 to: 20) shuffled sort ].
+
+	presenter := CTOrderPreservingTreePresenter on: tree.
+
+	presenter withTreePresenterDo: [ :treePresenter | 
+		| metadata |
+		metadata := IdentityDictionary new.
+
+		handlerExecution
+			addColumnsInPresenter: treePresenter
+			metadata: metadata.
+
+		handlerCopying
+			addColumnsInPresenter: treePresenter
+			metadata: metadata.
+
+		handlerTiming
+			addColumnsInPresenter: treePresenter
+			metadata: metadata.
+
+		treePresenter whenSelectionChangedDo: [ :selectedItem | 
+			presenter treeShown in: [ :treeShown | 
+				self sequenceDiagramTree: treeShown metadata: metadata ] ].
+
+		treePresenter expandAll ].
+
+	presenter openWithSpec.
+
+	self
+		assert: tree size equals: 103;
+		assert: result equals: (1 to: 20) asArray
+]
+
+{ #category : #tests }
 MWHandlerTest >> testSequenceableCollectionMergeSortPlugging [
 
 	| handlerTiming tree presenter result handlerExecution handlerBlockPlugging |

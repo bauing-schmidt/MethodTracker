@@ -36,12 +36,11 @@ MWHandlerExecution >> metadata: metadata [
 
 			model := metadata at: each put: MWModelHandlerProfiling new.
 
+			model reifiedContext: eachReified.
+
 			model parent: (tree parent: each ifAbsent: [ Error signal ]).
 
-			model return: (returns
-					 at: each
-					 ifPresent: [ :anObj | CollectionElement with: anObj ]
-					 ifAbsent: [ CollectionElement withNil ]).
+			model return: (returns at: each).
 
 			key := Array with: eachReified receiver with: eachReified selector.
 
@@ -66,7 +65,7 @@ MWHandlerExecution >> metadata: metadata [
 				ifAbsent: [ Error signal ] ].
 
 	metadata keysAndValuesDo: [ :each :model | 
-		model total: (selector at: each asContextReifiedFromWrapping method) ].
+		model total: (selector at: model reifiedContext method) ].
 
 	^ metadata
 ]
