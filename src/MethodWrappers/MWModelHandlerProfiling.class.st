@@ -10,10 +10,23 @@ Class {
 		'duration',
 		'startTime',
 		'total',
-		'reifiedContext'
+		'reifiedContext',
+		'client'
 	],
 	#category : #MethodWrappers
 }
+
+{ #category : #accessing }
+MWModelHandlerProfiling >> client [
+
+	^ client
+]
+
+{ #category : #accessing }
+MWModelHandlerProfiling >> client: anObject [
+
+	client := anObject
+]
 
 { #category : #accessing }
 MWModelHandlerProfiling >> count [

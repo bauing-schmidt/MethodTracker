@@ -9,11 +9,18 @@ MWHandlerReceiverArgumentsCopying >> addColumnsInPresenter: aPresenter metadata:
 		model := metadata at: each.
 
 		ctx := model reifiedContext.
+
 		model reifiedContext: (Context
 				 sender: ctx sender
 				 receiver: messageSend receiver
 				 method: ctx method
 				 arguments: messageSend arguments).
 
-		model return: messageSent return ]
+		model return: messageSent return.
+
+		model client ifNothing: [  ] ifJust: [ :aJust | 
+			| newJust |
+			newJust := Maybe just:
+				           (table at: model parent) messageSend receiver.
+			model client: newJust ] ]
 ]

@@ -42,6 +42,11 @@ MWHandlerExecution >> metadata: metadata [
 
 			model parent: (tree parent: each ifAbsent: [ Error signal ]).
 
+			model client: (model parent == each
+					 ifTrue: [ Maybe nothing ]
+					 ifFalse: [ 
+					 Maybe just: (metadata at: model parent) reifiedContext receiver ]).
+
 			model return: (returns at: each).
 
 			key := Array with: eachReified receiver with: eachReified selector.

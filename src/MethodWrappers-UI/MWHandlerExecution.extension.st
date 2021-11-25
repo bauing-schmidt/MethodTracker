@@ -17,10 +17,9 @@ MWHandlerExecution >> addColumnsInPresenter: aPresenter metadata: metadata [
 				 evaluated: [ :aContext | (metadata at: aContext) return ]);
 		addColumn:
 			(SpStringTableColumn title: 'Client' evaluated: [ :aContext | 
-					 (metadata at: aContext) parent in: [ :aParent | 
-							 aParent == aContext
-								 ifTrue: [ '•' ]
-								 ifFalse: [ aParent asContextReifiedFromWrapping receiver ] ] ]);
+					 (metadata at: aContext) client
+						 ifNothing: [ '•' ]
+						 ifJust: [ :aJust | aJust content ] ]);
 		addColumn: (SpStringTableColumn
 				 title: 'Send occurrence'
 				 evaluated: [ :aContext | (metadata at: aContext) occurrence ]);
