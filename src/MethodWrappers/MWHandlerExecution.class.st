@@ -92,9 +92,8 @@ MWHandlerExecution >> run: aSelector with: anArray in: aReceiver post: aContext 
 MWHandlerExecution >> run: aSelector with: anArray in: aReceiver pre: aContext wrapper: aWrapper [
 
 	aWrapper
-		withSuspendWrapping: [ 
+		withSuspendWrapping: [ :aJust | 
 			| aParent |
-			"hacking.""(1 to: 20) shuffled sort."
 			aParent := aContext sender findContextSuchThat: [ :ctx | 
 				           ctx receiver isMethodWrapper and: [ 
 					           ctx selector = #run:with:in: ] ].

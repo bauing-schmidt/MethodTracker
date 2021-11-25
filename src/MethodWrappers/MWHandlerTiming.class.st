@@ -47,9 +47,9 @@ MWHandlerTiming >> run: aSelector with: anArray in: aReceiver pre: aContext wrap
 
 	"It is important to keep the given order to properly record timings."
 
-	| now |
 	aWrapper
 		withSuspendWrapping: [ 
+			| now |
 			now := Time microsecondClockValue.
 			timing at: aContext put: now ]
 		context: aContext.

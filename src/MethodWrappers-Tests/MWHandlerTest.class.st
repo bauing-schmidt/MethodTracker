@@ -222,9 +222,12 @@ MWHandlerTest >> testCountAdd [
 		            do: [ :each | each handler: handler ];
 		            yourself.
 
-	wrappers withWrappingDo: [ handler add: 3 to: 4 ].
+	wrappers withWrappingDo: [ 
+		handler
+			add: 3 to: 4;
+			add: 3 to: 4 ].
 
-	self assert: handler count equals: 1
+	self assert: handler count equals: 2
 ]
 
 { #category : #tests }
@@ -655,6 +658,126 @@ MWHandlerTest >> testSequenceableCollectionMergeSort [
 
 	handlerTiming := MWHandlerTiming new
 		                 handler: handlerExecution;
+		                 yourself.
+
+	result := (MWDecoratorCollection withAllImplementations: { 
+				           (SequenceableCollection >> #sort).
+				           (SequenceableCollection >> #mergeSortFrom:to:by:).
+				           (SequenceableCollection
+				            >> #mergeFirst:middle:last:into:by:).
+				           (SequenceableCollection
+				            >> #mergeSortFrom:to:src:dst:by:).
+				           (SequenceableCollection
+				            >> #replaceFrom:to:with:startingAt:) })
+		          do: [ :each | each handler: handlerTiming ];
+		          withWrappingDo: [ (1 to: 20) shuffled sort ].
+
+	presenter := CTOrderPreservingTreePresenter on: tree.
+
+	presenter withTreePresenterDo: [ :treePresenter | 
+		| metadata |
+		metadata := IdentityDictionary new.
+
+		handlerExecution
+			addColumnsInPresenter: treePresenter
+			metadata: metadata.
+
+		handlerTiming
+			addColumnsInPresenter: treePresenter
+			metadata: metadata.
+
+		treePresenter whenSelectionChangedDo: [ :selectedItem | 
+			presenter treeShown in: [ :treeShown | 
+				self sequenceDiagramTree: treeShown metadata: metadata ] ].
+
+		treePresenter expandAll ].
+
+	presenter openWithSpec.
+
+	self
+		assert: tree size equals: 81;
+		assert: result equals: (1 to: 20) asArray
+]
+
+{ #category : #tests }
+MWHandlerTest >> testSequenceableCollectionMergeSortCopying [
+
+	| handlerTiming tree presenter result handlerExecution handlerCopying |
+	tree := CTOrderPreservingTree new.
+
+	handlerExecution := MWHandlerExecution new
+		                    tree: tree;
+		                    yourself.
+
+	handlerTiming := MWHandlerTiming new
+		                 handler: handlerExecution;
+		                 yourself.
+
+	handlerCopying := MWHandlerReceiverArgumentsCopying new
+		                  handler: handlerTiming;
+		                  yourself.
+
+	result := (MWDecoratorCollection withAllImplementations: { 
+				           (SequenceableCollection >> #sort).
+				           (SequenceableCollection >> #mergeSortFrom:to:by:).
+				           (SequenceableCollection
+				            >> #mergeFirst:middle:last:into:by:).
+				           (SequenceableCollection
+				            >> #mergeSortFrom:to:src:dst:by:).
+				           (SequenceableCollection
+				            >> #replaceFrom:to:with:startingAt:) })
+		          do: [ :each | each handler: handlerCopying ];
+		          withWrappingDo: [ (1 to: 20) shuffled sort ].
+
+	presenter := CTOrderPreservingTreePresenter on: tree.
+
+	presenter withTreePresenterDo: [ :treePresenter | 
+		| metadata |
+		metadata := IdentityDictionary new.
+
+		handlerExecution
+			addColumnsInPresenter: treePresenter
+			metadata: metadata.
+
+		handlerCopying
+			addColumnsInPresenter: treePresenter
+			metadata: metadata.
+
+		handlerTiming
+			addColumnsInPresenter: treePresenter
+			metadata: metadata.
+
+		treePresenter whenSelectionChangedDo: [ :selectedItem | 
+			presenter treeShown in: [ :treeShown | 
+				self sequenceDiagramTree: treeShown metadata: metadata ] ].
+
+		treePresenter expandAll ].
+
+	presenter openWithSpec.
+
+	self
+		assert: tree size equals: 81;
+		assert: result equals: (1 to: 20) asArray
+]
+
+{ #category : #tests }
+MWHandlerTest >> testSequenceableCollectionMergeSortPlugging [
+
+	| handlerTiming tree presenter result handlerExecution handlerBlockPlugging |
+	tree := CTOrderPreservingTree new.
+
+	handlerExecution := MWHandlerExecution new
+		                    tree: tree;
+		                    yourself.
+
+	handlerBlockPlugging := MWHandlerSuspendPlugging new
+		                        handler: handlerExecution;
+		                        blockClosure: [ :aLink | 
+			                        (1 to: 20) shuffled sort ];
+		                        yourself.
+
+	handlerTiming := MWHandlerTiming new
+		                 handler: handlerBlockPlugging;
 		                 yourself.
 
 	result := (MWDecoratorCollection withAllImplementations: { 

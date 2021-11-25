@@ -146,6 +146,6 @@ MWDecorator >> valueWithReceiver: aReceiver arguments: anArray [
 MWDecorator >> withSuspendWrapping: aBlock context: aContext [
 
 	^ [ owner content: aContext ~~> owner content ]
-		  value: aBlock
+		  value: [ aBlock cull: owner ]
 		  then: [ owner content: owner content nextLink ]
 ]
