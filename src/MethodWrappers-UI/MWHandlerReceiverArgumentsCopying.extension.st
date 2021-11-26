@@ -3,10 +3,12 @@ Extension { #name : #MWHandlerReceiverArgumentsCopying }
 { #category : #'*MethodWrappers-UI' }
 MWHandlerReceiverArgumentsCopying >> addColumnsInPresenter: aPresenter metadata: metadata [
 
-	table keysAndValuesDo: [ :each :messageSent | 
-		| model ctx messageSend |
-		messageSend := messageSent messageSend.
+	table keysAndValuesDo: [ :each :anAssoc | 
+		| model ctx messageSend messageSent |
 		model := metadata at: each.
+
+		messageSent := anAssoc value.
+		messageSend := messageSent messageSend.
 
 		ctx := model reifiedContext.
 
@@ -18,9 +20,7 @@ MWHandlerReceiverArgumentsCopying >> addColumnsInPresenter: aPresenter metadata:
 
 		model return: messageSent return.
 
-		model client ifNothing: [  ] ifJust: [ :aJust | 
-			| newJust |
-			newJust := Maybe just:
-				           (table at: model parent) messageSend receiver.
-			model client: newJust ] ]
+		model client
+			ifNothing: [  ]
+			ifJust: [ :aJust | model client: anAssoc key just ] ]
 ]

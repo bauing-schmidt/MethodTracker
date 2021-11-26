@@ -326,29 +326,6 @@ MWHandlerTest >> testCountIfTrueSingleWrapper [
 ]
 
 { #category : #tests }
-MWHandlerTest >> testCountIfTrueSingleWrapperWithMethodProxy [
-
-	| wrapper handler |
-	handler := MpCountingHandler new.
-
-	wrapper := MpMethodProxy
-		           onMethod: true class >> #ifTrue:
-		           handler: handler.
-
-	wrapper install.
-
-	self assert: wrapper isEnabled.
-
-	true ifTrue: [ 3 ].
-
-	wrapper uninstall.
-
-	self assert: wrapper isEnabled.
-
-	self assert: handler count equals: 0
-]
-
-{ #category : #tests }
 MWHandlerTest >> testCountSelfIfTrueSingleWrapper [
 
 	| wrapper handler |

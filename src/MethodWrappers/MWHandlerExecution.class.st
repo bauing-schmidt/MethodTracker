@@ -11,6 +11,12 @@ Class {
 	#category : #MethodWrappers
 }
 
+{ #category : #accessing }
+MWHandlerExecution >> at: aContext ifAbsent: aBlock [
+
+	^ tree parent: aContext ifAbsent: aBlock
+]
+
 { #category : #initialization }
 MWHandlerExecution >> initialize [
 

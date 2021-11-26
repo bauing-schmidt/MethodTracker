@@ -8,6 +8,12 @@ Class {
 }
 
 { #category : #accessing }
+MWHandlerDecorating >> at: aContext ifAbsent: aBlock [
+
+	^ handler at: aContext ifAbsent: aBlock
+]
+
+{ #category : #accessing }
 MWHandlerDecorating >> handler: anObject [
 
 	handler := anObject
