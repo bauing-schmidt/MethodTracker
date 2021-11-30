@@ -9,7 +9,7 @@ MWHandlerTiming >> addColumnsInPresenter: aPresenter metadata: metadata [
 			         at: each
 			         ifAbsentPut: [ MWModelHandlerProfiling new ].
 
-		model duration: (Duration nanoSeconds: interval size * 1000).
+		model duration: (Duration microSeconds: interval size).
 
 		model startTime:
 			(DateAndTime fromSeconds: interval first / 1e6) asTime ].

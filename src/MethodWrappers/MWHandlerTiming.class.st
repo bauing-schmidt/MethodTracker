@@ -15,25 +15,6 @@ MWHandlerTiming >> initialize [
 	table := IdentityDictionary new
 ]
 
-{ #category : #'as yet unclassified' }
-MWHandlerTiming >> methodDurationDictionary [
-
-	| dict |
-	dict := IdentityDictionary new.
-
-	table keysAndValuesDo: [ :aContext :anInterval | 
-		| duration method |
-		method := aContext asContextReifiedFromWrapping method.
-
-		duration := dict at: method ifAbsentPut: [ Duration zero ].
-
-		duration := duration + (Duration microSeconds: anInterval size).
-
-		dict at: method put: duration ].
-
-	^ dict
-]
-
 { #category : #evaluation }
 MWHandlerTiming >> run: aSelector with: anArray in: aReceiver post: aContext carry: carry return: anObject wrapper: aWrapper [
 
