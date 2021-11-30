@@ -26,9 +26,9 @@ MWHandlerSuspendPlugging >> initialize [
 MWHandlerSuspendPlugging >> run: aSelector with: anArray in: aReceiver context: aContext carry: carry wrapper: aWrapper [
 
 	aWrapper
-		withSuspendWrapping: [ :aJust | 
+		withSuspendWrapping: [ :session | 
 			| anObj |
-			anObj := blockClosure cull: aJust content.
+			anObj := blockClosure cull: session.
 			table at: aContext put: anObj ]
 		context: aContext.
 

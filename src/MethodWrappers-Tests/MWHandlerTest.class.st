@@ -104,20 +104,6 @@ MWHandlerTest >> sequenceDiagramTree: aTree metadata: metadata [
 { #category : #tests }
 MWHandlerTest >> testAddWithinDoObjectCentric [
 
-	"
-(MWHandlerObjectCentric forKindOf: Interval)
-
-
-	wrappers := (MWDecoratorCollection withAllImplementations: { 
-			           (Collection >> #do:) 
-			           (Number >> #add:) }) withHandlers: {  handlerCentric . nil}.
-			
-	wrappers do: [ :each | each handler: handlerCentric ].
-	
-   [ interval do: [ :each | each add: 4 ] ] valueWithWrapping: wrappers.
-
-	[ wrappers do: [ :each | each install ] ] value:    [ interval do: [ :each | each add: 4 ] ] then: 	[ wrappers do: [ :each | each uninstall ] ]."
-
 	| handlerTiming tree presenter result handlerProfiler handlerCentric interval |
 	tree := CTOrderPreservingTree new.
 
@@ -137,11 +123,11 @@ MWHandlerTest >> testAddWithinDoObjectCentric [
 		                  handler: handlerTiming;
 		                  yourself.
 
-	result := (MWDecoratorCollection withAllImplementations: { 
+	result := (MWSession withAllImplementations: { 
 				           (Collection >> #do:).
 				           (Number >> #add:) })
 		          do: [ :each | each handler: handlerCentric ];
-		          withWrappingDo: [ interval do: [ :each | each add: 4 ] ].
+		          value: [ interval do: [ :each | each add: 4 ] ].
 
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
@@ -179,11 +165,11 @@ MWHandlerTest >> testAddWithinDoª [
 		                 handler: handlerProfiler;
 		                 yourself.
 
-	result := (MWDecoratorCollection withAllImplementations: { 
+	result := (MWSession withAllImplementations: { 
 				           (Collection >> #doª:).
 				           (Number >> #add:) })
 		          do: [ :each | each handler: handlerTiming ];
-		          withWrappingDo: [ 
+		          value: [ 
 			          (1 to: 20) doª: [ :each | each add: 4 ].
 			          (1 to: 5) doª: [ :each | each - 4 ] ].
 
@@ -212,18 +198,15 @@ MWHandlerTest >> testAddWithinDoª [
 { #category : #tests }
 MWHandlerTest >> testCountAdd [
 
-	| wrappers handler |
+	| handler |
 	handler := MWHandlerCounting new.
 
-	wrappers := (MWDecoratorCollection withAllImplementations:
-			             { (Number >> #add:) })
-		            do: [ :each | each handler: handler ];
-		            yourself.
-
-	wrappers withWrappingDo: [ 
-		handler
-			add: 3 to: 4;
-			add: 3 to: 4 ].
+	(MWSession withAllImplementations: { (Number >> #add:) })
+		do: [ :each | each handler: handler ];
+		value: [ 
+			handler
+				add: 3 to: 4;
+				add: 3 to: 4 ].
 
 	self assert: handler count equals: 2
 ]
@@ -235,7 +218,7 @@ MWHandlerTest >> testCountFooSingleWrapper [
 	handler := MWHandlerCounting new.
 
 	wrapper := MWDecorator new
-		           owner: (Maybe just: nil);
+		           owner: MWSession new;
 		           compiledMethod: self class >> #foo;
 		           handler: handler;
 		           yourself.
@@ -259,15 +242,15 @@ MWHandlerTest >> testCountFooSingleWrapper [
 { #category : #tests }
 MWHandlerTest >> testCountIfTrue [
 
-	| wrappers handler |
+	| session handler |
 	handler := MWHandlerCounting new.
 
-	wrappers := (MWDecoratorCollection withAllImplementations:
-			             { (Boolean >> #ifTrue:) })
-		            do: [ :each | each handler: handler ];
-		            yourself.
+	session := (MWSession withAllImplementations:
+			            { (Boolean >> #ifTrue:) })
+		           do: [ :each | each handler: handler ];
+		           yourself.
 
-	wrappers withWrappingDo: [ true ifTrue: [ 3 ] ].
+	session value: [ true ifTrue: [ 3 ] ].
 
 	self assert: handler count equals: 0
 ]
@@ -275,22 +258,20 @@ MWHandlerTest >> testCountIfTrue [
 { #category : #tests }
 MWHandlerTest >> testCountIfTrueDuringSlowFactorial [
 
-	| wrapper wrappers handler ifTrueHandler |
+	| session handler ifTrueHandler |
 	handler := MWHandlerCounting new.
 	ifTrueHandler := MWHandlerCounting new.
 
-	wrapper := MWDecorator new
-		           compiledMethod: Integer >> #slowFactorial;
-		           handler: handler;
+	session := (MWSession withAllImplementations:
+			            { (Boolean >> #ifTrue:) })
+		           do: [ :each | each handler: ifTrueHandler ];
+		           add: (MWDecorator new
+				            compiledMethod: Integer >> #slowFactorial;
+				            handler: handler;
+				            yourself);
 		           yourself.
 
-	wrappers := (MWDecoratorCollection withAllImplementations:
-			             { (Boolean >> #ifTrue:) })
-		            do: [ :each | each handler: ifTrueHandler ];
-		            add: wrapper;
-		            yourself.
-
-	wrappers withWrappingDo: [ 5 slowFactorial ].
+	session value: [ 5 slowFactorial ].
 
 	self
 		assert: handler count equals: 6;
@@ -304,7 +285,7 @@ MWHandlerTest >> testCountIfTrueSingleWrapper [
 	handler := MWHandlerCounting new.
 
 	wrapper := MWDecorator new
-		           owner: (Maybe just: nil);
+		           owner: MWSession new;
 		           compiledMethod: true class >> #ifTrue:;
 		           handler: handler;
 		           yourself.
@@ -332,7 +313,7 @@ MWHandlerTest >> testCountSelfIfTrueSingleWrapper [
 	handler := MWHandlerCounting new.
 
 	wrapper := MWDecorator new
-		           owner: (Maybe just: nil);
+		           owner: MWSession new;
 		           compiledMethod: self class >> #ifTrue:;
 		           handler: handler;
 		           yourself.
@@ -356,16 +337,15 @@ MWHandlerTest >> testCountSelfIfTrueSingleWrapper [
 { #category : #tests }
 MWHandlerTest >> testCountSlowFactorial [
 
-	| wrapper handler |
+	| handler |
 	handler := MWHandlerCounting new.
 
-	wrapper := MWDecorator new
-		           owner: (Maybe just: nil);
-		           compiledMethod: Integer >> #slowFactorial;
-		           handler: handler;
-		           yourself.
-
-	{ wrapper } withWrappingDo: [ 5 slowFactorial ].
+	MWSession new
+		add: (MWDecorator new
+				 compiledMethod: Integer >> #slowFactorial;
+				 handler: handler;
+				 yourself);
+		value: [ 5 slowFactorial ].
 
 	self assert: handler count equals: 6
 ]
@@ -373,20 +353,19 @@ MWHandlerTest >> testCountSlowFactorial [
 { #category : #tests }
 MWHandlerTest >> testProfileSlowFactorial [
 
-	| wrapper handler tree presenter result |
+	| handler tree presenter result |
 	tree := CTOrderPreservingTree new.
 
 	handler := MWHandlerExecution new
 		           tree: tree;
 		           yourself.
 
-	wrapper := MWDecorator new
-		           owner: (Maybe just: nil);
-		           compiledMethod: Integer >> #slowFactorial;
-		           handler: handler;
-		           yourself.
-
-	result := { wrapper } withWrappingDo: [ 5 slowFactorial ].
+	result := MWSession new
+		          add: (MWDecorator new
+				           compiledMethod: Integer >> #slowFactorial;
+				           handler: handler;
+				           yourself);
+		          value: [ 5 slowFactorial ].
 
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
@@ -408,7 +387,7 @@ MWHandlerTest >> testProfileSlowFactorial [
 { #category : #tests }
 MWHandlerTest >> testProfileSlowFibonacci [
 
-	| wrapper handlerExecution tree presenter result handlerTiming |
+	| handlerExecution tree presenter result handlerTiming |
 	tree := CTOrderPreservingTree new.
 
 	handlerExecution := MWHandlerExecution new
@@ -419,13 +398,12 @@ MWHandlerTest >> testProfileSlowFibonacci [
 		                 handler: handlerExecution;
 		                 yourself.
 
-	wrapper := MWDecorator new
-		           owner: (Maybe just: nil);
-		           compiledMethod: Integer >> #slowFibonacci;
-		           handler: handlerTiming;
-		           yourself.
-
-	result := { wrapper } withWrappingDo: [ 10 slowFibonacci ].
+	result := MWSession new
+		          add: (MWDecorator new
+				           compiledMethod: Integer >> #slowFibonacci;
+				           handler: handlerTiming;
+				           yourself);
+		          value: [ 10 slowFibonacci ].
 
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
@@ -457,7 +435,7 @@ MWHandlerTest >> testProfileSlowFibonacci [
 { #category : #tests }
 MWHandlerTest >> testProfileSlowFibonacciMemoing [
 
-	| wrapper wrappers handlerCounting handler tree presenter result handlerExecution |
+	| handlerCounting handler tree presenter result handlerExecution |
 	tree := CTOrderPreservingTree new.
 
 	handlerCounting := MWHandlerCounting new.
@@ -470,19 +448,13 @@ MWHandlerTest >> testProfileSlowFibonacciMemoing [
 		           handler: handlerExecution;
 		           yourself.
 
-	wrapper := MWDecorator new
-		           compiledMethod: Integer >> #slowFibonacci;
-		           handler: handler;
-		           yourself.
-
-	wrappers := (MWDecoratorCollection withAllImplementations:
-			             { (Number >> #add:) })
-		            do: [ :each | each handler: handlerCounting ];
-		            yourself.
-
-	wrappers add: wrapper.
-
-	result := wrappers withWrappingDo: [ 10 slowFibonacci ].
+	result := (MWSession withAllImplementations: { (Number >> #add:) })
+		          do: [ :each | each handler: handlerCounting ];
+		          add: (MWDecorator new
+				           compiledMethod: Integer >> #slowFibonacci;
+				           handler: handler;
+				           yourself);
+		          value: [ 10 slowFibonacci ].
 
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
@@ -524,10 +496,10 @@ MWHandlerTest >> testProfileSlowFibonacciTailWithAdd [
 		              handler: handler;
 		              yourself.
 
-	result := MWDecoratorCollection new
+	result := MWSession new
 		          add: wrapper;
 		          add: wrapperAdd;
-		          withWrappingDo: [ 10 slowFibonacci: 0 tail: 1 ].
+		          value: [ 10 slowFibonacci: 0 tail: 1 ].
 
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
@@ -565,10 +537,10 @@ MWHandlerTest >> testProfileSlowFibonacciWithAdd [
 		              handler: handler;
 		              yourself.
 
-	result := result := MWDecoratorCollection new
-		                    add: wrapper;
-		                    add: wrapperAdd;
-		                    withWrappingDo: [ 10 slowFibonacci ].
+	result := MWSession new
+		          add: wrapper;
+		          add: wrapperAdd;
+		          value: [ 10 slowFibonacci ].
 
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
@@ -601,9 +573,9 @@ MWHandlerTest >> testProfileSlowFibonacciWithAddOnly [
 		              handler: handler;
 		              yourself.
 
-	result := MWDecoratorCollection new
+	result := MWSession new
 		          add: wrapperAdd;
-		          withWrappingDo: [ 10 slowFibonacci ].
+		          value: [ 10 slowFibonacci ].
 
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
@@ -635,7 +607,7 @@ MWHandlerTest >> testSequenceableCollectionMergeSort [
 		                 handler: handlerExecution;
 		                 yourself.
 
-	result := (MWDecoratorCollection withAllImplementations: { 
+	result := (MWSession withAllImplementations: { 
 				           (SequenceableCollection >> #sort).
 				           (SequenceableCollection >> #mergeSortFrom:to:by:).
 				           (SequenceableCollection
@@ -645,7 +617,7 @@ MWHandlerTest >> testSequenceableCollectionMergeSort [
 				           (SequenceableCollection
 				            >> #replaceFrom:to:with:startingAt:) })
 		          do: [ :each | each handler: handlerTiming ];
-		          withWrappingDo: [ (1 to: 20) shuffled sort ].
+		          value: [ (1 to: 20) shuffled sort ].
 
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
@@ -692,7 +664,7 @@ MWHandlerTest >> testSequenceableCollectionMergeSortCopying [
 		                  handler: handlerTiming;
 		                  yourself.
 
-	result := (MWDecoratorCollection withAllImplementations: { 
+	result := (MWSession withAllImplementations: { 
 				           (SequenceableCollection >> #sort).
 				           (SequenceableCollection >> #mergeSortFrom:to:by:).
 				           (SequenceableCollection
@@ -702,7 +674,7 @@ MWHandlerTest >> testSequenceableCollectionMergeSortCopying [
 				           (SequenceableCollection
 				            >> #replaceFrom:to:with:startingAt:) })
 		          do: [ :each | each handler: handlerCopying ];
-		          withWrappingDo: [ (1 to: 20) shuffled sort ].
+		          value: [ (1 to: 20) shuffled sort ].
 
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
@@ -753,7 +725,7 @@ MWHandlerTest >> testSequenceableCollectionMergeSortCopyingDetailed [
 		                  handler: handlerTiming;
 		                  yourself.
 
-	result := (MWDecoratorCollection withAllImplementations: { 
+	result := (MWSession withAllImplementations: { 
 				           (SequenceableCollection >> #sort).
 				           (SequenceableCollection >> #mergeSortFrom:to:by:).
 				           (SequenceableCollection
@@ -767,7 +739,7 @@ MWHandlerTest >> testSequenceableCollectionMergeSortCopyingDetailed [
 				           (SequenceableCollection >> #shuffleBy:).
 				           (SequenceableCollection >> #swap:with:) })
 		          do: [ :each | each handler: handlerCopying ];
-		          withWrappingDo: [ (1 to: 20) shuffled sort ].
+		          value: [ (1 to: 20) shuffled sort ].
 
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
@@ -791,7 +763,8 @@ MWHandlerTest >> testSequenceableCollectionMergeSortCopyingDetailed [
 			presenter treeShown in: [ :treeShown | 
 				self sequenceDiagramTree: treeShown metadata: metadata ] ].
 
-		treePresenter expandAll ].
+		treePresenter expandAll.
+		tree inspect ].
 
 	presenter openWithSpec.
 
@@ -812,7 +785,7 @@ MWHandlerTest >> testSequenceableCollectionMergeSortPlugging [
 
 	handlerBlockPlugging := MWHandlerSuspendPlugging new
 		                        handler: handlerExecution;
-		                        blockClosure: [ :aLink | 
+		                        blockClosure: [ :session | 
 			                        (1 to: 20) shuffled sort ];
 		                        yourself.
 
@@ -820,7 +793,7 @@ MWHandlerTest >> testSequenceableCollectionMergeSortPlugging [
 		                 handler: handlerBlockPlugging;
 		                 yourself.
 
-	result := (MWDecoratorCollection withAllImplementations: { 
+	result := (MWSession withAllImplementations: { 
 				           (SequenceableCollection >> #sort).
 				           (SequenceableCollection >> #mergeSortFrom:to:by:).
 				           (SequenceableCollection
@@ -830,7 +803,7 @@ MWHandlerTest >> testSequenceableCollectionMergeSortPlugging [
 				           (SequenceableCollection
 				            >> #replaceFrom:to:with:startingAt:) })
 		          do: [ :each | each handler: handlerTiming ];
-		          withWrappingDo: [ (1 to: 20) shuffled sort ].
+		          value: [ (1 to: 20) shuffled sort ].
 
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
@@ -862,7 +835,7 @@ MWHandlerTest >> testSequenceableCollectionMergeSortPlugging [
 { #category : #tests }
 MWHandlerTest >> testTimingSlowFibonacciMemoing [
 
-	| wrapper plusWrappers handlerTiming handlerMemoing tree presenter result handlerProfiler |
+	| handlerTiming handlerMemoing tree presenter result handlerProfiler |
 	tree := CTOrderPreservingTree new.
 
 	handlerProfiler := MWHandlerExecution new
@@ -877,19 +850,12 @@ MWHandlerTest >> testTimingSlowFibonacciMemoing [
 		                 handler: handlerMemoing;
 		                 yourself.
 
-	wrapper := MWDecorator new
-		           compiledMethod: Integer >> #slowFibonacci;
-		           handler: handlerTiming;
-		           yourself.
-
-	plusWrappers := (MWDecoratorCollection withAllImplementations:
-			                 { (Number >> #add:) })
-		                do: [ :each | each handler: handlerTiming ];
-		                yourself.
-
-	result := MWDecoratorCollection new
-		          add: wrapper;
-		          withWrappingDo: [ 10 slowFibonacci ]. ", plusWrappers"
+	result := MWSession new
+		          add: (MWDecorator new
+				           compiledMethod: Integer >> #slowFibonacci;
+				           handler: handlerTiming;
+				           yourself);
+		          value: [ 10 slowFibonacci ].
 
 	presenter := CTOrderPreservingTreePresenter on: tree.
 

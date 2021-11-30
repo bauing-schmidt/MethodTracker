@@ -7,7 +7,7 @@ Class {
 	#instVars : [
 		'compiledMethod',
 		'handler',
-		'owner'
+		'session'
 	],
 	#category : #MethodWrappers
 }
@@ -81,7 +81,7 @@ MWDecorator >> isMethodWrapper [
 { #category : #accessing }
 MWDecorator >> owner: anObject [
 
-	owner := anObject
+	session := anObject
 ]
 
 { #category : #printing }
@@ -116,15 +116,32 @@ MWDecorator >> run: aSelector with: anArray in: aReceiver [
 
 	aContext := thisContext.
 
-	^ (handler isNil or: [ owner content isNotNil ])
+	^ handler isNil
 		  ifTrue: [ self valueWithReceiver: aReceiver arguments: anArray ]
 		  ifFalse: [ 
-			  handler
+			  session
 				  run: aSelector
 				  with: anArray
 				  in: aReceiver
 				  context: aContext
 				  wrapper: self ]
+]
+
+{ #category : #'as yet unclassified' }
+MWDecorator >> run: aSelector with: anArray in: aReceiver context: aContext notSuspended: aBoolean [
+
+	^ handler
+		  run: aSelector
+		  with: anArray
+		  in: aReceiver
+		  context: aContext
+		  wrapper: self
+]
+
+{ #category : #'as yet unclassified' }
+MWDecorator >> run: aSelector with: anArray in: aReceiver context: aContext suspended: aBoolean [
+
+	^ self valueWithReceiver: aReceiver arguments: anArray
 ]
 
 { #category : #actions }
@@ -142,10 +159,10 @@ MWDecorator >> valueWithReceiver: aReceiver arguments: anArray [
 	^ aReceiver withArgs: anArray executeMethod: compiledMethod
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #evaluation }
 MWDecorator >> withSuspendWrapping: aBlock context: aContext [
 
-	^ [ owner content: aContext ~~> owner content ]
-		  value: [ aBlock cull: owner ]
-		  then: [ owner content: owner content nextLink ]
+	^ [ session pushContext: aContext ]
+		  value: [ aBlock cull: session ]
+		  then: [ session popContext: aContext ]
 ]
