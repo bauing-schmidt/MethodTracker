@@ -679,7 +679,7 @@ MWHandlerTest >> testSequenceableCollectionMergeSortCopying [
 	presenter := CTOrderPreservingTreePresenter on: tree.
 
 	presenter withTreePresenterDo: [ :treePresenter | 
-		| metadata |
+		| metadata dict |
 		metadata := IdentityDictionary new.
 
 		handlerExecution
@@ -694,6 +694,13 @@ MWHandlerTest >> testSequenceableCollectionMergeSortCopying [
 			addColumnsInPresenter: treePresenter
 			metadata: metadata.
 
+		dict := Dictionary new.
+		metadata valuesDo: [ :model | 
+			| count |
+			count := dict at: model reifiedContext method ifAbsentPut: [ 0 ].
+			dict at: model reifiedContext method put: count + 1 ].
+		(dict inspectionItems: SpPresenterBuilder new) openWithSpec.
+
 		treePresenter whenSelectionChangedDo: [ :selectedItem | 
 			presenter treeShown in: [ :treeShown | 
 				self sequenceDiagramTree: treeShown metadata: metadata ] ].
@@ -701,6 +708,9 @@ MWHandlerTest >> testSequenceableCollectionMergeSortCopying [
 		treePresenter expandAll ].
 
 	presenter openWithSpec.
+
+	(handlerTiming methodDurationDictionary inspectionItems:
+		 SpPresenterBuilder new) openWithSpec.
 
 	self
 		assert: tree size equals: 81;
