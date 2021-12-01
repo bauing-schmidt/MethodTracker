@@ -94,10 +94,17 @@ MWSpContextsTreePresenter >> treePresenterDisplayBlock [
 	  reifiedContext := (metadata at: each) reifiedContext.
 
 	  String streamContents: [ :aStream | 
-		  recvCheckbox state ifTrue: [ 
-			  aStream
-				  nextPutAll: reifiedContext receiver asString;
-				  nextPut: Character space ].
+		  recvCheckbox state
+			  ifTrue: [ 
+				  aStream
+					  nextPutAll: reifiedContext receiver asString;
+					  nextPut: Character space ]
+			  ifFalse: [ 
+				  aStream
+					  nextPutAll:
+						  (reifiedContext receiver class lookupSelector:
+								   reifiedContext selector) methodClassName;
+					  nextPutAll: '>>#' ].
 
 		  argsCheckbox state
 			  ifTrue: [ 
