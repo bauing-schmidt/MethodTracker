@@ -8,7 +8,8 @@ Class {
 		'recvCheckbox',
 		'argsCheckbox',
 		'returnCheckbox',
-		'expandAllButton'
+		'expandAllButton',
+		'collapseAllButton'
 	],
 	#category : #'MethodWrappers-UI'
 }
@@ -17,6 +18,8 @@ Class {
 MWSpContextsTreePresenter >> connectPresenters [
 
 	expandAllButton action: [ treePresenter expandAll ].
+
+	collapseAllButton action: [ treePresenter collapseAll ].
 
 	recvCheckbox whenChangedDo: [ :ann | 
 		treePresenter
@@ -38,7 +41,11 @@ MWSpContextsTreePresenter >> connectPresenters [
 MWSpContextsTreePresenter >> initializePresenters [
 
 	expandAllButton := self newButton
-		                     label: 'Expand all';
+		                   label: 'Expand all';
+		                   yourself.
+
+	collapseAllButton := self newButton
+		                     label: 'Collapse all';
 		                     yourself.
 
 	recvCheckbox := self newCheckBox
@@ -53,7 +60,7 @@ MWSpContextsTreePresenter >> initializePresenters [
 
 	returnCheckbox := self newCheckBox
 		                  label: 'Return';
-		                  state: true;
+		                  state: false;
 		                  yourself.
 
 	treePresenter := tree asTreePresenter display:
@@ -62,6 +69,7 @@ MWSpContextsTreePresenter >> initializePresenters [
 	self layout: (self newBoxLayoutTopToBottom
 			 add: (self newBoxLayoutLeftToRight
 					  add: expandAllButton;
+					  add: collapseAllButton;
 					  add: recvCheckbox;
 					  add: argsCheckbox;
 					  add: returnCheckbox;
