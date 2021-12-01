@@ -43,6 +43,8 @@ MWSpPresenter >> initializePresenters [
 	tablePresenter := self newTable
 		                  items: tableItems;
 		                  beResizable;
+		                  sortingBlock: [ :aDict :anotherDict | 
+			                  (aDict at: #count) > (anotherDict at: #count) ];
 		                  addColumn: (SpStringTableColumn
 				                   title: 'CompiledMethod'
 				                   evaluated: [ :aDictionary | 
@@ -64,13 +66,13 @@ MWSpPresenter >> initializePresenters [
 	innerLayout := self newPanedLayoutTopToBottom
 		               add: treePresenter;
 		               add: tablePresenter;
+		               positionOfSlider: Float silverRatio;
 		               yourself.
-
-
 
 	outerLayout := self newPanedLayoutLeftToRight
 		               add: innerLayout;
 		               add: sequenceDiagramPresenter;
+		               positionOfSlider: 1 - Float silverRatio;
 		               yourself.
 
 	self layout: outerLayout
