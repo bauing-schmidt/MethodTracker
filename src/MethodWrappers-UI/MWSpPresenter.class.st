@@ -14,31 +14,22 @@ Class {
 }
 
 { #category : #initialization }
+MWSpPresenter >> connectPresenters [
+
+	treePresenter whenTreeShownChangedDo: [ :treeShown | 
+		sequenceDiagramPresenter script: [ :aCanvas | 
+			self sequenceDiagramTree: treeShown canvas: aCanvas ] ]
+]
+
+{ #category : #initialization }
 MWSpPresenter >> initializePresenters [
 
 	| outerLayout innerLayout |
 	sequenceDiagramPresenter := self instantiate: SpRoassalPresenter.
 
-	treePresenter := tree asTreePresenter display: [ :each | 
-		                 (metadata at: each) reifiedContext
-			                 asStringInterpolationOfReceiverSelectorArguments ].
-
-	treePresenter whenSelectionChangedDo: [ :selectedItem | 
-		sequenceDiagramPresenter script: [ :aCanvas | 
-			| treeShown |
-			treeShown := tree class new.
-
-			treePresenter allShownItems do: [ :each | 
-				| aParent witness |
-				witness := Object new.
-
-				aParent := tree parent: each ifAbsent: [ witness ].
-
-				aParent == witness ifFalse: [ 
-					treeShown parent: aParent child: each ] ].
-
-
-			self sequenceDiagramTree: treeShown canvas: aCanvas ] ] yourself.
+	treePresenter := MWSpContextsTreePresenter
+		                 owner: self
+		                 on: tree -> metadata.
 
 	tablePresenter := self newTable
 		                  items: tableItems;
