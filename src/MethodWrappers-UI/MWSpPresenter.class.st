@@ -60,6 +60,16 @@ MWSpPresenter >> initializePresenters [
 					                   (aDictionary at: #duration)
 						                   asStringScaledUptoHours ]);
 		                  addColumn: (SpStringTableColumn
+				                   title: 'Avg duration'
+				                   evaluated: [ :aDictionary | 
+					                   (aDictionary at: #durationAvg)
+						                   asStringScaledUptoHours ]);
+		                  addColumn: (SpStringTableColumn
+				                   title: 'StDev duration'
+				                   evaluated: [ :aDictionary | 
+					                   (aDictionary at: #durationStDev)
+						                   asStringScaledUptoHours ]);
+		                  addColumn: (SpStringTableColumn
 				                   title: 'Receivers'
 				                   evaluated: [ :aDictionary | 
 					                   aDictionary at: #receivers ]);
@@ -203,18 +213,43 @@ MWSpPresenter >> setModelBeforeInitialization: treeMetadataAssociation [
 				           { 
 					           IdentitySet new.
 					           0.
-					           Duration zero } ].
+					           OrderedCollection new } ].
 
 		(anArray at: 1) add: each asContextReifiedFromWrapping receiver.
 		anArray at: 2 put: (anArray at: 2) + 1.
-		anArray at: 3 put: (anArray at: 3) + model duration ].
+		(anArray at: 3) add: model duration ].
 
 	tableItems := OrderedCollection new.
 	methodCountDurationDictionary keysAndValuesDo: [ :aMethod :anArray | 
+		| duration durationAvg durationMinSquaresSum count durationStDev |
+		count := anArray second.
+
+		duration := anArray third
+			            inject: Duration zero
+			            into: [ :aDuration :each | aDuration + each ].
+
+		durationAvg := duration / count.
+
+		durationMinSquaresSum := anArray third
+			                         inject: Duration zero asNanoSeconds
+			                         into: [ :aDuration :each | 
+				                         aDuration
+				                         +
+				                         (each asNanoSeconds
+				                          - durationAvg asNanoSeconds) squared ].
+
+		durationStDev := count > 1
+			                 ifTrue: [ 
+			                 Duration nanoSeconds:
+				                 (durationMinSquaresSum / (count - 1)) sqrt ]
+			                 ifFalse: [ Duration zero ].
+
 		tableItems add: (Dictionary new
 				 at: #compiledMethod put: aMethod;
-				 at: #count put: anArray second;
-				 at: #duration put: anArray third;
+				 at: #count put: count;
+				 at: #duration put: duration;
+				 at: #durationAvg put: durationAvg;
+				 at: #durationStDev put: durationStDev;
 				 at: #receivers put: anArray first size;
 				 yourself) ]
 ]
