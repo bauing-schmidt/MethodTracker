@@ -59,6 +59,10 @@ MWSpPresenter >> initializePresenters [
 				                   evaluated: [ :aDictionary | 
 					                   (aDictionary at: #duration)
 						                   asStringScaledUptoHours ]);
+		                  addColumn: (SpStringTableColumn
+				                   title: 'Receivers'
+				                   evaluated: [ :aDictionary | 
+					                   aDictionary at: #receivers ]);
 		                  yourself.
 
 	tablePresenter columns do: [ :each | each beSortable ].
@@ -76,6 +80,31 @@ MWSpPresenter >> initializePresenters [
 		               yourself.
 
 	self layout: outerLayout
+]
+
+{ #category : #initialization }
+MWSpPresenter >> initializeWindow: aWindow [
+
+	aWindow
+		initialExtent: 1 @ Float silverRatio * 1e3;
+		title: (String streamContents: [ :aStream | 
+					 | sends eta recvs |
+					 sends := 0.
+					 recvs := 0.
+					 eta := Duration zero.
+
+					 tableItems do: [ :aDictionary | 
+							 sends := sends + (aDictionary at: #count).
+							 recvs := recvs + (aDictionary at: #receivers).
+							 eta := eta + (aDictionary at: #duration) ].
+
+					 aStream
+						 nextPutAll: tableItems size asString;
+						 nextPutAll: ' compiled methods, ';
+						 nextPutAll: sends asString;
+						 nextPutAll: ' message sends, ';
+						 nextPutAll: eta asStringScaledUptoHours;
+						 nextPutAll: ' duration.' ])
 ]
 
 { #category : #'as yet unclassified' }
@@ -166,19 +195,26 @@ MWSpPresenter >> setModelBeforeInitialization: treeMetadataAssociation [
 	metadata := treeMetadataAssociation value.
 
 	methodCountDurationDictionary := Dictionary new.
-	metadata valuesDo: [ :model | 
-		| anAssoc |
-		anAssoc := methodCountDurationDictionary
+	metadata keysAndValuesDo: [ :each :model | 
+		| anArray |
+		anArray := methodCountDurationDictionary
 			           at: model reifiedContext method
-			           ifAbsentPut: [ 0 -> Duration zero ].
-		anAssoc key: anAssoc key + 1.
-		anAssoc value: anAssoc value + model duration ].
+			           ifAbsentPut: [ 
+				           { 
+					           IdentitySet new.
+					           0.
+					           Duration zero } ].
+
+		(anArray at: 1) add: each asContextReifiedFromWrapping receiver.
+		anArray at: 2 put: (anArray at: 2) + 1.
+		anArray at: 3 put: (anArray at: 3) + model duration ].
 
 	tableItems := OrderedCollection new.
-	methodCountDurationDictionary keysAndValuesDo: [ :aMethod :anAssoc | 
+	methodCountDurationDictionary keysAndValuesDo: [ :aMethod :anArray | 
 		tableItems add: (Dictionary new
 				 at: #compiledMethod put: aMethod;
-				 at: #count put: anAssoc key;
-				 at: #duration put: anAssoc value;
+				 at: #count put: anArray second;
+				 at: #duration put: anArray third;
+				 at: #receivers put: anArray first size;
 				 yourself) ]
 ]
