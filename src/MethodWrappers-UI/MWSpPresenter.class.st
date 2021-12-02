@@ -111,26 +111,38 @@ MWSpPresenter >> initializeWindow: aWindow [
 { #category : #'as yet unclassified' }
 MWSpPresenter >> sequenceDiagramTree: aTree canvas: aCanvas [
 
-	| builder shapes orderedCalls |
+	| builder shapes orderedCalls objectsSeenSoFar |
 	shapes := OrderedCollection new.
 
 	orderedCalls := OrderedCollection new.
 
+	objectsSeenSoFar := IdentityDictionary new.
+
 	aTree
 		pre: [ :each | 
-			| messageSend ctx ctxParent span model |
-			ctx := each asContextReifiedFromWrapping.
-			ctxParent := aTree parent: each ifAbsent: [ Error signal ].
+			| messageSend ctx span model ctxParent parent recv client args |
+			parent := aTree parent: each ifAbsent: [ Error signal ].
 			model := metadata at: each.
+			ctx := model reifiedContext.
+			ctxParent := (metadata at: parent) reifiedContext.
+
+			client := parent asContextReifiedFromWrapping receiver.
+			recv := each asContextReifiedFromWrapping receiver.
+			args := each asContextReifiedFromWrapping arguments.
+
+			{ 
+				client.
+				recv } ", args" do: [ :anObject | 
+				objectsSeenSoFar
+					at: anObject
+					ifAbsentPut: [ objectsSeenSoFar size + 1 ] ].
 
 			messageSend := (RSFullMessageSend
-				                receiver: ctx receiver
+				                receiver: recv
 				                selector: ctx selector
-				                arguments: ctx arguments)
-				               client:
-					               ctxParent asContextReifiedFromWrapping receiver;
-				               callerSelector:
-					               ctxParent asContextReifiedFromWrapping selector;
+				                arguments: args)
+				               client: client;
+				               callerSelector: ctxParent selector;
 				               yourself.
 
 			span := TimespanDiscrete new
@@ -144,28 +156,25 @@ MWSpPresenter >> sequenceDiagramTree: aTree canvas: aCanvas [
 				orderedCalls add: anAssoc ] ]
 		post: [ :each :anAssoc | 
 			anAssoc value in: [ :fullMessageSend | 
-				| returnMessageSend return |
+				| returnMessageSend return timespan returnTimespan |
 				return := (metadata at: each) return.
 
 				returnMessageSend := fullMessageSend asReturnMessageSend
 					                     return: return;
 					                     yourself.
-				fullMessageSend
-					ifSelfSend: [ anAssoc value: returnMessageSend ]
-					ifNotSelfSend: [ 
-						| timespan returnTimespan |
-						timespan := anAssoc key.
 
-						returnTimespan := TimespanDiscrete new
-							                  start: timespan end;
-							                  duration: Duration zero;
-							                  logicalStart: timespan logicalStart;
-							                  logicalDuration: timespan logicalDuration.
+				timespan := anAssoc key.
 
-						orderedCalls add: returnTimespan -> returnMessageSend ] ] ].
+				returnTimespan := TimespanDiscrete new
+					                  start: timespan end;
+					                  duration: Duration zero;
+					                  logicalStart: timespan logicalStart;
+					                  logicalDuration: timespan logicalDuration.
+
+				orderedCalls add: returnTimespan -> returnMessageSend ] ].
 
 	builder := RSUMLSequenceBuilder new
-		           objectsSeenSoFar: IdentityDictionary new;
+		           objectsSeenSoFar: objectsSeenSoFar;
 		           messagesSends: orderedCalls;
 		           previousHeaders: OrderedCollection new;
 		           previousMessagesSends: OrderedCollection new;
