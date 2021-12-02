@@ -216,31 +216,31 @@ MWSpPresenter >> setModelBeforeInitialization: treeMetadataAssociation [
 		count := anArray second.
 
 		duration := anArray third
-			            inject: Duration zero
-			            into: [ :aDuration :each | aDuration + each ].
+			            inject: 0
+			            into: [ :nanoSecs :each | 
+			            nanoSecs + each asNanoSeconds ].
 
 		durationAvg := duration / count.
 
 		durationMinSquaresSum := anArray third
-			                         inject: Duration zero asNanoSeconds
-			                         into: [ :aDuration :each | 
-				                         aDuration
-				                         +
-				                         (each asNanoSeconds
-				                          - durationAvg asNanoSeconds) squared ].
+			                         inject: 0
+			                         into: [ :nanoSecs :each | 
+				                         | squaredError |
+				                         squaredError := (each asNanoSeconds
+				                                          - durationAvg) squared.
+				                         nanoSecs + squaredError ].
 
 		durationStDev := count > 1
 			                 ifTrue: [ 
-			                 Duration nanoSeconds:
-				                 (durationMinSquaresSum / (count - 1)) sqrt ]
-			                 ifFalse: [ Duration zero ].
+			                 (durationMinSquaresSum / (count - 1)) sqrt ]
+			                 ifFalse: [ 0 ].
 
 		tableItems add: (Dictionary new
 				 at: #compiledMethod put: aMethod;
 				 at: #count put: count;
-				 at: #duration put: duration;
-				 at: #durationAvg put: durationAvg;
-				 at: #durationStDev put: durationStDev;
+				 at: #duration put: (Duration nanoSeconds: duration);
+				 at: #durationAvg put: (Duration nanoSeconds: durationAvg);
+				 at: #durationStDev put: (Duration nanoSeconds: durationStDev);
 				 at: #receivers put: anArray first size;
 				 yourself) ]
 ]
