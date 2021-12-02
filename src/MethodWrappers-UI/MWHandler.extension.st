@@ -1,5 +1,5 @@
 Extension { #name : #MWHandler }
 
 { #category : #'*MethodWrappers-UI' }
-MWHandler >> addColumnsInPresenter: aPresenter metadata: metadata [
+MWHandler >> metadata: metadata [
 ]

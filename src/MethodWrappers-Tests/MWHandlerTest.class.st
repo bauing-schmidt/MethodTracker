@@ -104,15 +104,15 @@ MWHandlerTest >> sequenceDiagramTree: aTree metadata: metadata [
 { #category : #tests }
 MWHandlerTest >> testAddWithinDoObjectCentric [
 
-	| handlerTiming tree presenter result handlerProfiler handlerCentric interval |
+	| handlerTiming tree metadata result handlerExecution handlerCentric interval |
 	tree := CTOrderPreservingTree new.
 
-	handlerProfiler := MWHandlerExecution new
-		                   tree: tree;
-		                   yourself.
+	handlerExecution := MWHandlerExecution new
+		                    tree: tree;
+		                    yourself.
 
 	handlerTiming := MWHandlerTiming new
-		                 handler: handlerProfiler;
+		                 handler: handlerExecution;
 		                 yourself.
 
 	interval := 1 to: 20.
@@ -129,22 +129,12 @@ MWHandlerTest >> testAddWithinDoObjectCentric [
 		          do: [ :each | each handler: handlerCentric ];
 		          value: [ interval do: [ :each | each add: 4 ] ].
 
-	presenter := CTOrderPreservingTreePresenter on: tree.
+	metadata := IdentityDictionary new.
+	handlerExecution metadata: metadata.
+	handlerTiming metadata: metadata.
 
-	presenter withTreePresenterDo: [ :treePresenter | 
-		| metadata |
-		metadata := IdentityDictionary new.
-
-		handlerProfiler
-			addColumnsInPresenter: treePresenter
-			metadata: metadata.
-		handlerTiming
-			addColumnsInPresenter: treePresenter
-			metadata: metadata.
-
-		treePresenter expandAll ].
-
-	presenter openWithSpec.
+	"Show here the new presenter."
+	(MWSpPresenter on: tree -> metadata) openWithSpec.
 
 	self
 		assert: tree size equals: 11;
@@ -154,15 +144,15 @@ MWHandlerTest >> testAddWithinDoObjectCentric [
 { #category : #tests }
 MWHandlerTest >> testAddWithinDoª [
 
-	| handlerTiming tree presenter result handlerProfiler |
+	| handlerTiming tree metadata result handlerExecution |
 	tree := CTOrderPreservingTree new.
 
-	handlerProfiler := MWHandlerExecution new
-		                   tree: tree;
-		                   yourself.
+	handlerExecution := MWHandlerExecution new
+		                    tree: tree;
+		                    yourself.
 
 	handlerTiming := MWHandlerTiming new
-		                 handler: handlerProfiler;
+		                 handler: handlerExecution;
 		                 yourself.
 
 	result := (MWSession withAllImplementations: { 
@@ -173,22 +163,12 @@ MWHandlerTest >> testAddWithinDoª [
 			          (1 to: 20) doª: [ :each | each add: 4 ].
 			          (1 to: 5) doª: [ :each | each - 4 ] ].
 
-	presenter := CTOrderPreservingTreePresenter on: tree.
+	metadata := IdentityDictionary new.
+	handlerExecution metadata: metadata.
+	handlerTiming metadata: metadata.
 
-	presenter withTreePresenterDo: [ :treePresenter | 
-		| metadata |
-		metadata := IdentityDictionary new.
-
-		handlerProfiler
-			addColumnsInPresenter: treePresenter
-			metadata: metadata.
-		handlerTiming
-			addColumnsInPresenter: treePresenter
-			metadata: metadata.
-
-		treePresenter expandAll ].
-
-	presenter openWithSpec.
+	"Show here the new presenter."
+	(MWSpPresenter on: tree -> metadata) openWithSpec.
 
 	self
 		assert: tree size equals: 22;
@@ -353,31 +333,30 @@ MWHandlerTest >> testCountSlowFactorial [
 { #category : #tests }
 MWHandlerTest >> testProfileSlowFactorial [
 
-	| handler tree presenter result |
+	| result tree metadata handlerExecution handlerTiming|
 	tree := CTOrderPreservingTree new.
 
-	handler := MWHandlerExecution new
-		           tree: tree;
-		           yourself.
+	handlerExecution := MWHandlerExecution new
+		                    tree: tree;
+		                    yourself.
+
+	handlerTiming := MWHandlerTiming new
+		                 handler: handlerExecution;
+		                 yourself.
 
 	result := MWSession new
 		          add: (MWDecorator new
 				           compiledMethod: Integer >> #slowFactorial;
-				           handler: handler;
+				           handler: handlerTiming;
 				           yourself);
 		          value: [ 5 slowFactorial ].
 
-	presenter := CTOrderPreservingTreePresenter on: tree.
+	metadata := IdentityDictionary new.
+	handlerExecution metadata: metadata.
+	handlerTiming metadata: metadata.
 
-	presenter withTreePresenterDo: [ :treePresenter | 
-		| metadata |
-		metadata := IdentityDictionary new.
-
-		handler addColumnsInPresenter: treePresenter metadata: metadata.
-
-		treePresenter expandAll ].
-
-	presenter openWithSpec.
+	"Show here the new presenter."
+	(MWSpPresenter on: tree -> metadata) openWithSpec.
 
 	self
 		assert: tree size equals: 6;
@@ -387,7 +366,7 @@ MWHandlerTest >> testProfileSlowFactorial [
 { #category : #tests }
 MWHandlerTest >> testProfileSlowFibonacci [
 
-	| handlerExecution tree presenter result handlerTiming |
+	| handlerExecution tree metadata result handlerTiming |
 	tree := CTOrderPreservingTree new.
 
 	handlerExecution := MWHandlerExecution new
@@ -405,27 +384,12 @@ MWHandlerTest >> testProfileSlowFibonacci [
 				           yourself);
 		          value: [ 10 slowFibonacci ].
 
-	presenter := CTOrderPreservingTreePresenter on: tree.
+	metadata := IdentityDictionary new.
+	handlerExecution metadata: metadata.
+	handlerTiming metadata: metadata.
 
-	presenter withTreePresenterDo: [ :treePresenter | 
-		| metadata |
-		metadata := IdentityDictionary new.
-
-		handlerExecution
-			addColumnsInPresenter: treePresenter
-			metadata: metadata.
-
-		handlerTiming
-			addColumnsInPresenter: treePresenter
-			metadata: metadata.
-
-		treePresenter whenSelectionChangedDo: [ :selectedItem | 
-			presenter treeShown in: [ :treeShown | 
-				self sequenceDiagramTree: treeShown metadata: metadata ] ].
-
-		treePresenter expandAll ].
-
-	presenter openWithSpec.
+	"Show here the new presenter."
+	(MWSpPresenter on: tree -> metadata) openWithSpec.
 
 	self
 		assert: tree size equals: 177;
@@ -435,7 +399,7 @@ MWHandlerTest >> testProfileSlowFibonacci [
 { #category : #tests }
 MWHandlerTest >> testProfileSlowFibonacciMemoing [
 
-	| handlerCounting handler tree presenter result handlerExecution |
+	| handlerCounting handler tree handlerTiming result handlerExecution metadata |
 	tree := CTOrderPreservingTree new.
 
 	handlerCounting := MWHandlerCounting new.
@@ -444,8 +408,12 @@ MWHandlerTest >> testProfileSlowFibonacciMemoing [
 		                    tree: tree;
 		                    yourself.
 
+	handlerTiming := MWHandlerTiming new
+		                 handler: handlerExecution;
+		                 yourself.
+
 	handler := MWHandlerMemoing new
-		           handler: handlerExecution;
+		           handler: handlerTiming;
 		           yourself.
 
 	result := (MWSession withAllImplementations: { (Number >> #add:) })
@@ -456,19 +424,12 @@ MWHandlerTest >> testProfileSlowFibonacciMemoing [
 				           yourself);
 		          value: [ 10 slowFibonacci ].
 
-	presenter := CTOrderPreservingTreePresenter on: tree.
+	metadata := IdentityDictionary new.
+	handlerExecution metadata: metadata.
+	handlerTiming metadata: metadata.
 
-	presenter withTreePresenterDo: [ :treePresenter | 
-		| metadata |
-		metadata := IdentityDictionary new.
-
-		handlerExecution
-			addColumnsInPresenter: treePresenter
-			metadata: metadata.
-
-		treePresenter expandAll ].
-
-	presenter openWithSpec.
+	"Show here the new presenter."
+	(MWSpPresenter on: tree -> metadata) openWithSpec.
 
 	self
 		assert: tree size equals: 19;
@@ -479,21 +440,25 @@ MWHandlerTest >> testProfileSlowFibonacciMemoing [
 { #category : #tests }
 MWHandlerTest >> testProfileSlowFibonacciTailWithAdd [
 
-	| wrapper handler tree presenter result wrapperAdd |
+	| wrapper handlerExecution tree metadata result wrapperAdd handlerTiming |
 	tree := CTOrderPreservingTree new.
 
-	handler := MWHandlerExecution new
-		           tree: tree;
-		           yourself.
+	handlerExecution := MWHandlerExecution new
+		                    tree: tree;
+		                    yourself.
+
+	handlerTiming := MWHandlerTiming new
+		                 handler: handlerExecution;
+		                 yourself.
 
 	wrapper := MWDecorator new
 		           compiledMethod: Integer >> #slowFibonacci:tail:;
-		           handler: handler;
+		           handler: handlerTiming;
 		           yourself.
 
 	wrapperAdd := MWDecorator new
 		              compiledMethod: Number >> #add:;
-		              handler: handler;
+		              handler: handlerTiming;
 		              yourself.
 
 	result := MWSession new
@@ -501,16 +466,12 @@ MWHandlerTest >> testProfileSlowFibonacciTailWithAdd [
 		          add: wrapperAdd;
 		          value: [ 10 slowFibonacci: 0 tail: 1 ].
 
-	presenter := CTOrderPreservingTreePresenter on: tree.
+	metadata := IdentityDictionary new.
+	handlerExecution metadata: metadata.
+	handlerTiming metadata: metadata.
 
-	presenter withTreePresenterDo: [ :treePresenter | 
-		| metadata |
-		metadata := IdentityDictionary new.
-
-		handler addColumnsInPresenter: treePresenter metadata: metadata.
-
-		treePresenter expandAll ].
-	presenter openWithSpec.
+	"Show here the new presenter."
+	(MWSpPresenter on: tree -> metadata) openWithSpec.
 
 	self
 		assert: tree size equals: 21;
@@ -520,21 +481,25 @@ MWHandlerTest >> testProfileSlowFibonacciTailWithAdd [
 { #category : #tests }
 MWHandlerTest >> testProfileSlowFibonacciWithAdd [
 
-	| wrapper handler tree presenter result wrapperAdd |
+	| wrapper handlerExecution handlerTiming tree metadata result wrapperAdd |
 	tree := CTOrderPreservingTree new.
 
-	handler := MWHandlerExecution new
-		           tree: tree;
-		           yourself.
+	handlerExecution := MWHandlerExecution new
+		                    tree: tree;
+		                    yourself.
+
+	handlerTiming := MWHandlerTiming new
+		                 handler: handlerExecution;
+		                 yourself.
 
 	wrapper := MWDecorator new
 		           compiledMethod: Integer >> #slowFibonacci;
-		           handler: handler;
+		           handler: handlerTiming;
 		           yourself.
 
 	wrapperAdd := MWDecorator new
 		              compiledMethod: Number >> #add:;
-		              handler: handler;
+		              handler: handlerTiming;
 		              yourself.
 
 	result := MWSession new
@@ -542,16 +507,12 @@ MWHandlerTest >> testProfileSlowFibonacciWithAdd [
 		          add: wrapperAdd;
 		          value: [ 10 slowFibonacci ].
 
-	presenter := CTOrderPreservingTreePresenter on: tree.
+	metadata := IdentityDictionary new.
+	handlerExecution metadata: metadata.
+	handlerTiming metadata: metadata.
 
-	presenter withTreePresenterDo: [ :treePresenter | 
-		| metadata |
-		metadata := IdentityDictionary new.
-
-		handler addColumnsInPresenter: treePresenter metadata: metadata.
-
-		treePresenter expandAll ].
-	presenter openWithSpec.
+	"Show here the new presenter."
+	(MWSpPresenter on: tree -> metadata) openWithSpec.
 
 	self
 		assert: tree size equals: 265;
@@ -561,32 +522,32 @@ MWHandlerTest >> testProfileSlowFibonacciWithAdd [
 { #category : #tests }
 MWHandlerTest >> testProfileSlowFibonacciWithAddOnly [
 
-	| handler tree presenter result wrapperAdd |
+	| handlerExecution handlerTiming tree metadata result wrapperAdd |
 	tree := CTOrderPreservingTree new.
 
-	handler := MWHandlerExecution new
-		           tree: tree;
-		           yourself.
+	handlerExecution := MWHandlerExecution new
+		                    tree: tree;
+		                    yourself.
+
+	handlerTiming := MWHandlerTiming new
+		                 handler: handlerExecution;
+		                 yourself.
 
 	wrapperAdd := MWDecorator new
 		              compiledMethod: Number >> #add:;
-		              handler: handler;
+		              handler: handlerTiming;
 		              yourself.
 
 	result := MWSession new
 		          add: wrapperAdd;
 		          value: [ 10 slowFibonacci ].
 
-	presenter := CTOrderPreservingTreePresenter on: tree.
+	metadata := IdentityDictionary new.
+	handlerExecution metadata: metadata.
+	handlerTiming metadata: metadata.
 
-	presenter withTreePresenterDo: [ :treePresenter | 
-		| metadata |
-		metadata := IdentityDictionary new.
-
-		handler addColumnsInPresenter: treePresenter metadata: metadata.
-
-		treePresenter expandAll ].
-	presenter openWithSpec.
+	"Show here the new presenter."
+	(MWSpPresenter on: tree -> metadata) openWithSpec.
 
 	self
 		assert: tree size equals: 88;
@@ -596,7 +557,7 @@ MWHandlerTest >> testProfileSlowFibonacciWithAddOnly [
 { #category : #tests }
 MWHandlerTest >> testSequenceableCollectionMergeSort [
 
-	| handlerTiming tree presenter result handlerExecution |
+	| handlerTiming tree metadata result handlerExecution |
 	tree := CTOrderPreservingTree new.
 
 	handlerExecution := MWHandlerExecution new
@@ -619,27 +580,12 @@ MWHandlerTest >> testSequenceableCollectionMergeSort [
 		          do: [ :each | each handler: handlerTiming ];
 		          value: [ (1 to: 20) shuffled sort ].
 
-	presenter := CTOrderPreservingTreePresenter on: tree.
+	metadata := IdentityDictionary new.
+	handlerExecution metadata: metadata.
+	handlerTiming metadata: metadata.
 
-	presenter withTreePresenterDo: [ :treePresenter | 
-		| metadata |
-		metadata := IdentityDictionary new.
-
-		handlerExecution
-			addColumnsInPresenter: treePresenter
-			metadata: metadata.
-
-		handlerTiming
-			addColumnsInPresenter: treePresenter
-			metadata: metadata.
-
-		treePresenter whenSelectionChangedDo: [ :selectedItem | 
-			presenter treeShown in: [ :treeShown | 
-				self sequenceDiagramTree: treeShown metadata: metadata ] ].
-
-		treePresenter expandAll ].
-
-	presenter openWithSpec.
+	"Show here the new presenter."
+	(MWSpPresenter on: tree -> metadata) openWithSpec.
 
 	self
 		assert: tree size equals: 81;
@@ -649,7 +595,7 @@ MWHandlerTest >> testSequenceableCollectionMergeSort [
 { #category : #tests }
 MWHandlerTest >> testSequenceableCollectionMergeSortCopying [
 
-	| handlerTiming tree presenter result handlerExecution handlerCopying |
+	| handlerTiming tree result handlerExecution handlerCopying metadata |
 	tree := CTOrderPreservingTree new.
 
 	handlerExecution := MWHandlerExecution new
@@ -676,34 +622,13 @@ MWHandlerTest >> testSequenceableCollectionMergeSortCopying [
 		          do: [ :each | each handler: handlerCopying ];
 		          value: [ (1 to: 20) shuffled sort ].
 
-	presenter := CTOrderPreservingTreePresenter on: tree.
+	metadata := IdentityDictionary new.
+	handlerExecution metadata: metadata.
+	handlerCopying metadata: metadata.
+	handlerTiming metadata: metadata.
 
-	presenter withTreePresenterDo: [ :treePresenter | 
-		| metadata |
-		metadata := IdentityDictionary new.
-
-		handlerExecution
-			addColumnsInPresenter: treePresenter
-			metadata: metadata.
-
-		handlerCopying
-			addColumnsInPresenter: treePresenter
-			metadata: metadata.
-
-		handlerTiming
-			addColumnsInPresenter: treePresenter
-			metadata: metadata.
-
-		"Show here the new presenter."
-		(MWSpPresenter on: tree -> metadata) openWithSpec.
-
-		treePresenter whenSelectionChangedDo: [ :selectedItem | 
-			presenter treeShown in: [ :treeShown | 
-				self sequenceDiagramTree: treeShown metadata: metadata ] ].
-
-		treePresenter expandAll ].
-
-	"presenter openWithSpec."
+	"Show here the new presenter."
+	(MWSpPresenter on: tree -> metadata) openWithSpec.
 
 	self
 		assert: tree size equals: 81;
@@ -713,7 +638,7 @@ MWHandlerTest >> testSequenceableCollectionMergeSortCopying [
 { #category : #tests }
 MWHandlerTest >> testSequenceableCollectionMergeSortCopyingDetailed [
 
-	| handlerTiming tree presenter result handlerExecution handlerCopying |
+	| handlerTiming tree metadata result handlerExecution handlerCopying |
 	tree := CTOrderPreservingTree new.
 
 	handlerExecution := MWHandlerExecution new
@@ -744,32 +669,13 @@ MWHandlerTest >> testSequenceableCollectionMergeSortCopyingDetailed [
 		          do: [ :each | each handler: handlerCopying ];
 		          value: [ (1 to: 20) shuffled sort ].
 
-	presenter := CTOrderPreservingTreePresenter on: tree.
+	metadata := IdentityDictionary new.
+	handlerExecution metadata: metadata.
+	handlerCopying metadata: metadata.
+	handlerTiming metadata: metadata.
 
-	presenter withTreePresenterDo: [ :treePresenter | 
-		| metadata |
-		metadata := IdentityDictionary new.
-
-		handlerExecution
-			addColumnsInPresenter: treePresenter
-			metadata: metadata.
-
-		handlerCopying
-			addColumnsInPresenter: treePresenter
-			metadata: metadata.
-
-		handlerTiming
-			addColumnsInPresenter: treePresenter
-			metadata: metadata.
-
-		treePresenter whenSelectionChangedDo: [ :selectedItem | 
-			presenter treeShown in: [ :treeShown | 
-				self sequenceDiagramTree: treeShown metadata: metadata ] ].
-
-		treePresenter expandAll.
-		tree inspect ].
-
-	presenter openWithSpec.
+	"Show here the new presenter."
+	(MWSpPresenter on: tree -> metadata) openWithSpec.
 
 	self
 		assert: tree size equals: 103;
@@ -779,7 +685,7 @@ MWHandlerTest >> testSequenceableCollectionMergeSortCopyingDetailed [
 { #category : #tests }
 MWHandlerTest >> testSequenceableCollectionMergeSortPlugging [
 
-	| handlerTiming tree presenter result handlerExecution handlerBlockPlugging |
+	| handlerTiming tree metadata result handlerExecution handlerBlockPlugging |
 	tree := CTOrderPreservingTree new.
 
 	handlerExecution := MWHandlerExecution new
@@ -808,27 +714,12 @@ MWHandlerTest >> testSequenceableCollectionMergeSortPlugging [
 		          do: [ :each | each handler: handlerTiming ];
 		          value: [ (1 to: 20) shuffled sort ].
 
-	presenter := CTOrderPreservingTreePresenter on: tree.
+	metadata := IdentityDictionary new.
+	handlerExecution metadata: metadata.
+	handlerTiming metadata: metadata.
 
-	presenter withTreePresenterDo: [ :treePresenter | 
-		| metadata |
-		metadata := IdentityDictionary new.
-
-		handlerExecution
-			addColumnsInPresenter: treePresenter
-			metadata: metadata.
-
-		handlerTiming
-			addColumnsInPresenter: treePresenter
-			metadata: metadata.
-
-		treePresenter whenSelectionChangedDo: [ :selectedItem | 
-			presenter treeShown in: [ :treeShown | 
-				self sequenceDiagramTree: treeShown metadata: metadata ] ].
-
-		treePresenter expandAll ].
-
-	presenter openWithSpec.
+	"Show here the new presenter."
+	(MWSpPresenter on: tree -> metadata) openWithSpec.
 
 	self
 		assert: tree size equals: 81;
@@ -838,15 +729,15 @@ MWHandlerTest >> testSequenceableCollectionMergeSortPlugging [
 { #category : #tests }
 MWHandlerTest >> testTimingSlowFibonacciMemoing [
 
-	| handlerTiming handlerMemoing tree presenter result handlerProfiler |
+	| handlerTiming handlerMemoing tree metadata result handlerExecution |
 	tree := CTOrderPreservingTree new.
 
-	handlerProfiler := MWHandlerExecution new
-		                   tree: tree;
-		                   yourself.
+	handlerExecution := MWHandlerExecution new
+		                    tree: tree;
+		                    yourself.
 
 	handlerMemoing := MWHandlerMemoing new
-		                  handler: handlerProfiler;
+		                  handler: handlerExecution;
 		                  yourself.
 
 	handlerTiming := MWHandlerTiming new
@@ -860,22 +751,12 @@ MWHandlerTest >> testTimingSlowFibonacciMemoing [
 				           yourself);
 		          value: [ 10 slowFibonacci ].
 
-	presenter := CTOrderPreservingTreePresenter on: tree.
+	metadata := IdentityDictionary new.
+	handlerExecution metadata: metadata.
+	handlerTiming metadata: metadata.
 
-	presenter withTreePresenterDo: [ :treePresenter | 
-		| metadata |
-		metadata := IdentityDictionary new.
-
-		handlerProfiler
-			addColumnsInPresenter: treePresenter
-			metadata: metadata.
-		handlerTiming
-			addColumnsInPresenter: treePresenter
-			metadata: metadata.
-
-		treePresenter expandAll ].
-
-	presenter openWithSpec.
+	"Show here the new presenter."
+	(MWSpPresenter on: tree -> metadata) openWithSpec.
 
 	self
 		assert: tree size equals: 19;

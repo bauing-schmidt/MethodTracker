@@ -1,7 +1,7 @@
 Extension { #name : #MWHandlerReceiverArgumentsCopying }
 
 { #category : #'*MethodWrappers-UI' }
-MWHandlerReceiverArgumentsCopying >> addColumnsInPresenter: aPresenter metadata: metadata [
+MWHandlerReceiverArgumentsCopying >> metadata: metadata [
 
 	table keysAndValuesDo: [ :each :anAssoc | 
 		| model ctx messageSend messageSent |
