@@ -9,7 +9,8 @@ Class {
 		'argsCheckbox',
 		'returnCheckbox',
 		'expandAllButton',
-		'collapseAllButton'
+		'collapseAllButton',
+		'showDetailsButton'
 	],
 	#category : #'MethodWrappers-UI'
 }
@@ -20,6 +21,8 @@ MWSpContextsTreePresenter >> connectPresenters [
 	expandAllButton action: [ treePresenter expandAll ].
 
 	collapseAllButton action: [ treePresenter collapseAll ].
+
+	showDetailsButton action: [ self openDetailsWithSpec ].
 
 	recvCheckbox whenChangedDo: [ :ann | 
 		treePresenter
@@ -48,6 +51,10 @@ MWSpContextsTreePresenter >> initializePresenters [
 		                     label: 'Collapse all';
 		                     yourself.
 
+	showDetailsButton := self newButton
+		                     label: 'Details';
+		                     yourself.
+
 	recvCheckbox := self newCheckBox
 		                label: 'Receiver';
 		                state: true;
@@ -70,6 +77,7 @@ MWSpContextsTreePresenter >> initializePresenters [
 			 add: (self newBoxLayoutLeftToRight
 					  add: expandAllButton;
 					  add: collapseAllButton;
+					  add: showDetailsButton;
 					  add: recvCheckbox;
 					  add: argsCheckbox;
 					  add: returnCheckbox;
@@ -77,6 +85,48 @@ MWSpContextsTreePresenter >> initializePresenters [
 			 expand: false;
 			 add: treePresenter;
 			 yourself)
+]
+
+{ #category : #initialization }
+MWSpContextsTreePresenter >> openDetailsWithSpec [
+
+	| presenter |
+	presenter := CTOrderPreservingTreePresenter on: tree.
+
+	presenter withTreePresenterDo: [ :aPresenter | 
+		aPresenter
+			addColumn:
+				(SpStringTableColumn
+					 title: 'Message send'
+					 evaluated: [ :aContext | 
+						 (metadata at: aContext) reifiedContext
+							 asStringInterpolationOfReceiverSelectorArguments ]);
+			addColumn: (SpStringTableColumn
+					 title: 'Return'
+					 evaluated: [ :aContext | (metadata at: aContext) return ]);
+			addColumn:
+				(SpStringTableColumn title: 'Client' evaluated: [ :aContext | 
+						 (metadata at: aContext) client
+							 ifNothing: [ '•' ]
+							 ifJust: [ :aJust | aJust content ] ]);
+			addColumn: (SpStringTableColumn
+					 title: 'Send occurrence'
+					 evaluated: [ :aContext | (metadata at: aContext) occurrence ]);
+			addColumn: (SpStringTableColumn
+					 title: 'Send progress'
+					 evaluated: [ :aContext | (metadata at: aContext) ratio ]);
+			addColumn: (SpStringTableColumn
+					 title: 'Entry @ Exit ticks'
+					 evaluated: [ :aContext | (metadata at: aContext) visit ]);
+			addColumn:
+				(SpStringTableColumn title: 'Duration' evaluated: [ :aContext | 
+						 (metadata at: aContext) duration asStringScaledUptoHours ]);
+			addColumn: (SpStringTableColumn
+					 title: 'Start time'
+					 evaluated: [ :aContext | (metadata at: aContext) startTime ]);
+			expandAll ].
+
+	presenter openWithSpec
 ]
 
 { #category : #initialization }

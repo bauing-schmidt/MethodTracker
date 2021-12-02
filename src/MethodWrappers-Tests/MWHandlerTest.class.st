@@ -703,7 +703,7 @@ MWHandlerTest >> testSequenceableCollectionMergeSortCopying [
 
 		treePresenter expandAll ].
 
-	presenter openWithSpec.
+	"presenter openWithSpec."
 
 	self
 		assert: tree size equals: 81;
