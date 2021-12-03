@@ -5,6 +5,7 @@ Class {
 		'treePresenter',
 		'tree',
 		'metadata',
+		'clientCheckbox',
 		'recvCheckbox',
 		'argsCheckbox',
 		'returnCheckbox',
@@ -18,26 +19,25 @@ Class {
 { #category : #initialization }
 MWSpContextsTreePresenter >> connectPresenters [
 
+	| treeRefreshDisplayBlock |
 	expandAllButton action: [ treePresenter expandAll ].
 
 	collapseAllButton action: [ treePresenter collapseAll ].
 
 	showDetailsButton action: [ self openDetailsWithSpec ].
+	
+	treeRefreshDisplayBlock := [ :ann | 
+	                           treePresenter
+		                           display: self treePresenterDisplayBlock;
+		                           refresh ].
 
-	recvCheckbox whenChangedDo: [ :ann | 
-		treePresenter
-			display: self treePresenterDisplayBlock;
-			refresh ].
+	clientCheckbox whenChangedDo: treeRefreshDisplayBlock.
 
-	argsCheckbox whenChangedDo: [ :ann | 
-		treePresenter
-			display: self treePresenterDisplayBlock;
-			refresh ].
+	recvCheckbox whenChangedDo: treeRefreshDisplayBlock.
 
-	returnCheckbox whenChangedDo: [ :ann | 
-		treePresenter
-			display: self treePresenterDisplayBlock;
-			refresh ]
+	argsCheckbox whenChangedDo: treeRefreshDisplayBlock.
+
+	returnCheckbox whenChangedDo: treeRefreshDisplayBlock
 ]
 
 { #category : #initialization }
@@ -54,6 +54,11 @@ MWSpContextsTreePresenter >> initializePresenters [
 	showDetailsButton := self newButton
 		                     label: 'Details';
 		                     yourself.
+
+	clientCheckbox := self newCheckBox
+		                  label: 'Client';
+		                  state: false;
+		                  yourself.
 
 	recvCheckbox := self newCheckBox
 		                label: 'Receiver';
@@ -78,6 +83,7 @@ MWSpContextsTreePresenter >> initializePresenters [
 					  add: expandAllButton;
 					  add: collapseAllButton;
 					  add: showDetailsButton;
+					  add: clientCheckbox;
 					  add: recvCheckbox;
 					  add: argsCheckbox;
 					  add: returnCheckbox;
@@ -144,6 +150,13 @@ MWSpContextsTreePresenter >> treePresenterDisplayBlock [
 	  reifiedContext := (metadata at: each) reifiedContext.
 
 	  String streamContents: [ :aStream | 
+		  clientCheckbox state ifTrue: [ 
+			  (metadata at: each) client
+				  ifNothing: [ aStream nextPutAll: '•' ]
+				  ifJust: [ :aJust | aStream nextPutAll: aJust content asString ].
+
+			  aStream nextPutAll: ' ◆ ' ].
+
 		  recvCheckbox state
 			  ifTrue: [ 
 				  aStream

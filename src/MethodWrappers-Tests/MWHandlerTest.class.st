@@ -20,6 +20,24 @@ MWHandlerTest >> ifTrue: aBlock [
 ]
 
 { #category : #tests }
+MWHandlerTest >> selfSend1 [
+
+	^ self selfSend2
+]
+
+{ #category : #tests }
+MWHandlerTest >> selfSend2 [
+
+	^ 2 slowFibonacci + self selfSend3
+]
+
+{ #category : #tests }
+MWHandlerTest >> selfSend3 [
+
+	^ 3 slowFibonacci
+]
+
+{ #category : #tests }
 MWHandlerTest >> testAddWithinDoObjectCentric [
 
 	| handlerTiming tree metadata result handlerExecution handlerCentric interval |
@@ -470,6 +488,40 @@ MWHandlerTest >> testProfileSlowFibonacciWithAddOnly [
 	self
 		assert: tree size equals: 88;
 		assert: result equals: 11 fibonacciNumbers last " 55"
+]
+
+{ #category : #tests }
+MWHandlerTest >> testSelfSendsSimple [
+
+	| handlerTiming tree metadata result handlerExecution |
+	tree := CTOrderPreservingTree new.
+
+	handlerExecution := MWHandlerExecution new
+		                    tree: tree;
+		                    yourself.
+
+	handlerTiming := MWHandlerTiming new
+		                 handler: handlerExecution;
+		                 yourself.
+
+	result := (MWSession withAllImplementations: { 
+				           (self class >> #selfSend1).
+				           (self class >> #selfSend2).
+				           (self class >> #selfSend3).
+				           (Integer >> #slowFibonacci) })
+		          do: [ :each | each handler: handlerTiming ];
+		          value: [ self selfSend1 ].
+
+	metadata := IdentityDictionary new.
+	handlerExecution metadata: metadata.
+	handlerTiming metadata: metadata.
+
+	"Show here the new presenter."
+	(MWSpPresenter on: tree -> metadata) openWithSpec.
+
+	self
+		assert: tree size equals: 11;
+		assert: result equals: 3
 ]
 
 { #category : #tests }

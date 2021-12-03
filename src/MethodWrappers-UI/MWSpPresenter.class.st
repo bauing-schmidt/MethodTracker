@@ -111,16 +111,16 @@ MWSpPresenter >> initializeWindow: aWindow [
 { #category : #'as yet unclassified' }
 MWSpPresenter >> sequenceDiagramTree: aTree canvas: aCanvas [
 
-	| builder shapes orderedCalls objectsSeenSoFar |
+	| builder shapes orderedCalls objectsSeenSoFar levels |
 	shapes := OrderedCollection new.
 
 	orderedCalls := OrderedCollection new.
-
 	objectsSeenSoFar := IdentityDictionary new.
+	levels := IdentityDictionary new.
 
 	aTree
-		pre: [ :each | 
-			| messageSend ctx span model ctxParent parent recv client args |
+		pre: [ :each :level | 
+			| messageSend ctx span model ctxParent parent recv client |
 			parent := aTree parent: each ifAbsent: [ Error signal ].
 			model := metadata at: each.
 			ctx := model reifiedContext.
@@ -128,11 +128,10 @@ MWSpPresenter >> sequenceDiagramTree: aTree canvas: aCanvas [
 
 			client := parent asContextReifiedFromWrapping receiver.
 			recv := each asContextReifiedFromWrapping receiver.
-			args := each asContextReifiedFromWrapping arguments.
 
 			{ 
 				client.
-				recv } ", args" do: [ :anObject | 
+				recv } do: [ :anObject | 
 				objectsSeenSoFar
 					at: anObject
 					ifAbsentPut: [ objectsSeenSoFar size + 1 ] ].
@@ -140,7 +139,8 @@ MWSpPresenter >> sequenceDiagramTree: aTree canvas: aCanvas [
 			messageSend := (RSFullMessageSend
 				                receiver: recv
 				                selector: ctx selector
-				                arguments: args)
+				                arguments:
+					                each asContextReifiedFromWrapping arguments)
 				               client: client;
 				               callerSelector: ctxParent selector;
 				               yourself.
@@ -153,10 +153,11 @@ MWSpPresenter >> sequenceDiagramTree: aTree canvas: aCanvas [
 				        yourself.
 
 			span -> messageSend yourself: [ :anAssoc | 
-				orderedCalls add: anAssoc ] ]
-		post: [ :each :anAssoc | 
+				orderedCalls add: anAssoc.
+				levels at: anAssoc put: level ] ]
+		post: [ :each :anAssoc :level | 
 			anAssoc value in: [ :fullMessageSend | 
-				| returnMessageSend return timespan returnTimespan |
+				| returnMessageSend return timespan returnTimespan returnAssoc |
 				return := (metadata at: each) return.
 
 				returnMessageSend := fullMessageSend asReturnMessageSend
@@ -171,10 +172,14 @@ MWSpPresenter >> sequenceDiagramTree: aTree canvas: aCanvas [
 					                  logicalStart: timespan logicalStart;
 					                  logicalDuration: timespan logicalDuration.
 
-				orderedCalls add: returnTimespan -> returnMessageSend ] ].
+				returnAssoc := returnTimespan -> returnMessageSend.
+
+				orderedCalls add: returnAssoc.
+				levels at: returnAssoc put: level ] ].
 
 	builder := RSUMLSequenceBuilder new
 		           objectsSeenSoFar: objectsSeenSoFar;
+		           levels: levels;
 		           messagesSends: orderedCalls;
 		           previousHeaders: OrderedCollection new;
 		           previousMessagesSends: OrderedCollection new;
@@ -192,8 +197,9 @@ MWSpPresenter >> sequenceDiagramTree: aTree canvas: aCanvas [
 		addAll: shapes;
 		zoomToFit;
 		"in: [ :c | 
-			c svgExporter
-				zoomToShapes;
+			RSSVGCairoExporter new
+				canvas: aCanvas;
+				zoomToShapesWithPadding: Float goldenPlatinumRatio;
 				export ];"
 		addInteraction: RSCanvasController new
 ]
