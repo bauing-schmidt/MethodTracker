@@ -118,31 +118,32 @@ MWSpPresenter >> sequenceDiagramTree: aTree canvas: aCanvas [
 	objectsSeenSoFar := IdentityDictionary new.
 	levels := IdentityDictionary new.
 
+	"Preprocessing to create the sequence of message sends."
 	aTree
 		pre: [ :each :level | 
-			| messageSend ctx span model ctxParent parent recv client |
+			| messageSend span model parent recv client reifiedContext anAssoc |
 			parent := aTree parent: each ifAbsent: [ Error signal ].
 			model := metadata at: each.
-			ctx := model reifiedContext.
-			ctxParent := (metadata at: parent) reifiedContext.
+
+			"Reify the context but ignoring the metadata info."
+			reifiedContext := each asContextReifiedFromWrapping.
 
 			client := parent asContextReifiedFromWrapping receiver.
-			recv := each asContextReifiedFromWrapping receiver.
+			recv := reifiedContext receiver.
 
-			{ 
-				client.
-				recv } do: [ :anObject | 
-				objectsSeenSoFar
-					at: anObject
-					ifAbsentPut: [ objectsSeenSoFar size + 1 ] ].
+			"Mark both `recv` and `client` as seen in order to stick an alias in the interpolation.
+			 The order in which client and recv are inserted matters."
+			objectsSeenSoFar
+				ifAbsentPutOrderAt: client;
+				ifAbsentPutOrderAt: recv.
 
 			messageSend := (RSFullMessageSend
 				                receiver: recv
-				                selector: ctx selector
-				                arguments:
-					                each asContextReifiedFromWrapping arguments)
+				                selector: reifiedContext selector
+				                arguments: reifiedContext arguments)
 				               client: client;
-				               callerSelector: ctxParent selector;
+				               callerSelector:
+					               (metadata at: parent) reifiedContext selector;
 				               yourself.
 
 			span := TimespanDiscrete new
@@ -152,30 +153,34 @@ MWSpPresenter >> sequenceDiagramTree: aTree canvas: aCanvas [
 				        logicalDuration: model visitDuration;
 				        yourself.
 
-			span -> messageSend yourself: [ :anAssoc | 
-				orderedCalls add: anAssoc.
-				levels at: anAssoc put: level ] ]
+			"Final addition of this entry."
+			anAssoc := span -> messageSend.
+
+			orderedCalls add: anAssoc.
+			levels at: anAssoc put: level.
+
+			"Such association is then passed in the `post:` block as second argument."
+			anAssoc ]
 		post: [ :each :anAssoc :level | 
-			anAssoc value in: [ :fullMessageSend | 
-				| returnMessageSend return timespan returnTimespan returnAssoc |
-				return := (metadata at: each) return.
+			| fullMessageSend returnMessageSend timespan returnTimespan returnAssoc |
+			fullMessageSend := anAssoc value.
 
-				returnMessageSend := fullMessageSend asReturnMessageSend
-					                     return: return;
-					                     yourself.
+			returnMessageSend := fullMessageSend asReturnMessageSend
+				                     return: (metadata at: each) return;
+				                     yourself.
 
-				timespan := anAssoc key.
+			timespan := anAssoc key.
 
-				returnTimespan := TimespanDiscrete new
-					                  start: timespan end;
-					                  duration: Duration zero;
-					                  logicalStart: timespan logicalStart;
-					                  logicalDuration: timespan logicalDuration.
+			returnTimespan := TimespanDiscrete new
+				                  start: timespan end;
+				                  duration: Duration zero;
+				                  logicalStart: timespan logicalStart;
+				                  logicalDuration: timespan logicalDuration.
 
-				returnAssoc := returnTimespan -> returnMessageSend.
+			returnAssoc := returnTimespan -> returnMessageSend.
 
-				orderedCalls add: returnAssoc.
-				levels at: returnAssoc put: level ] ].
+			orderedCalls add: returnAssoc.
+			levels at: returnAssoc put: level ].
 
 	builder := RSUMLSequenceBuilder new
 		           objectsSeenSoFar: objectsSeenSoFar;
@@ -196,11 +201,11 @@ MWSpPresenter >> sequenceDiagramTree: aTree canvas: aCanvas [
 	aCanvas
 		addAll: shapes;
 		zoomToFit;
-		"in: [ :c | 
+		in: [ :c | 
 			RSSVGCairoExporter new
 				canvas: aCanvas;
 				zoomToShapesWithPadding: Float goldenPlatinumRatio;
-				export ];"
+				export ];
 		addInteraction: RSCanvasController new
 ]
 
