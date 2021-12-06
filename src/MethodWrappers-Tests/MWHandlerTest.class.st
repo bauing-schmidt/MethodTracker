@@ -28,7 +28,7 @@ MWHandlerTest >> selfSend1 [
 { #category : #tests }
 MWHandlerTest >> selfSend2 [
 
-	^ 2 slowFibonacci + self selfSend3
+	^ 2 slowFibonacci add: self selfSend3
 ]
 
 { #category : #tests }
@@ -508,7 +508,8 @@ MWHandlerTest >> testSelfSendsSimple [
 				           (self class >> #selfSend1).
 				           (self class >> #selfSend2).
 				           (self class >> #selfSend3).
-				           (Integer >> #slowFibonacci) })
+				           (Integer >> #slowFibonacci).
+				           (Number >> #add:) })
 		          do: [ :each | each handler: handlerTiming ];
 		          value: [ self selfSend1 ].
 
@@ -520,7 +521,7 @@ MWHandlerTest >> testSelfSendsSimple [
 	(MWSpPresenter on: tree -> metadata) openWithSpec.
 
 	self
-		assert: tree size equals: 11;
+		assert: tree size equals: 15;
 		assert: result equals: 3
 ]
 

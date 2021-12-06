@@ -205,11 +205,11 @@ MWSpPresenter >> sequenceDiagramTree: aTree canvas: aCanvas [
 	aCanvas
 		addAll: shapes;
 		zoomToFit;
-		in: [ :c | 
+		"in: [ :c | 
 			RSSVGCairoExporter new
 				canvas: aCanvas;
 				zoomToShapesWithPadding: Float goldenPlatinumRatio;
-				export ];
+				export ];"
 		addInteraction: RSCanvasController new
 ]
 
