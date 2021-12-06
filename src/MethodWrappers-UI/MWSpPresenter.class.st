@@ -42,6 +42,14 @@ MWSpPresenter >> initializePresenters [
 					                   (aDictionary at: #compiledMethod)
 						                   displayString ]);
 		                  addColumn: (SpStringTableColumn
+				                   title: 'Clients'
+				                   evaluated: [ :aDictionary | 
+					                   aDictionary at: #clients ]);
+		                  addColumn: (SpStringTableColumn
+				                   title: 'Receivers'
+				                   evaluated: [ :aDictionary | 
+					                   aDictionary at: #receivers ]);
+		                  addColumn: (SpStringTableColumn
 				                   title: 'Sends count'
 				                   evaluated: [ :aDictionary | 
 					                   aDictionary at: #count ]);
@@ -60,10 +68,6 @@ MWSpPresenter >> initializePresenters [
 				                   evaluated: [ :aDictionary | 
 					                   (aDictionary at: #durationStDev)
 						                   asStringScaledUptoHours ]);
-		                  addColumn: (SpStringTableColumn
-				                   title: 'Receivers'
-				                   evaluated: [ :aDictionary | 
-					                   aDictionary at: #receivers ]);
 		                  yourself.
 
 	tablePresenter columns do: [ :each | each beSortable ].
@@ -223,26 +227,31 @@ MWSpPresenter >> setModelBeforeInitialization: treeMetadataAssociation [
 			           ifAbsentPut: [ 
 				           { 
 					           IdentitySet new.
+					           IdentitySet new.
 					           0.
 					           OrderedCollection new } ].
 
-		(anArray at: 1) add: each asContextReifiedFromWrapping receiver.
-		anArray at: 2 put: (anArray at: 2) + 1.
-		(anArray at: 3) add: model duration ].
+		(anArray at: 1) add: ((metadata at: each) client
+				 ifNothing: [ Object new ]
+				 ifJust: [ :aJust | aJust content ]).
+		(anArray at: 2) add: each asContextReifiedFromWrapping receiver.
+		anArray at: 3 put: (anArray at: 3) + 1.
+		(anArray at: 4) add: model duration ].
 
 	tableItems := OrderedCollection new.
 	methodCountDurationDictionary keysAndValuesDo: [ :aMethod :anArray | 
-		| duration durationAvg durationMinSquaresSum count durationStDev |
-		count := anArray second.
+		| duration durationAvg durationMinSquaresSum count durationStDev durations |
+		count := anArray third.
+		durations := anArray fourth.
 
-		duration := anArray third
+		duration := durations
 			            inject: 0
 			            into: [ :nanoSecs :each | 
 			            nanoSecs + each asNanoSeconds ].
 
 		durationAvg := duration / count.
 
-		durationMinSquaresSum := anArray third
+		durationMinSquaresSum := durations
 			                         inject: 0
 			                         into: [ :nanoSecs :each | 
 				                         | squaredError |
@@ -261,6 +270,7 @@ MWSpPresenter >> setModelBeforeInitialization: treeMetadataAssociation [
 				 at: #duration put: (Duration nanoSeconds: duration);
 				 at: #durationAvg put: (Duration nanoSeconds: durationAvg);
 				 at: #durationStDev put: (Duration nanoSeconds: durationStDev);
-				 at: #receivers put: anArray first size;
+				 at: #clients put: anArray first size;
+				 at: #receivers put: anArray second size;
 				 yourself) ]
 ]
