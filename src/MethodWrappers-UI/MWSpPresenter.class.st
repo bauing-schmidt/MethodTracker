@@ -8,7 +8,8 @@ Class {
 		'tree',
 		'metadata',
 		'methodCountDurationDictionary',
-		'tableItems'
+		'tableItems',
+		'exportButton'
 	],
 	#category : #'MethodWrappers-UI'
 }
@@ -18,13 +19,22 @@ MWSpPresenter >> connectPresenters [
 
 	treePresenter whenTreeShownChangedDo: [ :treeShown | 
 		sequenceDiagramPresenter script: [ :aCanvas | 
-			self sequenceDiagramTree: treeShown canvas: aCanvas ] ]
+			self sequenceDiagramTree: treeShown canvas: aCanvas ] ].
+
+	exportButton action: [ 
+		sequenceDiagramPresenter canvas svgCairoExporter
+			zoomToShapesWithPadding: Float goldenPlatinumRatio * 2;
+			export ]
 ]
 
 { #category : #initialization }
 MWSpPresenter >> initializePresenters [
 
 	| outerLayout innerLayout |
+	exportButton := self newButton
+		                label: 'Export svg';
+		                yourself.
+
 	sequenceDiagramPresenter := self instantiate: SpRoassalPresenter.
 
 	treePresenter := MWSpContextsTreePresenter
@@ -80,7 +90,13 @@ MWSpPresenter >> initializePresenters [
 
 	outerLayout := self newPanedLayoutLeftToRight
 		               add: innerLayout;
-		               add: sequenceDiagramPresenter;
+		               add: (self newBoxLayoutTopToBottom
+				                add: (self newBoxLayoutLeftToRight
+						                 add: exportButton expand: false;
+						                 yourself)
+				                expand: false;
+				                add: sequenceDiagramPresenter expand: true;
+				                yourself);
 		               positionOfSlider: 1 - Float silverRatio;
 		               yourself.
 
@@ -200,11 +216,6 @@ MWSpPresenter >> sequenceDiagramTree: aTree canvas: aCanvas [
 	aCanvas
 		addAll: shapes;
 		zoomToFit;
-		"in: [ :c | 
-			RSSVGCairoExporter new
-				canvas: aCanvas;
-				zoomToShapesWithPadding: Float goldenPlatinumRatio;
-				export ];"
 		addInteraction: RSCanvasController new
 ]
 
