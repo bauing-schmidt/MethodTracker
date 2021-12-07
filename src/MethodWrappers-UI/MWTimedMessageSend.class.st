@@ -9,12 +9,6 @@ Class {
 }
 
 { #category : #accessing }
-MWTimedMessageSend >> key [
-
-	^ self timespan
-]
-
-{ #category : #accessing }
 MWTimedMessageSend >> messageSend [
 
 	^ messageSend
@@ -41,5 +35,5 @@ MWTimedMessageSend >> timespan: anObject [
 { #category : #accessing }
 MWTimedMessageSend >> value [
 
-	^ self messageSend
+	self shouldNotBeRedefined
 ]
