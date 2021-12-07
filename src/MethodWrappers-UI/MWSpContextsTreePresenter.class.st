@@ -72,7 +72,7 @@ MWSpContextsTreePresenter >> initializePresenters [
 
 	returnCheckbox := self newCheckBox
 		                  label: 'Return';
-		                  state: false;
+		                  state: true;
 		                  yourself.
 
 	treePresenter := tree asTreePresenter display:

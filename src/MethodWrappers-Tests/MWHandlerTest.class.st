@@ -28,7 +28,9 @@ MWHandlerTest >> selfSend1 [
 { #category : #tests }
 MWHandlerTest >> selfSend2 [
 
-	^ 2 slowFibonacci add: self selfSend3
+	2 slowFibonacci add: self selfSend3.
+
+	^ (1 to: 20) asArray
 ]
 
 { #category : #tests }
@@ -522,7 +524,7 @@ MWHandlerTest >> testSelfSendsSimple [
 
 	self
 		assert: tree size equals: 15;
-		assert: result equals: 3
+		assert: result equals: (1 to: 20) asArray
 ]
 
 { #category : #tests }

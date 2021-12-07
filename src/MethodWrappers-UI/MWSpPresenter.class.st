@@ -115,24 +115,25 @@ MWSpPresenter >> initializeWindow: aWindow [
 { #category : #'as yet unclassified' }
 MWSpPresenter >> sequenceDiagramTree: aTree canvas: aCanvas [
 
-	| builder shapes orderedCalls objectsSeenSoFar levels |
+	| builder shapes timedMessageSends objectsSeenSoFar |
 	shapes := OrderedCollection new.
 
-	orderedCalls := OrderedCollection new.
+	timedMessageSends := OrderedCollection new.
 	objectsSeenSoFar := IdentityDictionary new.
-	levels := IdentityDictionary new.
 
 	"Preprocessing to create the sequence of message sends."
 	aTree
-		pre: [ :each :level | 
-			| messageSend span model parent recv client reifiedContext anAssoc |
+		pre: [ :each | 
+			| parent recv client reifiedContext reifiedParentContext timedMessageSend |
+			"Retrive the parent of the `each` context, it is mandatory to have it."
 			parent := aTree parent: each ifAbsent: [ Error signal ].
-			model := metadata at: each.
 
-			"Reify the context but ignoring the metadata info."
+			"Reify the context but ignoring the metadata info because we want to draw
+			 the skeleton of the real objects that are involved and not their clones."
 			reifiedContext := each asContextReifiedFromWrapping.
+			reifiedParentContext := parent asContextReifiedFromWrapping.
 
-			client := parent asContextReifiedFromWrapping receiver.
+			client := reifiedParentContext receiver.
 			recv := reifiedContext receiver.
 
 			"Mark both `recv` and `client` as seen in order to stick an alias in the interpolation.
@@ -141,39 +142,26 @@ MWSpPresenter >> sequenceDiagramTree: aTree canvas: aCanvas [
 				ifAbsentPutOrderAt: client;
 				ifAbsentPutOrderAt: recv.
 
-			messageSend := (RSFullMessageSend
-				                receiver: recv
-				                selector: reifiedContext selector
-				                arguments: reifiedContext arguments)
-				               client: client;
-				               callerSelector:
-					               (metadata at: parent) reifiedContext selector;
-				               yourself.
-
-			span := TimespanDiscrete new
-				        start: model startTime asDateAndTime;
-				        duration: model duration;
-				        logicalStart: model visit x;
-				        logicalDuration: model visitDuration;
-				        yourself.
-
 			"Final addition of this entry."
-			anAssoc := span -> messageSend.
+			timedMessageSend := MWTimedMessageSend new
+				                    timespan: (self timespanOfContext: each);
+				                    messageSend: ((RSFullMessageSend
+						                      receiver: recv
+						                      selector: reifiedContext selector
+						                      arguments: reifiedContext arguments)
+						                     client: client;
+						                     callerSelector:
+							                     reifiedParentContext selector;
+						                     yourself);
+				                    yourself.
 
-			orderedCalls add: anAssoc.
-			levels at: anAssoc put: level.
+			timedMessageSends add: timedMessageSend.
 
 			"Such association is then passed in the `post:` block as second argument."
-			anAssoc ]
-		post: [ :each :anAssoc :level | 
-			| fullMessageSend returnMessageSend timespan returnTimespan returnAssoc |
-			fullMessageSend := anAssoc value.
-
-			returnMessageSend := fullMessageSend asReturnMessageSend
-				                     return: (metadata at: each) return;
-				                     yourself.
-
-			timespan := anAssoc key.
+			timedMessageSend ]
+		post: [ :each :timedMessageSend | 
+			| timespan returnTimespan returnTimedMessageSend |
+			timespan := timedMessageSend timespan.
 
 			returnTimespan := TimespanDiscrete new
 				                  start: timespan end;
@@ -181,15 +169,22 @@ MWSpPresenter >> sequenceDiagramTree: aTree canvas: aCanvas [
 				                  logicalStart: timespan logicalStart;
 				                  logicalDuration: timespan logicalDuration.
 
-			returnAssoc := returnTimespan -> returnMessageSend.
+			returnTimedMessageSend := MWTimedMessageSend new
+				                          timespan: returnTimespan;
+				                          messageSend:
+					                          (timedMessageSend messageSend
+						                           asReturnMessageSend
+						                           return: (metadata at: each) return;
+						                           yourself);
+				                          yourself.
 
-			orderedCalls add: returnAssoc.
-			levels at: returnAssoc put: level ].
+			timedMessageSends add: returnTimedMessageSend.
+
+			returnTimedMessageSend ].
 
 	builder := RSUMLSequenceBuilder new
 		           objectsSeenSoFar: objectsSeenSoFar;
-		           levels: levels;
-		           messagesSends: orderedCalls;
+		           messagesSends: timedMessageSends;
 		           previousHeaders: OrderedCollection new;
 		           previousMessagesSends: OrderedCollection new;
 		           build;
@@ -273,4 +268,17 @@ MWSpPresenter >> setModelBeforeInitialization: treeMetadataAssociation [
 				 at: #clients put: anArray first size;
 				 at: #receivers put: anArray second size;
 				 yourself) ]
+]
+
+{ #category : #'as yet unclassified' }
+MWSpPresenter >> timespanOfContext: each [
+
+	| model |
+	model := metadata at: each.
+	^ TimespanDiscrete new
+		  start: model startTime asDateAndTime;
+		  duration: model duration;
+		  logicalStart: model visit x;
+		  logicalDuration: model visitDuration;
+		  yourself
 ]
