@@ -3,7 +3,8 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'stackCounter',
-		'decorators'
+		'decorators',
+		'home'
 	],
 	#category : #MethodWrappers
 }
@@ -105,7 +106,7 @@ MWSession >> pushContext: aContext [
 { #category : #API }
 MWSession >> run: aSelector with: anArray in: aReceiver context: aContext wrapper: aWrapper [
 
-	^ stackCounter = 0
+	^ ((aContext hasSender: home) and: [ stackCounter = 0 ])
 		  run: aSelector
 		  with: anArray
 		  in: aReceiver
@@ -122,7 +123,9 @@ MWSession >> stackCounter: anObject [
 { #category : #'*MethodWrappers' }
 MWSession >> value: aBlock [
 
-	^ [ self do: [ :each | each install ] ]
-		  value: aBlock
-		  then: [ self do: [ :each | each uninstall ] ]
+	home := thisContext.
+
+	^ [ self do: [ :each | each install ] ] value: aBlock then: [ 
+		  self do: [ :each | each uninstall ].
+		  home := nil ]
 ]

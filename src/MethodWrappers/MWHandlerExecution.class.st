@@ -6,7 +6,8 @@ Class {
 	#superclass : #MWHandler,
 	#instVars : [
 		'tree',
-		'returns'
+		'returns',
+		'parent'
 	],
 	#category : #MethodWrappers
 }

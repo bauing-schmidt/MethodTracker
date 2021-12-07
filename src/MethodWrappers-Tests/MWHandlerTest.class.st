@@ -269,6 +269,56 @@ MWHandlerTest >> testCountSlowFactorial [
 ]
 
 { #category : #tests }
+MWHandlerTest >> testHeapWithAll [
+
+	| handlerTiming tree result handlerExecution handlerCopying metadata presenter |
+	tree := CTOrderPreservingTree new.
+
+	handlerExecution := MWHandlerExecution new
+		                    tree: tree;
+		                    yourself.
+
+	handlerTiming := MWHandlerTiming new
+		                 handler: handlerExecution;
+		                 yourself.
+
+	handlerCopying := MWHandlerReceiverArgumentsCopying new
+		                  handler: handlerTiming;
+		                  yourself.
+
+	result := (MWSession withAllImplementations: { 
+				           (Heap class >> #withAll:).
+				           (Heap >> #reSort).
+				           (Heap >> #downHeap:).
+				           (Heap >> #sorts:before:).
+				           (Integer >> #bitShift:) })
+		          add: (MWDecorator new
+				           compiledMethod: (Array lookupSelector: #at:put:);
+				           yourself);
+		          do: [ :each | each handler: handlerCopying ];
+		          value: [ 
+			          Heap withAll: ((1 to: 20) asArray
+					           shuffleBy: (Random seed: 17);
+					           yourself) ].
+
+	metadata := IdentityDictionary new.
+	handlerExecution metadata: metadata.
+	handlerCopying metadata: metadata.
+	handlerTiming metadata: metadata.
+
+	"Show here the new presenter."
+	presenter := MWSpPresenter on: tree -> metadata.
+	presenter treePresenter withRootsSelect: [ :aContext | 
+		aContext asContextReifiedFromWrapping selector = #withAll: ].
+	presenter openWithSpec.
+
+	self
+		assert: tree size equals: 1462;
+		assert: result array
+		equals: #( 1 2 7 3 4 8 11 9 5 6 10 15 17 12 19 20 14 16 13 18 )
+]
+
+{ #category : #tests }
 MWHandlerTest >> testProfileSlowFactorial [
 
 	| result tree metadata handlerExecution handlerTiming|
@@ -511,7 +561,7 @@ MWHandlerTest >> testSelfSendsSimple [
 				           (self class >> #selfSend2).
 				           (self class >> #selfSend3).
 				           (Integer >> #slowFibonacci).
-				           (Number >> #add:) })
+				           (Integer >> #+) })
 		          do: [ :each | each handler: handlerTiming ];
 		          value: [ self selfSend1 ].
 
@@ -523,7 +573,7 @@ MWHandlerTest >> testSelfSendsSimple [
 	(MWSpPresenter on: tree -> metadata) openWithSpec.
 
 	self
-		assert: tree size equals: 15;
+		assert: tree size equals: 33;
 		assert: result equals: (1 to: 20) asArray
 ]
 

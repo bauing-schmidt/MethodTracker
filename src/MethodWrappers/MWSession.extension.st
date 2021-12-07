@@ -9,7 +9,9 @@ MWSession >> do: aBlock [
 { #category : #'*MethodWrappers' }
 MWSession >> value: aBlock [
 
-	^ [ self do: [ :each | each install ] ]
-		  value: aBlock
-		  then: [ self do: [ :each | each uninstall ] ]
+	home := thisContext.
+
+	^ [ self do: [ :each | each install ] ] value: aBlock then: [ 
+		  self do: [ :each | each uninstall ].
+		  home := nil ]
 ]
