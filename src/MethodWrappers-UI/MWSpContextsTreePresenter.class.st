@@ -200,11 +200,3 @@ MWSpContextsTreePresenter >> whenTreeShownChangedDo: aBlock [
 
 		  aBlock value: treeShown ]
 ]
-
-{ #category : #enumerating }
-MWSpContextsTreePresenter >> withRootsSelect: aBlock [
-
-	treePresenter
-		roots: (tree roots select: aBlock);
-		refresh
-]

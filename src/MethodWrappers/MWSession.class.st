@@ -106,12 +106,21 @@ MWSession >> pushContext: aContext [
 { #category : #API }
 MWSession >> run: aSelector with: anArray in: aReceiver context: aContext wrapper: aWrapper [
 
-	^ ((aContext hasSender: home) and: [ stackCounter = 0 ])
-		  run: aSelector
-		  with: anArray
-		  in: aReceiver
-		  context: aContext
-		  wrapper: aWrapper
+	^ (stackCounter = 0 and: [ aContext hasSender: home ])
+		  ifTrue: [ 
+			  aWrapper
+				  run: aSelector
+				  with: anArray
+				  in: aReceiver
+				  context: aContext
+				  notSuspended: true ]
+		  ifFalse: [ 
+			  aWrapper
+				  run: aSelector
+				  with: anArray
+				  in: aReceiver
+				  context: aContext
+				  suspended: false ]
 ]
 
 { #category : #accessing }

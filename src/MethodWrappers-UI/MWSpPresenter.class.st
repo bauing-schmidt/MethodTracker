@@ -293,9 +293,3 @@ MWSpPresenter >> timespanOfContext: each [
 		  logicalDuration: model visitDuration;
 		  yourself
 ]
-
-{ #category : #accessing }
-MWSpPresenter >> treePresenter [
-
-	^ treePresenter
-]

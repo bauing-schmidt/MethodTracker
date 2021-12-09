@@ -271,7 +271,7 @@ MWHandlerTest >> testCountSlowFactorial [
 { #category : #tests }
 MWHandlerTest >> testHeapWithAll [
 
-	| handlerTiming tree result handlerExecution handlerCopying metadata presenter |
+	| handlerTiming tree result handlerExecution handlerCopying metadata |
 	tree := CTOrderPreservingTree new.
 
 	handlerExecution := MWHandlerExecution new
@@ -307,13 +307,18 @@ MWHandlerTest >> testHeapWithAll [
 	handlerTiming metadata: metadata.
 
 	"Show here the new presenter."
-	presenter := MWSpPresenter on: tree -> metadata.
-	presenter treePresenter withRootsSelect: [ :aContext | 
-		aContext asContextReifiedFromWrapping selector = #withAll: ].
-	presenter openWithSpec.
+	tree := tree select: [ :aChild :aParent | 
+		        aChild == aParent
+			        ifTrue: [ 
+				        | method |
+				        method := aParent asContextReifiedFromWrapping method.
+				        method = (Heap class >> #withAll:) ]
+			        ifFalse: [ true ] ].
+
+	(MWSpPresenter on: tree -> metadata) openWithSpec.
 
 	self
-		assert: tree size equals: 1462;
+		assert: tree size equals: 74;
 		assert: result array
 		equals: #( 1 2 7 3 4 8 11 9 5 6 10 15 17 12 19 20 14 16 13 18 )
 ]
@@ -544,6 +549,41 @@ MWHandlerTest >> testProfileSlowFibonacciWithAddOnly [
 
 { #category : #tests }
 MWHandlerTest >> testSelfSendsSimple [
+
+	| handlerTiming tree metadata result handlerExecution |
+	tree := CTOrderPreservingTree new.
+
+	handlerExecution := MWHandlerExecution new
+		                    tree: tree;
+		                    yourself.
+
+	handlerTiming := MWHandlerTiming new
+		                 handler: handlerExecution;
+		                 yourself.
+
+	result := (MWSession withAllImplementations: { 
+				           (self class >> #selfSend1).
+				           (self class >> #selfSend2).
+				           (self class >> #selfSend3).
+				           (Integer >> #slowFibonacci).
+				           (Number >> #add:) })
+		          do: [ :each | each handler: handlerTiming ];
+		          value: [ self selfSend1 ].
+
+	metadata := IdentityDictionary new.
+	handlerExecution metadata: metadata.
+	handlerTiming metadata: metadata.
+
+	"Show here the new presenter."
+	(MWSpPresenter on: tree -> metadata) openWithSpec.
+
+	self
+		assert: tree size equals: 15;
+		assert: result equals: (1 to: 20) asArray
+]
+
+{ #category : #tests }
+MWHandlerTest >> testSelfSendsSimpleUsingPlus [
 
 	| handlerTiming tree metadata result handlerExecution |
 	tree := CTOrderPreservingTree new.
