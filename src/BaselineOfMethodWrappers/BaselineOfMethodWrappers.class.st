@@ -10,8 +10,18 @@ BaselineOfMethodWrappers >> baseline: spec [
 	<baseline>
 	spec for: #common do: [ 
 		self schmidtExtensions: spec.
+		self caotainersEssentials: spec.
 		self roassal3Heatmap: spec.
 		self ownPackages: spec ]
+]
+
+{ #category : #baselines }
+BaselineOfMethodWrappers >> caotainersEssentials: spec [
+
+	spec 
+		baseline: 'ContainersEssentials' 
+		with: [ spec repository: 'github://bauing-schmidt/Containers-Essentials:master/src' ]
+
 ]
 
 { #category : #baselines }
