@@ -154,7 +154,7 @@ MWHandlerTest >> testCountFooSingleWrapper [
 
 	self deny: (wrapper ifInstalled: [ true ] ifNotInstalled: [ false ]).
 
-	self assert: handler count equals: 1
+	self assert: handler count equals: 0
 ]
 
 { #category : #tests }
