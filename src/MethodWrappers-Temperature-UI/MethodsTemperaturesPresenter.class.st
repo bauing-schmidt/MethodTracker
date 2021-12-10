@@ -159,7 +159,7 @@ MethodsTemperaturesPresenter >> applyConfiguration [
 	checkboxShowMessageSendsArgs state:
 		(configuration at: #showMessageSendsArgs).
 
-	checkboxSkipTestPackages state: (configuration at: #skipTestPackages).
+	checkboxSkipTestPackages state: (configuration at: #skipTestPackages ifAbsent: [ false ]).
 
 	temperature text: self defaultCodeForTemperatureThreshold.
 
