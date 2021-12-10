@@ -9,17 +9,28 @@ BaselineOfMethodWrappers >> baseline: spec [
 
 	<baseline>
 	spec for: #common do: [ 
-		
 		self schmidtExtensions: spec.
-		
-		spec
-			package: 'MethodWrappers';
-			package: 'MethodWrappers-UI';
-			package: 'Roassal3-Heatmap'
-			with: [ 
-				spec repository: 'github://bauing-schmidt/Roassal3:production10/src' ];
-			package: 'MethodWrappers-Temperature';
-			package: 'MethodWrappers-Temperature-UI' ]
+		self roassal3Heatmap: spec.
+		self ownPackages: spec ]
+]
+
+{ #category : #baselines }
+BaselineOfMethodWrappers >> ownPackages: spec [
+
+	spec
+		package: 'MethodWrappers';
+		package: 'MethodWrappers-UI';
+		package: 'MethodWrappers-Temperature';
+		package: 'MethodWrappers-Temperature-UI';
+		package: 'MethodWrappers-Tests'
+]
+
+{ #category : #baselines }
+BaselineOfMethodWrappers >> roassal3Heatmap: spec [
+
+	spec package: 'Roassal3-Heatmap'
+		with: [ 
+			spec repository: 'github://bauing-schmidt/Roassal3:production10/src' ]
 ]
 
 { #category : #baselines }
