@@ -29,7 +29,8 @@ Class {
 		'checkboxInstallOnAllMethods',
 		'configuration',
 		'callsLog',
-		'checkboxShowMessageSendsArgs'
+		'checkboxShowMessageSendsArgs',
+		'checkboxSkipTestPackages'
 	],
 	#category : #'MethodWrappers-Temperature-UI'
 }
@@ -95,6 +96,7 @@ MethodsTemperaturesPresenter class >> defaultSpec [
 						    add: #do expand: true;
 						    add: 'Packages selection' expand: false;
 						    add: #checkboxInstallOnAllMethods expand: false;
+						    add: #checkboxSkipTestPackages expand: false;
 						    add: #packagesList expand: true;
 						    add: #packageNameText expand: false;
 						    add: 'CompiledMethod select block' expand: false;
@@ -157,6 +159,8 @@ MethodsTemperaturesPresenter >> applyConfiguration [
 	checkboxShowMessageSendsArgs state:
 		(configuration at: #showMessageSendsArgs).
 
+	checkboxSkipTestPackages state: (configuration at: #skipTestPackages).
+
 	temperature text: self defaultCodeForTemperatureThreshold.
 
 	do text: self defaultCodeForDoBehavior.
@@ -199,6 +203,7 @@ MethodsTemperaturesPresenter >> currentConfiguration [
 	conf at: #topWarmerMethods put: (configuration at: #topWarmerMethods).
 	conf at: #selectTopWarmerMethods put: checkbox state.
 	conf at: #showMessageSendsArgs put: checkboxShowMessageSendsArgs state.
+	conf at: #skipTestPackages put: checkboxSkipTestPackages state.
 	conf at: #defaultCodeForBarChartSorter put: barChartSorter text.
 	conf at: #defaultCodeForClassesSorter put: classesSorter text.
 	conf at: #defaultCodeForCompiledMethodSelection put: select text.
@@ -389,6 +394,14 @@ MethodsTemperaturesPresenter >> initializePresenters [
 			                               select enabled: aBoolean not ];
 		                               yourself.
 
+	checkboxSkipTestPackages := self newCheckBox
+		                            label: 'Skip test packages';
+		                            whenChangedDo: [ :aBoolean | 
+			                            self 
+				                            refreshPackagesTableWhenTextChanges:
+					                            packageNameText text ];
+		                            yourself.
+
 	allPackages := RPackageOrganizer default packages asOrderedCollection 
 		               sort: [ :a :b | a name < b name ].
 	selectedPackages := Set empty.
@@ -503,14 +516,14 @@ MethodsTemperaturesPresenter >> initializePresenters [
 
 	callsLog := (self instantiate: SpListPresenter)
 		            sortingBlock: [ :aWrapper :anotherWrapper | 
-			            aWrapper callsLog last key
-			            > anotherWrapper callsLog last key ];
+			            aWrapper callsLog last key logicalStart
+			            > anotherWrapper callsLog last key logicalStart ];
 		            display: [ :aWrapper | 
 			            aWrapper callsLog last in: [ :anAssoc | 
 					            String streamContents: [ :aStream | 
 							            | msg |
 							            aStream
-								            nextPutAll: anAssoc key asTime asString;
+								            nextPutAll: anAssoc key start asTimeString;
 								            nextPutAll: ': '.
 							            msg := checkboxShowMessageSendsArgs state
 								                   ifTrue: [ anAssoc value asString ]
@@ -590,13 +603,61 @@ MethodsTemperaturesPresenter >> methodTemperatureWrappersDo: aBlock [
 	 wrappers do: aBlock
 ]
 
+{ #category : #'dispatched commands' }
+MethodsTemperaturesPresenter >> overlappings: aCollection do: aBlock [
+
+	aCollection ifNotEmpty: [ 
+		| i j link |
+		link := nil.
+
+		i := 1.
+		[ i <= aCollection size ] whileTrue: [ 
+			| end current start each |
+			each := aCollection at: i.
+
+			start := each key logicalStart.
+			end := each key logicalEnd.
+
+			[ link isNotNil and: [ link value key logicalEnd <= start ] ] 
+				whileTrue: [ link := link nextLink ].
+
+			link := each ~~> link.
+
+			j := i + 1.
+			[ 
+			j <= aCollection size and: [ 
+				current := aCollection at: j.
+				current key logicalStart < end ] ] whileTrue: [ 
+				link := current ~~> link.
+
+				current value
+					ifSelfSend: [  ]
+					ifNotSelfSend: [ end := end min: current key logicalEnd ].
+
+				j := j + 1 ].
+
+
+			aBlock value: (OrderedCollection new
+					 addAll: link reversed;
+					 yourself).
+
+			i := j ] ]
+]
+
 { #category : #initialization }
 MethodsTemperaturesPresenter >> refreshPackagesTableWhenTextChanges: aString [
 
-	packagesList items: (aString ifEmpty: [ allPackages ] ifNotEmpty: [ 
-			 allPackages select: [ :currPackage | 
-				 currPackage name asLowercase includesSubstring:
-					 aString asLowercase ] ])
+	| packages |
+	packages := aString ifEmpty: [ allPackages ] ifNotEmpty: [ 
+		            allPackages select: [ :currPackage | 
+			            | bool |
+			            bool := aString match: currPackage name asString.
+			            bool and: [ 
+				            checkboxSkipTestPackages state
+					            ifTrue: [ currPackage isTestPackage not ]
+					            ifFalse: [ true ] ] ] ].
+		
+	packagesList items: packages
 ]
 
 { #category : #charting }
@@ -681,9 +742,13 @@ MethodsTemperaturesPresenter >> runInstallMethodTemperatureWrappersStCommand: aC
 
 	self installingWrappers: [ "First, allocate a wrapper for each compiled method selected by
 		 the given block (edited in the corresponding block presenter)."
-		wrappers := (MethodTemperatureWrapper
-				 forPackages: selectedPackages 
-				 selectMethod: self selectBlock).
+		wrappers := MWHandlerExecution
+			            tick: 0;
+			            forPackages: selectedPackages
+			            selectMethod: [ :aMethod | 
+				            self selectBlock
+					            value: aMethod
+					            value: selectedPackages ].
 
 		"Second, install the wrappers (possibly time-consuming)."
 		self methodTemperatureWrappersDo: [ :each | each install ] ]
@@ -695,6 +760,73 @@ MethodsTemperaturesPresenter >> runMeasureMethodsTemperaturesStCommand: aCommand
 	  measuringInProgress := measuringInProgress toggle
 			runMeasureMethodsTemperaturesStCommand: aCommand forMethodsTemperaturesPresenter: self;
 			yourself
+]
+
+{ #category : #'dispatched commands' }
+MethodsTemperaturesPresenter >> runSequenceDiagramMethodsTemperaturesStCommand: aCommand [
+
+	| orderedCalls shapes stackSelected objectsSeenSoFar |
+	orderedCalls := MWHandlerExecution callsLog.
+
+	shapes := OrderedCollection new.
+	objectsSeenSoFar := IdentityDictionary new.
+
+	stackSelected := SpConfirmDialog new
+		                 title: 'Question';
+		                 label: 'Stack interactions vertically?';
+		                 acceptLabel: 'Yes';
+		                 cancelLabel: 'No';
+		                 openModalWithSpec.
+
+	stackSelected
+		ifTrue: [ 
+			| previousOverlappings previousHeaders |
+			previousOverlappings := OrderedCollection new.
+			previousHeaders := OrderedCollection new.
+
+			self overlappings: orderedCalls do: [ :overlappings | 
+					| builder |
+					builder := RSUMLSequenceBuilder new
+						           objectsSeenSoFar: objectsSeenSoFar;
+						           previousMessagesSends: previousOverlappings;
+						           previousHeaders: previousHeaders;
+						           messagesSends: overlappings;
+						           build;
+						           yourself.
+
+					previousHeaders := builder modelDescriptor columns.
+					previousOverlappings := overlappings.
+
+					builder shapes ifNotEmpty: [ :nestedShapes | 
+						shapes add: (RSComposite new
+								 shapes: nestedShapes;
+								 yourself) ] ] ];
+		ifFalse: [ 
+			| builder |
+			builder := RSUMLSequenceBuilder new
+				           objectsSeenSoFar: objectsSeenSoFar;
+				           messagesSends: orderedCalls;
+				           previousHeaders: OrderedCollection new;
+				           previousMessagesSends: OrderedCollection new;
+				           build;
+				           yourself.
+
+			shapes add: builder canvas asShape ].
+
+	RSVerticalLineLayout new
+		verticalGap: -5;
+		alignLeft;
+		on: shapes.
+
+	RSCanvas new
+		addAll: shapes;
+		zoomToFit;
+		"in: [ :c | 
+			c svgExporter
+				zoomToShapes;
+				export ];"
+		addInteraction: RSCanvasController new;
+		open
 ]
 
 { #category : #charting }
@@ -709,7 +841,7 @@ MethodsTemperaturesPresenter >> scaleForHeatmap [
 MethodsTemperaturesPresenter >> selectBlock [
 
 	^ checkboxInstallOnAllMethods state 
-		ifTrue: [ [ :aMethod | true ] ] 
+		ifTrue: [ [ :aMethod :packages | true ] ] 
 		ifFalse: [ select evaluateCompiledMethod ]
 ]
 

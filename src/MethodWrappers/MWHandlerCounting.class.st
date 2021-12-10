@@ -16,31 +16,45 @@ wrappers detect: [ :e |  e value method = (PdmStandardNames>>#getOwnPersonIdForU
 ```
 "
 Class {
-	#name : #MethodTemperatureWrapper,
-	#superclass : #AbstractMethodWrapper,
+	#name : #MWHandlerCounting,
+	#superclass : #MWHandler,
 	#instVars : [
 		'count'
 	],
-	#category : #'MethodWrappers-Temperature'
+	#category : #MethodWrappers
 }
 
+{ #category : #evaluation }
+MWHandlerCounting >> add: a to: b [
+
+	^ a add: b
+]
+
 { #category : #accessing }
-MethodTemperatureWrapper >> count [ 
+MWHandlerCounting >> count [ 
 
 	^ count
 ]
 
 { #category : #initialization }
-MethodTemperatureWrapper >> initializeOn: aMethodReference [
+MWHandlerCounting >> initialize [
 
-	count := 0.
+	super initialize.
 
-	^ super initializeOn: aMethodReference
+	count := 0
 ]
 
 { #category : #evaluation }
-MethodTemperatureWrapper >> noticeExecutionWith: anArray in: aReceiver [
+MWHandlerCounting >> run: aSelector with: anArray in: aReceiver pre: aContext wrapper: aWrapper [
 
-	count := count + 1.
-	super noticeExecutionWith: anArray in: aReceiver
+	aWrapper
+		withSuspendWrapping: [ count := self add: count to: 1 ]
+		context: aContext.
+
+	^ super
+		  run: aSelector
+		  with: anArray
+		  in: aReceiver
+		  pre: aContext
+		  wrapper: aWrapper
 ]
