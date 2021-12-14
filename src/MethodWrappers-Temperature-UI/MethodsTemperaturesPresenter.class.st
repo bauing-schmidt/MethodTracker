@@ -159,7 +159,7 @@ MethodsTemperaturesPresenter >> applyConfiguration [
 	checkboxShowMessageSendsArgs state:
 		(configuration at: #showMessageSendsArgs).
 
-	checkboxSkipTestPackages state: (configuration at: #skipTestPackages).
+	checkboxSkipTestPackages state: (configuration at: #skipTestPackages ifAbsent: [ false ]).
 
 	temperature text: self defaultCodeForTemperatureThreshold.
 
@@ -951,7 +951,7 @@ MethodsTemperaturesPresenter >> xLabels: xLabels yLabels: yLabels matrix: matrix
 		           color: (Color black alpha: 0.3);
 		           y: (compiledMethods collect: #value);
 		           yourself: [ :plot | 
-			           plot shape cornerRadius: Float goldenRatio double ].
+			           plot shape cornerRadius: Float goldenRatio * 2 ].
 
 	chart := RSChart new
 		         addPlot: barPlot;
