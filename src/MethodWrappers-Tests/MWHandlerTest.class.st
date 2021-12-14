@@ -566,7 +566,8 @@ MWHandlerTest >> testSelfSendsSimple [
 				           (self class >> #selfSend2).
 				           (self class >> #selfSend3).
 				           (Integer >> #slowFibonacci).
-				           (Number >> #add:) })
+				           (Number >> #add:).
+				           (Interval lookupSelector: #asArray) })
 		          do: [ :each | each handler: handlerTiming ];
 		          value: [ self selfSend1 ].
 
@@ -580,7 +581,7 @@ MWHandlerTest >> testSelfSendsSimple [
 		openWithSpec.
 
 	self
-		assert: tree size equals: 15;
+		assert: tree size equals: 16;
 		assert: result equals: (1 to: 20) asArray
 ]
 
