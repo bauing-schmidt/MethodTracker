@@ -575,7 +575,9 @@ MWHandlerTest >> testSelfSendsSimple [
 	handlerTiming metadata: metadata.
 
 	"Show here the new presenter."
-	(MWSpPresenter on: tree -> metadata) openWithSpec.
+	(MWSpPresenter on: tree -> metadata)
+		useShapeSlotsDfsTree;
+		openWithSpec.
 
 	self
 		assert: tree size equals: 15;
@@ -691,7 +693,9 @@ MWHandlerTest >> testSequenceableCollectionMergeSortCopying [
 	handlerTiming metadata: metadata.
 
 	"Show here the new presenter."
-	(MWSpPresenter on: tree -> metadata) openWithSpec.
+	(MWSpPresenter on: tree -> metadata)
+		useShapeSlotsDfsTree;
+		openWithSpec.
 
 	self
 		assert: tree size equals: 81;
