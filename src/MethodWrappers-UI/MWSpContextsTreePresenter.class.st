@@ -181,22 +181,26 @@ MWSpContextsTreePresenter >> treePresenterDisplayBlock [
 				  nextPutAll: (metadata at: each) return asString ] ] ]
 ]
 
+{ #category : #'as yet unclassified' }
+MWSpContextsTreePresenter >> treeShown [
+
+	| treeShown |
+	treeShown := tree class new.
+
+	treePresenter allShownItems do: [ :each | 
+		| aParent witness |
+		witness := Object new.
+
+		aParent := tree parent: each ifAbsent: [ witness ].
+
+		aParent == witness ifFalse: [ treeShown parent: aParent child: each ] ].
+
+	^ treeShown
+]
+
 { #category : #initialization }
 MWSpContextsTreePresenter >> whenTreeShownChangedDo: aBlock [
 
 	^ treePresenter whenSelectionChangedDo: [ :selectedItem | 
-		  | treeShown |
-		  treeShown := tree class new.
-
-		  treePresenter allShownItems do: [ :each | 
-			  | aParent witness |
-			  witness := Object new.
-
-			  aParent := tree parent: each ifAbsent: [ witness ].
-
-			  aParent == witness ifFalse: [ 
-				  treeShown parent: aParent child: each ] ].
-
-
-		  aBlock value: treeShown ]
+		  aBlock value: self treeShown ]
 ]

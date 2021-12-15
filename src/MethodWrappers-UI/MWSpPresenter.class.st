@@ -20,12 +20,22 @@ MWSpPresenter >> connectPresenters [
 
 	treePresenter whenTreeShownChangedDo: [ :treeShown | 
 		sequenceDiagramPresenter script: [ :aCanvas | 
-			self sequenceDiagramTree: treeShown canvas: aCanvas ] ].
+			self sequenceDiagramTree: treeShown canvas: aCanvas.
+			
+			aCanvas
+				zoomToFit;
+				addInteraction: RSCanvasController new ] ].
 
 	exportButton action: [ 
 		sequenceDiagramPresenter canvas svgCairoExporter
 			zoomToShapesWithPadding: Float goldenPlatinumRatio * 2;
 			export ]
+]
+
+{ #category : #initialization }
+MWSpPresenter >> currentCanvas: aCanvas [
+
+	^ self sequenceDiagramTree: treePresenter treeShown canvas: aCanvas
 ]
 
 { #category : #initialization }
@@ -224,10 +234,9 @@ MWSpPresenter >> sequenceDiagramTree: aTree canvas: aCanvas [
 		alignLeft;
 		on: shapes.
 
-	aCanvas
-		addAll: shapes;
-		zoomToFit;
-		addInteraction: RSCanvasController new
+	^ aCanvas
+		  addAll: shapes;
+		  yourself
 ]
 
 { #category : #initialization }
