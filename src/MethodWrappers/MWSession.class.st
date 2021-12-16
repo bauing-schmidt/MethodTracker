@@ -88,7 +88,7 @@ MWSession >> initialize [
 
 	decorators := OrderedCollection new.
 
-	self stackCounter: 0
+	stackCounter := 0
 ]
 
 { #category : #'as yet unclassified' }
@@ -121,12 +121,6 @@ MWSession >> run: aSelector with: anArray in: aReceiver context: aContext wrappe
 				  in: aReceiver
 				  context: aContext
 				  suspended: false ]
-]
-
-{ #category : #accessing }
-MWSession >> stackCounter: anObject [
-
-	stackCounter := anObject
 ]
 
 { #category : #'*MethodWrappers' }
