@@ -62,10 +62,10 @@ MWSpPresenter >> initializePresenters [
 				                   evaluated: [ :aDictionary | 
 					                   (aDictionary at: #compiledMethod)
 						                   displayString ]);
-		                  addColumn: (SpStringTableColumn
+		                  "addColumn: (SpStringTableColumn
 				                   title: 'Clients'
 				                   evaluated: [ :aDictionary | 
-					                   aDictionary at: #clients ]);
+					                   aDictionary at: #clients ]);"
 		                  addColumn: (SpStringTableColumn
 				                   title: 'Receivers'
 				                   evaluated: [ :aDictionary | 

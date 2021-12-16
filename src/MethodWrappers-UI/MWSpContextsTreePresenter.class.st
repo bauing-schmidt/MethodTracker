@@ -9,6 +9,7 @@ Class {
 		'recvCheckbox',
 		'argsCheckbox',
 		'returnCheckbox',
+		'squaredErrorCheckbox',
 		'expandAllButton',
 		'collapseAllButton',
 		'showDetailsButton'
@@ -25,7 +26,7 @@ MWSpContextsTreePresenter >> connectPresenters [
 	collapseAllButton action: [ treePresenter collapseAll ].
 
 	showDetailsButton action: [ self openDetailsWithSpec ].
-	
+
 	treeRefreshDisplayBlock := [ :ann | 
 	                           treePresenter
 		                           display: self treePresenterDisplayBlock;
@@ -37,7 +38,9 @@ MWSpContextsTreePresenter >> connectPresenters [
 
 	argsCheckbox whenChangedDo: treeRefreshDisplayBlock.
 
-	returnCheckbox whenChangedDo: treeRefreshDisplayBlock
+	returnCheckbox whenChangedDo: treeRefreshDisplayBlock.
+
+	squaredErrorCheckbox whenChangedDo: treeRefreshDisplayBlock
 ]
 
 { #category : #initialization }
@@ -75,6 +78,11 @@ MWSpContextsTreePresenter >> initializePresenters [
 		                  state: true;
 		                  yourself.
 
+	squaredErrorCheckbox := self newCheckBox
+		                        label: 'Duration sq. err.';
+		                        state: true;
+		                        yourself.
+
 	treePresenter := tree asTreePresenter display:
 		                 self treePresenterDisplayBlock.
 
@@ -87,6 +95,7 @@ MWSpContextsTreePresenter >> initializePresenters [
 					  add: recvCheckbox;
 					  add: argsCheckbox;
 					  add: returnCheckbox;
+					  add: squaredErrorCheckbox;
 					  yourself)
 			 expand: false;
 			 add: treePresenter;
@@ -180,11 +189,13 @@ MWSpContextsTreePresenter >> treePresenterDisplayBlock [
 				  nextPutAll: ' → ';
 				  nextPutAll: (metadata at: each) return asString ].
 
-		  aStream
-			  nextPutAll: ' || ';
-			  nextPutAll: ((metadata at: each) duration
-				   - ((metadata at: each) statisticsArray fifth at: #durationAvg))
-					  asStringScaledUptoHours ] ]
+		  squaredErrorCheckbox state ifTrue: [ 
+			  aStream
+				  nextPutAll: ' (';
+				  nextPutAll: ((metadata at: each) duration
+					   - ((metadata at: each) statisticsArray fifth at: #durationAvg))
+						  squared totalSeconds asFloat asString;
+				  nextPutAll: ')' ] ] ]
 ]
 
 { #category : #'as yet unclassified' }

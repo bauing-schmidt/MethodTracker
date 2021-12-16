@@ -111,20 +111,14 @@ MWDecorator >> put: aMethod [
 { #category : #evaluation }
 MWDecorator >> run: aSelector with: anArray in: aReceiver [
 
-	| aContext |
 	self assert: aSelector = compiledMethod selector.
 
-	aContext := thisContext.
-
-	^ handler isNil
-		  ifTrue: [ self valueWithReceiver: aReceiver arguments: anArray ]
-		  ifFalse: [ 
-			  session
-				  run: aSelector
-				  with: anArray
-				  in: aReceiver
-				  context: aContext
-				  wrapper: self ]
+	^ session
+		  run: aSelector
+		  with: anArray
+		  in: aReceiver
+		  context: thisContext
+		  wrapper: self
 ]
 
 { #category : #'as yet unclassified' }
@@ -157,6 +151,32 @@ MWDecorator >> uninstall [
 MWDecorator >> valueWithReceiver: aReceiver arguments: anArray [
 
 	^ aReceiver withArgs: anArray executeMethod: compiledMethod
+]
+
+{ #category : #evaluation }
+MWDecorator >> valueWithReceiver: aReceiver arguments: anArray timed: model [
+
+	| result start |
+	start := self
+		         withSuspendWrapping: [ Time microsecondClockValue ]
+		         context: thisContext.
+
+	result := self valueWithReceiver: aReceiver arguments: anArray.
+
+	self
+		withSuspendWrapping: [ 
+			| duration now by |
+			now := Time microsecondClockValue.
+			by := 1.
+			now = start ifTrue: [ now := now + by ].
+			duration := start to: now by: by.
+
+			model
+				result: result;
+				duration: duration ]
+		context: thisContext.
+
+	^ result
 ]
 
 { #category : #evaluation }

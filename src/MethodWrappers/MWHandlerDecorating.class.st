@@ -54,3 +54,9 @@ MWHandlerDecorating >> run: aSelector with: anArray in: aReceiver pre: aContext 
 		  pre: aContext
 		  wrapper: aWrapper
 ]
+
+{ #category : #accessing }
+MWHandlerDecorating >> timedResult [
+
+	^ handler timedResult
+]
