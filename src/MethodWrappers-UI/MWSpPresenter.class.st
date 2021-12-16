@@ -62,6 +62,10 @@ MWSpPresenter >> initializePresenters [
 				                   evaluated: [ :aDictionary | 
 					                   (aDictionary at: #compiledMethod)
 						                   displayString ]);
+		                  addColumn: (SpStringTableColumn
+				                   title: 'Sends count'
+				                   evaluated: [ :aDictionary | 
+					                   aDictionary at: #count ]);
 		                  "addColumn: (SpStringTableColumn
 				                   title: 'Clients'
 				                   evaluated: [ :aDictionary | 
@@ -70,10 +74,6 @@ MWSpPresenter >> initializePresenters [
 				                   title: 'Receivers'
 				                   evaluated: [ :aDictionary | 
 					                   aDictionary at: #receivers ]);
-		                  addColumn: (SpStringTableColumn
-				                   title: 'Sends count'
-				                   evaluated: [ :aDictionary | 
-					                   aDictionary at: #count ]);
 		                  addColumn: (SpStringTableColumn
 				                   title: 'Cumulated duration'
 				                   evaluated: [ :aDictionary | 

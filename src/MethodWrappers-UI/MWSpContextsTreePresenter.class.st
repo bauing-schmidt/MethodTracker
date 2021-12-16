@@ -80,7 +80,7 @@ MWSpContextsTreePresenter >> initializePresenters [
 
 	squaredErrorCheckbox := self newCheckBox
 		                        label: 'Duration sq. err.';
-		                        state: true;
+		                        state: false;
 		                        yourself.
 
 	treePresenter := tree asTreePresenter display:
