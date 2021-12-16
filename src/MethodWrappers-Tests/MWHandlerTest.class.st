@@ -42,23 +42,19 @@ MWHandlerTest >> selfSend3 [
 { #category : #tests }
 MWHandlerTest >> testAddWithinDoObjectCentric [
 
-	| handlerTiming tree metadata result handlerExecution handlerCentric interval |
+	| tree metadata result handlerExecution handlerCentric interval |
 	tree := CTOrderPreservingTree new.
 
 	handlerExecution := MWHandlerExecution new
 		                    tree: tree;
 		                    yourself.
 
-	handlerTiming := MWHandlerTiming new
-		                 handler: handlerExecution;
-		                 yourself.
-
 	interval := 1 to: 20.
 
 	handlerCentric := MWHandlerObjectCentric new
 		                  predicate: [ :recv :args | 
 			                  recv == interval or: [ recv even ] ];
-		                  handler: handlerTiming;
+		                  handler: handlerExecution;
 		                  yourself.
 
 	result := (MWSession withAllImplementations: { 
@@ -69,7 +65,6 @@ MWHandlerTest >> testAddWithinDoObjectCentric [
 
 	metadata := IdentityDictionary new.
 	handlerExecution metadata: metadata.
-	handlerTiming metadata: metadata.
 
 	"Show here the new presenter."
 	(MWSpPresenter on: tree -> metadata) openWithSpec.
@@ -82,28 +77,23 @@ MWHandlerTest >> testAddWithinDoObjectCentric [
 { #category : #tests }
 MWHandlerTest >> testAddWithinDoª [
 
-	| handlerTiming tree metadata result handlerExecution |
+	| tree metadata result handlerExecution |
 	tree := CTOrderPreservingTree new.
 
 	handlerExecution := MWHandlerExecution new
 		                    tree: tree;
 		                    yourself.
 
-	handlerTiming := MWHandlerTiming new
-		                 handler: handlerExecution;
-		                 yourself.
-
 	result := (MWSession withAllImplementations: { 
 				           (Collection >> #doª:).
 				           (Number >> #add:) })
-		          do: [ :each | each handler: handlerTiming ];
+		          do: [ :each | each handler: handlerExecution ];
 		          value: [ 
 			          (1 to: 20) doª: [ :each | each add: 4 ].
 			          (1 to: 5) doª: [ :each | each - 4 ] ].
 
 	metadata := IdentityDictionary new.
 	handlerExecution metadata: metadata.
-	handlerTiming metadata: metadata.
 
 	"Show here the new presenter."
 	(MWSpPresenter on: tree -> metadata) openWithSpec.
@@ -271,19 +261,15 @@ MWHandlerTest >> testCountSlowFactorial [
 { #category : #tests }
 MWHandlerTest >> testHeapWithAll [
 
-	| handlerTiming tree result handlerExecution handlerCopying metadata |
+	| tree result handlerExecution handlerCopying metadata |
 	tree := CTOrderPreservingTree new.
 
 	handlerExecution := MWHandlerExecution new
 		                    tree: tree;
 		                    yourself.
 
-	handlerTiming := MWHandlerTiming new
-		                 handler: handlerExecution;
-		                 yourself.
-
 	handlerCopying := MWHandlerReceiverArgumentsCopying new
-		                  handler: handlerTiming;
+		                  handler: handlerExecution;
 		                  yourself.
 
 	result := (MWSession withAllImplementations: { 
@@ -304,7 +290,6 @@ MWHandlerTest >> testHeapWithAll [
 	metadata := IdentityDictionary new.
 	handlerExecution metadata: metadata.
 	handlerCopying metadata: metadata.
-	handlerTiming metadata: metadata.
 
 	"Show here the new presenter."
 	tree := tree select: [ :aChild :aParent | 
@@ -326,27 +311,22 @@ MWHandlerTest >> testHeapWithAll [
 { #category : #tests }
 MWHandlerTest >> testProfileSlowFactorial [
 
-	| result tree metadata handlerExecution handlerTiming|
+	| result tree metadata handlerExecution |
 	tree := CTOrderPreservingTree new.
 
 	handlerExecution := MWHandlerExecution new
 		                    tree: tree;
 		                    yourself.
 
-	handlerTiming := MWHandlerTiming new
-		                 handler: handlerExecution;
-		                 yourself.
-
 	result := MWSession new
 		          add: (MWDecorator new
 				           compiledMethod: Integer >> #slowFactorial;
-				           handler: handlerTiming;
+				           handler: handlerExecution;
 				           yourself);
 		          value: [ 5 slowFactorial ].
 
 	metadata := IdentityDictionary new.
 	handlerExecution metadata: metadata.
-	handlerTiming metadata: metadata.
 
 	"Show here the new presenter."
 	(MWSpPresenter on: tree -> metadata) openWithSpec.
@@ -359,27 +339,22 @@ MWHandlerTest >> testProfileSlowFactorial [
 { #category : #tests }
 MWHandlerTest >> testProfileSlowFibonacci [
 
-	| handlerExecution tree metadata result handlerTiming |
+	| handlerExecution tree metadata result |
 	tree := CTOrderPreservingTree new.
 
 	handlerExecution := MWHandlerExecution new
 		                    tree: tree;
 		                    yourself.
 
-	handlerTiming := MWHandlerTiming new
-		                 handler: handlerExecution;
-		                 yourself.
-
 	result := MWSession new
 		          add: (MWDecorator new
 				           compiledMethod: Integer >> #slowFibonacci;
-				           handler: handlerTiming;
+				           handler: handlerExecution;
 				           yourself);
 		          value: [ 10 slowFibonacci ].
 
 	metadata := IdentityDictionary new.
 	handlerExecution metadata: metadata.
-	handlerTiming metadata: metadata.
 
 	"Show here the new presenter."
 	(MWSpPresenter on: tree -> metadata) openWithSpec.
@@ -392,7 +367,7 @@ MWHandlerTest >> testProfileSlowFibonacci [
 { #category : #tests }
 MWHandlerTest >> testProfileSlowFibonacciMemoing [
 
-	| handlerCounting handler tree handlerTiming result handlerExecution metadata |
+	| handlerCounting handler tree result handlerExecution metadata |
 	tree := CTOrderPreservingTree new.
 
 	handlerCounting := MWHandlerCounting new.
@@ -401,12 +376,8 @@ MWHandlerTest >> testProfileSlowFibonacciMemoing [
 		                    tree: tree;
 		                    yourself.
 
-	handlerTiming := MWHandlerTiming new
-		                 handler: handlerExecution;
-		                 yourself.
-
 	handler := MWHandlerMemoing new
-		           handler: handlerTiming;
+		           handler: handlerExecution;
 		           yourself.
 
 	result := (MWSession withAllImplementations: { (Number >> #add:) })
@@ -419,7 +390,6 @@ MWHandlerTest >> testProfileSlowFibonacciMemoing [
 
 	metadata := IdentityDictionary new.
 	handlerExecution metadata: metadata.
-	handlerTiming metadata: metadata.
 
 	"Show here the new presenter."
 	(MWSpPresenter on: tree -> metadata) openWithSpec.
@@ -433,25 +403,21 @@ MWHandlerTest >> testProfileSlowFibonacciMemoing [
 { #category : #tests }
 MWHandlerTest >> testProfileSlowFibonacciTailWithAdd [
 
-	| wrapper handlerExecution tree metadata result wrapperAdd handlerTiming |
+	| wrapper handlerExecution tree metadata result wrapperAdd |
 	tree := CTOrderPreservingTree new.
 
 	handlerExecution := MWHandlerExecution new
 		                    tree: tree;
 		                    yourself.
 
-	handlerTiming := MWHandlerTiming new
-		                 handler: handlerExecution;
-		                 yourself.
-
 	wrapper := MWDecorator new
 		           compiledMethod: Integer >> #slowFibonacci:tail:;
-		           handler: handlerTiming;
+		           handler: handlerExecution;
 		           yourself.
 
 	wrapperAdd := MWDecorator new
 		              compiledMethod: Number >> #add:;
-		              handler: handlerTiming;
+		              handler: handlerExecution;
 		              yourself.
 
 	result := MWSession new
@@ -461,7 +427,6 @@ MWHandlerTest >> testProfileSlowFibonacciTailWithAdd [
 
 	metadata := IdentityDictionary new.
 	handlerExecution metadata: metadata.
-	handlerTiming metadata: metadata.
 
 	"Show here the new presenter."
 	(MWSpPresenter on: tree -> metadata) openWithSpec.
@@ -474,25 +439,21 @@ MWHandlerTest >> testProfileSlowFibonacciTailWithAdd [
 { #category : #tests }
 MWHandlerTest >> testProfileSlowFibonacciWithAdd [
 
-	| wrapper handlerExecution handlerTiming tree metadata result wrapperAdd |
+	| wrapper handlerExecution tree metadata result wrapperAdd |
 	tree := CTOrderPreservingTree new.
 
 	handlerExecution := MWHandlerExecution new
 		                    tree: tree;
 		                    yourself.
 
-	handlerTiming := MWHandlerTiming new
-		                 handler: handlerExecution;
-		                 yourself.
-
 	wrapper := MWDecorator new
 		           compiledMethod: Integer >> #slowFibonacci;
-		           handler: handlerTiming;
+		           handler: handlerExecution;
 		           yourself.
 
 	wrapperAdd := MWDecorator new
 		              compiledMethod: Number >> #add:;
-		              handler: handlerTiming;
+		              handler: handlerExecution;
 		              yourself.
 
 	result := MWSession new
@@ -502,7 +463,6 @@ MWHandlerTest >> testProfileSlowFibonacciWithAdd [
 
 	metadata := IdentityDictionary new.
 	handlerExecution metadata: metadata.
-	handlerTiming metadata: metadata.
 
 	"Show here the new presenter."
 	(MWSpPresenter on: tree -> metadata) openWithSpec.
@@ -515,20 +475,16 @@ MWHandlerTest >> testProfileSlowFibonacciWithAdd [
 { #category : #tests }
 MWHandlerTest >> testProfileSlowFibonacciWithAddOnly [
 
-	| handlerExecution handlerTiming tree metadata result wrapperAdd |
+	| handlerExecution tree metadata result wrapperAdd |
 	tree := CTOrderPreservingTree new.
 
 	handlerExecution := MWHandlerExecution new
 		                    tree: tree;
 		                    yourself.
 
-	handlerTiming := MWHandlerTiming new
-		                 handler: handlerExecution;
-		                 yourself.
-
 	wrapperAdd := MWDecorator new
 		              compiledMethod: Number >> #add:;
-		              handler: handlerTiming;
+		              handler: handlerExecution;
 		              yourself.
 
 	result := MWSession new
@@ -537,7 +493,6 @@ MWHandlerTest >> testProfileSlowFibonacciWithAddOnly [
 
 	metadata := IdentityDictionary new.
 	handlerExecution metadata: metadata.
-	handlerTiming metadata: metadata.
 
 	"Show here the new presenter."
 	(MWSpPresenter on: tree -> metadata) openWithSpec.
@@ -550,16 +505,12 @@ MWHandlerTest >> testProfileSlowFibonacciWithAddOnly [
 { #category : #tests }
 MWHandlerTest >> testSelfSendsSimple [
 
-	| handlerTiming tree metadata result handlerExecution |
+	|  tree metadata result handlerExecution |
 	tree := CTOrderPreservingTree new.
 
 	handlerExecution := MWHandlerExecution new
 		                    tree: tree;
 		                    yourself.
-
-	handlerTiming := MWHandlerTiming new
-		                 handler: handlerExecution;
-		                 yourself.
 
 	result := (MWSession withAllImplementations: { 
 				           (self class >> #selfSend1).
@@ -568,12 +519,11 @@ MWHandlerTest >> testSelfSendsSimple [
 				           (Integer >> #slowFibonacci).
 				           (Number >> #add:).
 				           (Interval lookupSelector: #asArray) })
-		          do: [ :each | each handler: handlerTiming ];
+		          do: [ :each | each handler: handlerExecution ];
 		          value: [ self selfSend1 ].
 
 	metadata := IdentityDictionary new.
 	handlerExecution metadata: metadata.
-	handlerTiming metadata: metadata.
 
 	"Show here the new presenter."
 	(MWSpPresenter on: tree -> metadata)
@@ -588,16 +538,12 @@ MWHandlerTest >> testSelfSendsSimple [
 { #category : #tests }
 MWHandlerTest >> testSelfSendsSimpleUsingPlus [
 
-	| handlerTiming tree metadata result handlerExecution |
+	| tree metadata result handlerExecution |
 	tree := CTOrderPreservingTree new.
 
 	handlerExecution := MWHandlerExecution new
 		                    tree: tree;
 		                    yourself.
-
-	handlerTiming := MWHandlerTiming new
-		                 handler: handlerExecution;
-		                 yourself.
 
 	result := (MWSession withAllImplementations: { 
 				           (self class >> #selfSend1).
@@ -605,12 +551,11 @@ MWHandlerTest >> testSelfSendsSimpleUsingPlus [
 				           (self class >> #selfSend3).
 				           (Integer >> #slowFibonacci).
 				           (Integer >> #+) })
-		          do: [ :each | each handler: handlerTiming ];
+		          do: [ :each | each handler: handlerExecution ];
 		          value: [ self selfSend1 ].
 
 	metadata := IdentityDictionary new.
 	handlerExecution metadata: metadata.
-	handlerTiming metadata: metadata.
 
 	"Show here the new presenter."
 	(MWSpPresenter on: tree -> metadata) openWithSpec.
@@ -623,16 +568,12 @@ MWHandlerTest >> testSelfSendsSimpleUsingPlus [
 { #category : #tests }
 MWHandlerTest >> testSequenceableCollectionMergeSort [
 
-	| handlerTiming tree metadata result handlerExecution |
+	| tree metadata result handlerExecution |
 	tree := CTOrderPreservingTree new.
 
 	handlerExecution := MWHandlerExecution new
 		                    tree: tree;
 		                    yourself.
-
-	handlerTiming := MWHandlerTiming new
-		                 handler: handlerExecution;
-		                 yourself.
 
 	result := (MWSession withAllImplementations: { 
 				           (SequenceableCollection >> #sort).
@@ -643,12 +584,11 @@ MWHandlerTest >> testSequenceableCollectionMergeSort [
 				            >> #mergeSortFrom:to:src:dst:by:).
 				           (SequenceableCollection
 				            >> #replaceFrom:to:with:startingAt:) })
-		          do: [ :each | each handler: handlerTiming ];
+		          do: [ :each | each handler: handlerExecution ];
 		          value: [ (1 to: 20) shuffled sort ].
 
 	metadata := IdentityDictionary new.
 	handlerExecution metadata: metadata.
-	handlerTiming metadata: metadata.
 
 	"Show here the new presenter."
 	(MWSpPresenter on: tree -> metadata) openWithSpec.
@@ -661,19 +601,15 @@ MWHandlerTest >> testSequenceableCollectionMergeSort [
 { #category : #tests }
 MWHandlerTest >> testSequenceableCollectionMergeSortCopying [
 
-	| handlerTiming tree result handlerExecution handlerCopying metadata |
+	| tree result handlerExecution handlerCopying metadata |
 	tree := CTOrderPreservingTree new.
 
 	handlerExecution := MWHandlerExecution new
 		                    tree: tree;
 		                    yourself.
 
-	handlerTiming := MWHandlerTiming new
-		                 handler: handlerExecution;
-		                 yourself.
-
 	handlerCopying := MWHandlerReceiverArgumentsCopying new
-		                  handler: handlerTiming;
+		                  handler: handlerExecution;
 		                  yourself.
 
 	result := (MWSession withAllImplementations: { 
@@ -691,7 +627,6 @@ MWHandlerTest >> testSequenceableCollectionMergeSortCopying [
 	metadata := IdentityDictionary new.
 	handlerExecution metadata: metadata.
 	handlerCopying metadata: metadata.
-	handlerTiming metadata: metadata.
 
 	"Show here the new presenter."
 	(MWSpPresenter on: tree -> metadata)
@@ -706,19 +641,15 @@ MWHandlerTest >> testSequenceableCollectionMergeSortCopying [
 { #category : #tests }
 MWHandlerTest >> testSequenceableCollectionMergeSortCopyingDetailed [
 
-	| handlerTiming tree metadata result handlerExecution handlerCopying |
+	| tree metadata result handlerExecution handlerCopying |
 	tree := CTOrderPreservingTree new.
 
 	handlerExecution := MWHandlerExecution new
 		                    tree: tree;
 		                    yourself.
 
-	handlerTiming := MWHandlerTiming new
-		                 handler: handlerExecution;
-		                 yourself.
-
 	handlerCopying := MWHandlerReceiverArgumentsCopying new
-		                  handler: handlerTiming;
+		                  handler: handlerExecution;
 		                  yourself.
 
 	result := (MWSession withAllImplementations: { 
@@ -740,7 +671,6 @@ MWHandlerTest >> testSequenceableCollectionMergeSortCopyingDetailed [
 	metadata := IdentityDictionary new.
 	handlerExecution metadata: metadata.
 	handlerCopying metadata: metadata.
-	handlerTiming metadata: metadata.
 
 	"Show here the new presenter."
 	(MWSpPresenter on: tree -> metadata) openWithSpec.
@@ -753,7 +683,7 @@ MWHandlerTest >> testSequenceableCollectionMergeSortCopyingDetailed [
 { #category : #tests }
 MWHandlerTest >> testSequenceableCollectionMergeSortPlugging [
 
-	| handlerTiming tree metadata result handlerExecution handlerBlockPlugging |
+	| tree metadata result handlerExecution handlerBlockPlugging |
 	tree := CTOrderPreservingTree new.
 
 	handlerExecution := MWHandlerExecution new
@@ -766,10 +696,6 @@ MWHandlerTest >> testSequenceableCollectionMergeSortPlugging [
 			                        (1 to: 20) shuffled sort ];
 		                        yourself.
 
-	handlerTiming := MWHandlerTiming new
-		                 handler: handlerBlockPlugging;
-		                 yourself.
-
 	result := (MWSession withAllImplementations: { 
 				           (SequenceableCollection >> #sort).
 				           (SequenceableCollection >> #mergeSortFrom:to:by:).
@@ -779,12 +705,12 @@ MWHandlerTest >> testSequenceableCollectionMergeSortPlugging [
 				            >> #mergeSortFrom:to:src:dst:by:).
 				           (SequenceableCollection
 				            >> #replaceFrom:to:with:startingAt:) })
-		          do: [ :each | each handler: handlerTiming ];
+		          do: [ :each | each handler: handlerBlockPlugging ];
 		          value: [ (1 to: 20) shuffled sort ].
 
 	metadata := IdentityDictionary new.
 	handlerExecution metadata: metadata.
-	handlerTiming metadata: metadata.
+	handlerBlockPlugging metadata: metadata.
 
 	"Show here the new presenter."
 	(MWSpPresenter on: tree -> metadata) openWithSpec.
@@ -797,7 +723,7 @@ MWHandlerTest >> testSequenceableCollectionMergeSortPlugging [
 { #category : #tests }
 MWHandlerTest >> testTimingSlowFibonacciMemoing [
 
-	| handlerTiming handlerMemoing tree metadata result handlerExecution |
+	| handlerMemoing tree metadata result handlerExecution |
 	tree := CTOrderPreservingTree new.
 
 	handlerExecution := MWHandlerExecution new
@@ -808,20 +734,16 @@ MWHandlerTest >> testTimingSlowFibonacciMemoing [
 		                  handler: handlerExecution;
 		                  yourself.
 
-	handlerTiming := MWHandlerTiming new
-		                 handler: handlerMemoing;
-		                 yourself.
-
 	result := MWSession new
 		          add: (MWDecorator new
 				           compiledMethod: Integer >> #slowFibonacci;
-				           handler: handlerTiming;
+				           handler: handlerMemoing;
 				           yourself);
 		          value: [ 10 slowFibonacci ].
 
 	metadata := IdentityDictionary new.
 	handlerExecution metadata: metadata.
-	handlerTiming metadata: metadata.
+	handlerMemoing metadata: metadata.
 
 	"Show here the new presenter."
 	(MWSpPresenter on: tree -> metadata) openWithSpec.

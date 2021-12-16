@@ -6,8 +6,8 @@ Class {
 	#superclass : #MWHandler,
 	#instVars : [
 		'tree',
-		'returns',
-		'parent'
+		'runWithInMethod',
+		'timedReturns'
 	],
 	#category : #MethodWrappers
 }
@@ -23,7 +23,9 @@ MWHandlerExecution >> initialize [
 
 	super initialize.
 
-	returns := IdentityDictionary new
+	runWithInMethod := MWDecorator >> #run:with:in:.
+	
+	timedReturns := IdentityDictionary new
 ]
 
 { #category : #accessing }
@@ -38,7 +40,7 @@ MWHandlerExecution >> metadata: metadata [
 
 	tree
 		pre: [ :each | 
-			| eachReified key model |
+			| eachReified key model timedResult |
 			eachReified := each asContextReifiedFromWrapping.
 
 			model := metadata
@@ -54,7 +56,14 @@ MWHandlerExecution >> metadata: metadata [
 					 ifFalse: [ 
 					 (metadata at: model parent) reifiedContext receiver just ]).
 
-			model return: (returns at: each).
+			timedResult := timedReturns at: each.
+
+			model return: timedResult result.
+
+			model duration: (Duration microSeconds: timedResult duration size).
+
+			model startTime:
+				(DateAndTime fromSeconds: timedResult duration first / 1e6) asTime.
 
 			key := Array with: eachReified receiver with: eachReified selector.
 
@@ -84,11 +93,27 @@ MWHandlerExecution >> metadata: metadata [
 	^ metadata
 ]
 
-{ #category : #evaluation }
-MWHandlerExecution >> run: aSelector with: anArray in: aReceiver post: aContext carry: carry return: anObject wrapper: aWrapper [
+{ #category : #hooks }
+MWHandlerExecution >> run: aSelector with: anArray in: aReceiver context: aContext carry: carry wrapper: aWrapper [
+
+	| timedResult |
+	timedResult := aWrapper
+		               withSuspendWrapping: [ MWTimedExecResult new ]
+		               context: aContext.
 
 	aWrapper
-		withSuspendWrapping: [ returns at: aContext put: anObject ]
+		valueWithReceiver: aReceiver
+		arguments: anArray
+		timed: timedResult.
+
+	^ timedResult
+]
+
+{ #category : #evaluation }
+MWHandlerExecution >> run: aSelector with: anArray in: aReceiver post: aContext carry: carry return: aTimedResult wrapper: aWrapper [
+
+	aWrapper
+		withSuspendWrapping: [ timedReturns at: aContext put: aTimedResult ]
 		context: aContext.
 
 	^ super
@@ -97,7 +122,7 @@ MWHandlerExecution >> run: aSelector with: anArray in: aReceiver post: aContext 
 		  in: aReceiver
 		  post: aContext
 		  carry: carry
-		  return: anObject
+		  return: aTimedResult result
 		  wrapper: aWrapper
 ]
 
@@ -106,9 +131,7 @@ MWHandlerExecution >> run: aSelector with: anArray in: aReceiver pre: aContext w
 
 	aWrapper
 		withSuspendWrapping: [ :aJust | 
-			| aParent runWithInMethod |
-			runWithInMethod := MWDecorator >> #run:with:in:.
-
+			| aParent |
 			aParent := aContext sender findContextSuchThat: [ :ctx | 
 				           runWithInMethod = ctx method ].
 

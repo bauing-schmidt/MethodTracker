@@ -18,22 +18,25 @@ MWHandlerReceiverArgumentsCopying >> initialize [
 { #category : #hooks }
 MWHandlerReceiverArgumentsCopying >> run: aSelector with: anArray in: aReceiver post: aContext carry: carry return: anObject wrapper: aWrapper [
 
+	| result |
+	result := super
+		          run: aSelector
+		          with: anArray
+		          in: aReceiver
+		          post: aContext
+		          carry: carry
+		          return: anObject
+		          wrapper: aWrapper.
+
 	aWrapper
 		withSuspendWrapping: [ 
 			| anAssoc message |
 			anAssoc := table at: aContext.
 			message := anAssoc value.
-			anAssoc value: (message return: anObject copy) ]
+			anAssoc value: (message return: result copy) ]
 		context: aContext.
 
-	^ super
-		  run: aSelector
-		  with: anArray
-		  in: aReceiver
-		  post: aContext
-		  carry: carry
-		  return: anObject
-		  wrapper: aWrapper
+	^ result
 ]
 
 { #category : #evaluation }
