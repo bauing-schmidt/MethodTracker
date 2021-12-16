@@ -178,7 +178,13 @@ MWSpContextsTreePresenter >> treePresenterDisplayBlock [
 		  returnCheckbox state ifTrue: [ 
 			  aStream
 				  nextPutAll: ' → ';
-				  nextPutAll: (metadata at: each) return asString ] ] ]
+				  nextPutAll: (metadata at: each) return asString ].
+
+		  aStream
+			  nextPutAll: ' || ';
+			  nextPutAll: ((metadata at: each) duration
+				   - ((metadata at: each) statisticsArray fifth at: #durationAvg))
+					  asStringScaledUptoHours ] ]
 ]
 
 { #category : #'as yet unclassified' }

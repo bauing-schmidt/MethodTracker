@@ -255,7 +255,10 @@ MWSpPresenter >> setModelBeforeInitialization: treeMetadataAssociation [
 					           IdentitySet new.
 					           IdentitySet new.
 					           0.
-					           OrderedCollection new } ].
+					           OrderedCollection new.
+					           nil } ].
+
+		model statisticsArray: anArray.
 
 		(anArray at: 1) add: ((metadata at: each) client
 				 ifNothing: [ Object new ]
@@ -266,7 +269,7 @@ MWSpPresenter >> setModelBeforeInitialization: treeMetadataAssociation [
 
 	tableItems := OrderedCollection new.
 	methodCountDurationDictionary keysAndValuesDo: [ :aMethod :anArray | 
-		| duration durationAvg durationMinSquaresSum count durationStDev durations |
+		| row duration durationAvg durationMinSquaresSum count durationStDev durations |
 		count := anArray third.
 		durations := anArray fourth.
 
@@ -289,16 +292,20 @@ MWSpPresenter >> setModelBeforeInitialization: treeMetadataAssociation [
 			                 ifTrue: [ 
 			                 (durationMinSquaresSum / (count - 1)) sqrt ]
 			                 ifFalse: [ 0 ].
+		row := Dictionary new
+			       at: #compiledMethod put: aMethod;
+			       at: #count put: count;
+			       at: #duration put: (Duration nanoSeconds: duration);
+			       at: #durationAvg put: (Duration nanoSeconds: durationAvg);
+			       at: #durationStDev
+			       put: (Duration nanoSeconds: durationStDev);
+			       at: #clients put: anArray first size;
+			       at: #receivers put: anArray second size;
+			       yourself.
 
-		tableItems add: (Dictionary new
-				 at: #compiledMethod put: aMethod;
-				 at: #count put: count;
-				 at: #duration put: (Duration nanoSeconds: duration);
-				 at: #durationAvg put: (Duration nanoSeconds: durationAvg);
-				 at: #durationStDev put: (Duration nanoSeconds: durationStDev);
-				 at: #clients put: anArray first size;
-				 at: #receivers put: anArray second size;
-				 yourself) ]
+		tableItems add: row.
+
+		anArray at: 5 put: row ]
 ]
 
 { #category : #'as yet unclassified' }
