@@ -2,7 +2,7 @@
 I am a variant that waits a delay before returning from the hook notification message.
 "
 Class {
-	#name : #MWHandlerExecution,
+	#name : #MWHandlerProfiling,
 	#superclass : #MWHandler,
 	#instVars : [
 		'tree',
@@ -13,13 +13,13 @@ Class {
 }
 
 { #category : #accessing }
-MWHandlerExecution >> at: aContext ifAbsent: aBlock [
+MWHandlerProfiling >> at: aContext ifAbsent: aBlock [
 
 	^ tree parent: aContext ifAbsent: aBlock
 ]
 
 { #category : #initialization }
-MWHandlerExecution >> initialize [
+MWHandlerProfiling >> initialize [
 
 	super initialize.
 
@@ -29,7 +29,7 @@ MWHandlerExecution >> initialize [
 ]
 
 { #category : #accessing }
-MWHandlerExecution >> metadata: metadata [
+MWHandlerProfiling >> metadata: metadata [
 
 	| occurrences ticks selector |
 	ticks := 1.
@@ -94,7 +94,7 @@ MWHandlerExecution >> metadata: metadata [
 ]
 
 { #category : #hooks }
-MWHandlerExecution >> run: aSelector with: anArray in: aReceiver context: aContext carry: carry wrapper: aWrapper [
+MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver context: aContext carry: carry wrapper: aWrapper [
 
 	| timedResult |
 	timedResult := aWrapper
@@ -110,7 +110,7 @@ MWHandlerExecution >> run: aSelector with: anArray in: aReceiver context: aConte
 ]
 
 { #category : #evaluation }
-MWHandlerExecution >> run: aSelector with: anArray in: aReceiver post: aContext carry: carry return: aTimedResult wrapper: aWrapper [
+MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver post: aContext carry: carry return: aTimedResult wrapper: aWrapper [
 
 	aWrapper
 		withSuspendWrapping: [ timedReturns at: aContext put: aTimedResult ]
@@ -127,7 +127,7 @@ MWHandlerExecution >> run: aSelector with: anArray in: aReceiver post: aContext 
 ]
 
 { #category : #evaluation }
-MWHandlerExecution >> run: aSelector with: anArray in: aReceiver pre: aContext wrapper: aWrapper [
+MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver pre: aContext wrapper: aWrapper [
 
 	aWrapper
 		withSuspendWrapping: [ :aJust | 
@@ -149,7 +149,7 @@ MWHandlerExecution >> run: aSelector with: anArray in: aReceiver pre: aContext w
 ]
 
 { #category : #accessing }
-MWHandlerExecution >> tree: aTree [
+MWHandlerProfiling >> tree: aTree [
 
 	tree := aTree
 ]

@@ -45,7 +45,7 @@ MWHandlerTest >> testAddWithinDoObjectCentric [
 	| tree metadata result handlerExecution handlerCentric interval |
 	tree := CTOrderPreservingTree new.
 
-	handlerExecution := MWHandlerExecution new
+	handlerExecution := MWHandlerProfiling new
 		                    tree: tree;
 		                    yourself.
 
@@ -80,7 +80,7 @@ MWHandlerTest >> testAddWithinDoª [
 	| tree metadata result handlerExecution |
 	tree := CTOrderPreservingTree new.
 
-	handlerExecution := MWHandlerExecution new
+	handlerExecution := MWHandlerProfiling new
 		                    tree: tree;
 		                    yourself.
 
@@ -264,7 +264,7 @@ MWHandlerTest >> testHeapWithAll [
 	| tree result handlerExecution handlerCopying metadata |
 	tree := CTOrderPreservingTree new.
 
-	handlerExecution := MWHandlerExecution new
+	handlerExecution := MWHandlerProfiling new
 		                    tree: tree;
 		                    yourself.
 
@@ -314,7 +314,7 @@ MWHandlerTest >> testProfileSlowFactorial [
 	| result tree metadata handlerExecution |
 	tree := CTOrderPreservingTree new.
 
-	handlerExecution := MWHandlerExecution new
+	handlerExecution := MWHandlerProfiling new
 		                    tree: tree;
 		                    yourself.
 
@@ -342,7 +342,7 @@ MWHandlerTest >> testProfileSlowFibonacci [
 	| handlerExecution tree metadata result |
 	tree := CTOrderPreservingTree new.
 
-	handlerExecution := MWHandlerExecution new
+	handlerExecution := MWHandlerProfiling new
 		                    tree: tree;
 		                    yourself.
 
@@ -372,7 +372,7 @@ MWHandlerTest >> testProfileSlowFibonacciMemoing [
 
 	handlerCounting := MWHandlerCounting new.
 
-	handlerExecution := MWHandlerExecution new
+	handlerExecution := MWHandlerProfiling new
 		                    tree: tree;
 		                    yourself.
 
@@ -406,7 +406,7 @@ MWHandlerTest >> testProfileSlowFibonacciTailWithAdd [
 	| wrapper handlerExecution tree metadata result wrapperAdd |
 	tree := CTOrderPreservingTree new.
 
-	handlerExecution := MWHandlerExecution new
+	handlerExecution := MWHandlerProfiling new
 		                    tree: tree;
 		                    yourself.
 
@@ -442,7 +442,7 @@ MWHandlerTest >> testProfileSlowFibonacciWithAdd [
 	| wrapper handlerExecution tree metadata result wrapperAdd |
 	tree := CTOrderPreservingTree new.
 
-	handlerExecution := MWHandlerExecution new
+	handlerExecution := MWHandlerProfiling new
 		                    tree: tree;
 		                    yourself.
 
@@ -478,7 +478,7 @@ MWHandlerTest >> testProfileSlowFibonacciWithAddOnly [
 	| handlerExecution tree metadata result wrapperAdd |
 	tree := CTOrderPreservingTree new.
 
-	handlerExecution := MWHandlerExecution new
+	handlerExecution := MWHandlerProfiling new
 		                    tree: tree;
 		                    yourself.
 
@@ -508,7 +508,7 @@ MWHandlerTest >> testSelfSendsSimple [
 	|  tree metadata result handlerExecution |
 	tree := CTOrderPreservingTree new.
 
-	handlerExecution := MWHandlerExecution new
+	handlerExecution := MWHandlerProfiling new
 		                    tree: tree;
 		                    yourself.
 
@@ -541,7 +541,7 @@ MWHandlerTest >> testSelfSendsSimpleUsingPlus [
 	| tree metadata result handlerExecution |
 	tree := CTOrderPreservingTree new.
 
-	handlerExecution := MWHandlerExecution new
+	handlerExecution := MWHandlerProfiling new
 		                    tree: tree;
 		                    yourself.
 
@@ -571,7 +571,7 @@ MWHandlerTest >> testSequenceableCollectionMergeSort [
 	| tree metadata result handlerExecution |
 	tree := CTOrderPreservingTree new.
 
-	handlerExecution := MWHandlerExecution new
+	handlerExecution := MWHandlerProfiling new
 		                    tree: tree;
 		                    yourself.
 
@@ -604,7 +604,7 @@ MWHandlerTest >> testSequenceableCollectionMergeSortCopying [
 	| tree result handlerExecution handlerCopying metadata |
 	tree := CTOrderPreservingTree new.
 
-	handlerExecution := MWHandlerExecution new
+	handlerExecution := MWHandlerProfiling new
 		                    tree: tree;
 		                    yourself.
 
@@ -644,7 +644,7 @@ MWHandlerTest >> testSequenceableCollectionMergeSortCopyingDetailed [
 	| tree metadata result handlerExecution handlerCopying |
 	tree := CTOrderPreservingTree new.
 
-	handlerExecution := MWHandlerExecution new
+	handlerExecution := MWHandlerProfiling new
 		                    tree: tree;
 		                    yourself.
 
@@ -686,7 +686,7 @@ MWHandlerTest >> testSequenceableCollectionMergeSortPlugging [
 	| tree metadata result handlerExecution handlerBlockPlugging |
 	tree := CTOrderPreservingTree new.
 
-	handlerExecution := MWHandlerExecution new
+	handlerExecution := MWHandlerProfiling new
 		                    tree: tree;
 		                    yourself.
 
@@ -726,7 +726,7 @@ MWHandlerTest >> testTimingSlowFibonacciMemoing [
 	| handlerMemoing tree metadata result handlerExecution |
 	tree := CTOrderPreservingTree new.
 
-	handlerExecution := MWHandlerExecution new
+	handlerExecution := MWHandlerProfiling new
 		                    tree: tree;
 		                    yourself.
 
