@@ -12,12 +12,11 @@ Class {
 { #category : #API }
 MWSession class >> compiledMethods: aCollection thenSelect: methodBlock [
 
-	| excludingClasses methods session |
-	excludingClasses := MWDecorator withAllSubclasses asSet.
+	| methods session forbiddenMethods |
+	forbiddenMethods := self forbiddenMethods.
 
-	methods := aCollection select: [ :aMethod | 
-		           (excludingClasses includes: aMethod methodClass) not 
-			           and: [ methodBlock value: aMethod ] ].
+	methods := (aCollection reject: [ :each | 
+		            forbiddenMethods includes: each ]) select: methodBlock.
 
 	session := self new.
 
@@ -50,6 +49,29 @@ MWSession class >> forPackages: aCollection selectMethod: methodBlock [
 		           each methods ].
 
 	^ self compiledMethods: methods thenSelect: methodBlock
+]
+
+{ #category : #API }
+MWSession class >> forbiddenMethods [
+
+	^ Set new
+		  add: MWDecorator >> #run:with:in:;
+		  add: MWSession >> #run:with:in:context:wrapper:;
+		  add: MWDecorator >> #run:with:in:context:suspended:;
+		  add: MWDecorator >> #run:with:in:context:notSuspended:;
+		  addAll:
+			  (MWHandler >> #run:with:in:context:wrapper:) allImplementations;
+		  addAll:
+			  (MWHandler >> #run:with:in:pre:wrapper:) allImplementations;
+		  addAll:
+			  (MWHandler >> #run:with:in:context:carry:wrapper:)
+				  allImplementations;
+		  addAll: (MWHandler >> #run:with:in:post:carry:return:wrapper:)
+				  allImplementations;
+		  add: MWDecorator >> #valueWithReceiver:arguments:;
+		  add: ProtoObject >> #withArgs:executeMethod:;
+		  add: MWDecorator >> #withSuspendWrapping:context:;
+		  yourself
 ]
 
 { #category : #'instance creation' }

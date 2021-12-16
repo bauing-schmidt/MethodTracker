@@ -112,8 +112,11 @@ MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver context: aConte
 { #category : #evaluation }
 MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver post: aContext carry: carry return: aTimedResult wrapper: aWrapper [
 
+	| result |
 	aWrapper
-		withSuspendWrapping: [ timedReturns at: aContext put: aTimedResult ]
+		withSuspendWrapping: [ 
+			timedReturns at: aContext put: aTimedResult.
+			result := aTimedResult result ]
 		context: aContext.
 
 	^ super
@@ -122,7 +125,7 @@ MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver post: aContext 
 		  in: aReceiver
 		  post: aContext
 		  carry: carry
-		  return: aTimedResult result
+		  return: result
 		  wrapper: aWrapper
 ]
 
