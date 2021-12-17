@@ -505,7 +505,7 @@ MWHandlerTest >> testProfileSlowFibonacciWithAddOnly [
 { #category : #tests }
 MWHandlerTest >> testSelfSendsSimple [
 
-	|  tree metadata result handlerExecution |
+	| tree metadata result handlerExecution |
 	tree := CTOrderPreservingTree new.
 
 	handlerExecution := MWHandlerProfiling new
@@ -526,9 +526,7 @@ MWHandlerTest >> testSelfSendsSimple [
 	handlerExecution metadata: metadata.
 
 	"Show here the new presenter."
-	(MWSpPresenter on: tree -> metadata)
-		useShapeSlotsDfsTree;
-		openWithSpec.
+	(MWSpPresenter on: tree -> metadata) openWithSpec.
 
 	self
 		assert: tree size equals: 16;
@@ -562,6 +560,39 @@ MWHandlerTest >> testSelfSendsSimpleUsingPlus [
 
 	self
 		assert: tree size equals: 33;
+		assert: result equals: (1 to: 20) asArray
+]
+
+{ #category : #tests }
+MWHandlerTest >> testSelfSendsSimpleWithOutlinerShapes [
+
+	| tree metadata result handlerExecution |
+	tree := CTOrderPreservingTree new.
+
+	handlerExecution := MWHandlerProfiling new
+		                    tree: tree;
+		                    yourself.
+
+	result := (MWSession withAllImplementations: { 
+				           (self class >> #selfSend1).
+				           (self class >> #selfSend2).
+				           (self class >> #selfSend3).
+				           (Integer >> #slowFibonacci).
+				           (Number >> #add:).
+				           (Interval lookupSelector: #asArray) })
+		          do: [ :each | each handler: handlerExecution ];
+		          value: [ self selfSend1 ].
+
+	metadata := IdentityDictionary new.
+	handlerExecution metadata: metadata.
+
+	"Show here the new presenter."
+	(MWSpPresenter on: tree -> metadata)
+		useShapeSlotsDfsTree;
+		openWithSpec.
+
+	self
+		assert: tree size equals: 16;
 		assert: result equals: (1 to: 20) asArray
 ]
 
