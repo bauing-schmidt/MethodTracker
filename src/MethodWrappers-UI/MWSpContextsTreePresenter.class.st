@@ -9,7 +9,6 @@ Class {
 		'recvCheckbox',
 		'argsCheckbox',
 		'returnCheckbox',
-		'squaredErrorCheckbox',
 		'expandAllButton',
 		'collapseAllButton',
 		'showDetailsButton'
@@ -38,9 +37,7 @@ MWSpContextsTreePresenter >> connectPresenters [
 
 	argsCheckbox whenChangedDo: treeRefreshDisplayBlock.
 
-	returnCheckbox whenChangedDo: treeRefreshDisplayBlock.
-
-	squaredErrorCheckbox whenChangedDo: treeRefreshDisplayBlock
+	returnCheckbox whenChangedDo: treeRefreshDisplayBlock
 ]
 
 { #category : #initialization }
@@ -78,11 +75,6 @@ MWSpContextsTreePresenter >> initializePresenters [
 		                  state: true;
 		                  yourself.
 
-	squaredErrorCheckbox := self newCheckBox
-		                        label: 'Duration sq. err.';
-		                        state: false;
-		                        yourself.
-
 	treePresenter := tree asTreePresenter display:
 		                 self treePresenterDisplayBlock.
 
@@ -95,7 +87,6 @@ MWSpContextsTreePresenter >> initializePresenters [
 					  add: recvCheckbox;
 					  add: argsCheckbox;
 					  add: returnCheckbox;
-					  add: squaredErrorCheckbox;
 					  yourself)
 			 expand: false;
 			 add: treePresenter;
@@ -189,13 +180,13 @@ MWSpContextsTreePresenter >> treePresenterDisplayBlock [
 				  nextPutAll: ' → ';
 				  nextPutAll: (metadata at: each) return asString ].
 
-		  squaredErrorCheckbox state ifTrue: [ 
+"		  squaredErrorCheckbox state ifTrue: [ 
 			  aStream
 				  nextPutAll: ' (';
 				  nextPutAll: ((metadata at: each) duration
 					   - ((metadata at: each) statisticsArray fifth at: #durationAvg))
 						  squared totalSeconds asFloat asString;
-				  nextPutAll: ')' ] ] ]
+				  nextPutAll: ')' ]" ] ]
 ]
 
 { #category : #'as yet unclassified' }
