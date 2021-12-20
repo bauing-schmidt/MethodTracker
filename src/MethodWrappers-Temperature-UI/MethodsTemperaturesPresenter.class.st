@@ -740,18 +740,27 @@ MethodsTemperaturesPresenter >> runDoitWrappedTemperatureMethodsStCommand: aComm
 { #category : #'dispatched commands' }
 MethodsTemperaturesPresenter >> runInstallMethodTemperatureWrappersStCommand: aCommand [
 
-	self installingWrappers: [ "First, allocate a wrapper for each compiled method selected by
-		 the given block (edited in the corresponding block presenter)."
-		wrappers := MWHandlerProfiling
-			            tick: 0;
-			            forPackages: selectedPackages
-			            selectMethod: [ :aMethod | 
-				            self selectBlock
-					            value: aMethod
-					            value: selectedPackages ].
+	| tree handlerExecution metadata |
+	tree := CTOrderPreservingTree new.
 
-		"Second, install the wrappers (possibly time-consuming)."
-		self methodTemperatureWrappersDo: [ :each | each install ] ]
+	handlerExecution := MWHandlerProfiling new
+		                    tree: tree;
+		                    yourself.
+
+	(MWSession
+		 forPackages: selectedPackages
+		 selectMethod: [ :aMethod | 
+			 self selectBlock value: aMethod value: selectedPackages ])
+		do: [ :each | each handler: handlerExecution ];
+		value: [ 
+			[ self doBlock ] ensure: [ 
+					Warning signal: 'Proceed when you are done with profiling.' ] ].
+
+	metadata := IdentityDictionary new.
+	handlerExecution metadata: metadata.
+
+	"Show here the new presenter."
+	(MWSpPresenter on: tree -> metadata) openWithSpec
 ]
 
 { #category : #'dispatched commands' }
