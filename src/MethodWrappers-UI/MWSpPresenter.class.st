@@ -10,7 +10,8 @@ Class {
 		'methodCountDurationDictionary',
 		'tableItems',
 		'exportButton',
-		'receiverArgumentsShape'
+		'receiverArgumentsShape',
+		'headerShape'
 	],
 	#category : #'MethodWrappers-UI'
 }
@@ -36,6 +37,12 @@ MWSpPresenter >> connectPresenters [
 MWSpPresenter >> currentCanvas: aCanvas [
 
 	^ self sequenceDiagramTree: treePresenter treeShown canvas: aCanvas
+]
+
+{ #category : #'as yet unclassified' }
+MWSpPresenter >> headerShape: block [
+
+	headerShape := block
 ]
 
 { #category : #initialization }
@@ -222,6 +229,8 @@ MWSpPresenter >> sequenceDiagramTree: aTree canvas: aCanvas [
 		           previousMessagesSends: OrderedCollection new;
 		           yourself.
 
+	headerShape ifNotNil: [ builder headerShape: headerShape ].
+
 	receiverArgumentsShape ifNotNil: [ 
 		builder receiverArgumentsShape: receiverArgumentsShape ].
 
@@ -324,10 +333,15 @@ MWSpPresenter >> timespanOfContext: each [
 { #category : #'as yet unclassified' }
 MWSpPresenter >> useShapeSlotsDfsTree [
 
-	self receiverArgumentsShape: [ :anObject | 
-		anObject asShapeSlotsDfsTree:
-			(anObject slotDescriptorsContext collect: [ :aDescriptor | 
-				 aDescriptor
-					 headerWithClass;
-					 yourself ]) ]
+	| block |
+	block := [ :anObject | 
+	         anObject asShapeSlotsDfsTree:
+		         (anObject slotDescriptorsContext collect: [ :aDescriptor | 
+			          aDescriptor
+				          headerWithClass;
+				          yourself ]) ].
+
+	self
+		headerShape: block;
+		receiverArgumentsShape: block
 ]
