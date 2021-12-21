@@ -28,10 +28,10 @@ MWCompiledMethodChoosePresenter >> initializePresenters [
 				                      childrenForCompiledMethodChoosePresenter:
 					                      self ];
 		                      lazilyComputeChildren: true;
-		                      addColumn: (SpCheckBoxTableColumn
+		                      addColumn:
+			                      (SpCheckBoxTableColumn
 				                       title: ' '
-				                       evaluated: [ :anObject | 
-					                       anObject isPackage ifTrue: [ selectedPackages  ] ifFalse: [  ] ]);
+				                       evaluated: [ :anObject | true ]);
 		                      addColumn: (SpStringTableColumn
 				                       title: ' '
 				                       evaluated: [ :anObject | anObject name ]);
