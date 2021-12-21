@@ -597,6 +597,40 @@ MWHandlerTest >> testSelfSendsSimpleWithOutlinerShapes [
 ]
 
 { #category : #tests }
+MWHandlerTest >> testSequenceableCollectionHornerInit [
+
+	| tree metadata result handlerExecution handlerCopying |
+	tree := CTOrderPreservingTree new.
+
+	handlerExecution := MWHandlerProfiling new
+		                    tree: tree;
+		                    yourself.
+
+	handlerCopying := MWHandlerReceiverArgumentsCopying new
+		                  handler: handlerExecution;
+		                  yourself.
+
+	result := (MWSession withAllImplementations: { 
+				           (SequenceableCollection >> #horner:init:).
+				           (Collection >> #inject:into:).
+				           (Number >> #addNumber:).
+				           (Number >> #multiplyNumber:) })
+		          do: [ :each | each handler: handlerCopying ];
+		          value: [ { 1. 3. 5. 6 } hornerBase10 ].
+
+	metadata := IdentityDictionary new.
+	handlerExecution metadata: metadata.
+	handlerCopying metadata: metadata.
+
+	"Show here the new presenter."
+	(MWSpPresenter on: tree -> metadata) openWithSpec.
+
+	self
+		assert: tree size equals: 10;
+		assert: result equals: 1356
+]
+
+{ #category : #tests }
 MWHandlerTest >> testSequenceableCollectionMergeSort [
 
 	| tree metadata result handlerExecution |
