@@ -89,7 +89,7 @@ MethodsTemperaturesPresenter class >> defaultSpec [
 		  spacing: 5;
 		  add: #toolbar expand: false;
 		  add: (SpPanedLayout newLeftToRight
-				   positionOfSlider: 380;
+				   positionOfSlider: Float silverRatio;
 				   add: (SpBoxLayout newVertical
 						    spacing: 5;
 						    add: 'Behavior block' expand: false;
@@ -101,16 +101,16 @@ MethodsTemperaturesPresenter class >> defaultSpec [
 						    add: #packageNameText expand: false;
 						    add: 'CompiledMethod select block' expand: false;
 						    add: #select expand: true;
-						    add: 'Temperature threshold block' expand: false;
+						   " add: 'Temperature threshold block' expand: false;
 						    add: #temperature expand: true;
 						    add: 'Selectors ordering block' expand: false;
 						    add: #selectorsSorter expand: true;
 						    add: 'Classes ordering block' expand: false;
 						    add: #classesSorter expand: true;
 						    add: 'Bar chart ordering block' expand: false;
-						    add: #barChartSorter expand: true;
+						    add: #barChartSorter expand: true;"
 						    yourself);
-				   add: (SpPanedLayout newLeftToRight
+				   "				   add: (SpPanedLayout newLeftToRight
 						    add: (SpBoxLayout newTopToBottom
 								     add: #checkboxShowMessageSendsArgs expand: false;
 								     add: #callsLog expand: true;
@@ -125,8 +125,8 @@ MethodsTemperaturesPresenter class >> defaultSpec [
 										      add: #barChart;
 										      yourself);
 								     yourself);
-						    yourself);
-				   yourself)
+						    yourself);"
+					   yourself)
 		  expand: true;
 		  yourself
 ]
@@ -349,15 +349,46 @@ MethodsTemperaturesPresenter >> heatmap: anHeatmap [
 { #category : #charting }
 MethodsTemperaturesPresenter >> heatmap: anHeatmap xLabels: xLabels yLabels: yLabels matrix: matrix [
 
-	self heatmap: (anHeatmap
-			 scale: self scaleForHeatmap;
-			 xLabels: xLabels;
-			 yLabels: yLabels;
-			 show: matrix modelBlock: [ :aSelector :aClass | 
-				 [ aClass >> aSelector ]
-					 on: KeyNotFound
-					 do: [ nil ] ];
-			 yourself)
+	| box leftMostShapes topMostShapes boxes aBlock scale |
+	aBlock := [ :aSelector :aClass | 
+	          [ aClass >> aSelector ]
+		          on: KeyNotFound
+		          do: [ nil ] ].
+
+	scale := self scaleForHeatmap.
+
+	anHeatmap configureScaleFrom: matrix.
+	leftMostShapes := OrderedCollection new.
+	topMostShapes := OrderedCollection new.
+	boxes := OrderedCollection new.
+	matrix doWithIndex: [ :row :ic | 
+		row doWithIndex: [ :v :ir | 
+			| xyModel |
+			xyModel := aBlock value: (yLabels at: ic) value: (xLabels at: ir).
+			box := RSBox new
+				       model: xyModel -> v;
+				       size: 40;
+				       color: (scale scale: v);
+				       addInteraction:
+					       (RSPopup text: [ :anAssociation | 
+							        anAssociation value asString ]);
+				       when: RSMouseLeftClick
+				       do: [ :evt | evt shape model key browse ];
+				       yourself.
+			anHeatmap canvas addShape: box.
+			boxes add: box.
+			ir = 1 ifTrue: [ leftMostShapes add: box ].
+			ic = 1 ifTrue: [ topMostShapes add: box ] ] ].
+
+	RSGridLayout new
+		gapSize: 0;
+		lineItemsCount: matrix first size;
+		on: boxes.
+
+	anHeatmap setYLabelsOn: leftMostShapes.
+	anHeatmap setXLabelsOn: topMostShapes.
+
+	self heatmap: anHeatmap
 ]
 
 { #category : #initialization }
