@@ -612,7 +612,7 @@ MWHandlerTest >> testSequenceableCollectionHornerInit [
 
 	result := (MWSession withAllImplementations: { 
 				           (SequenceableCollection >> #horner:init:).
-				           (Collection >> #inject:into:).
+				           "(Collection >> #inject:into:)."
 				           (Number >> #addNumber:).
 				           (Number >> #multiplyNumber:) })
 		          do: [ :each | each handler: handlerCopying ];
@@ -623,10 +623,12 @@ MWHandlerTest >> testSequenceableCollectionHornerInit [
 	handlerCopying metadata: metadata.
 
 	"Show here the new presenter."
-	(MWSpPresenter on: tree -> metadata) openWithSpec.
+	(MWSpPresenter on: tree -> metadata)
+		useShapeSlotsDfsTree;
+		openWithSpec.
 
 	self
-		assert: tree size equals: 10;
+		assert: tree size equals: 9;
 		assert: result equals: 1356
 ]
 
