@@ -7,7 +7,9 @@ Class {
 		'treeTablePresenter',
 		'selectedClasses',
 		'selectedPackages',
-		'selectedMethods'
+		'selectedMethods',
+		'selectorPresenter',
+		'recipientListPresenter'
 	],
 	#category : #'MethodWrappers-UI'
 }
@@ -15,10 +17,20 @@ Class {
 { #category : #initialization }
 MWCompiledMethodChoosePresenter >> initializePresenters [
 
-	| innerLayout outerLayout packages |
+	| innerLayout outerLayout packages compiledMethodSortingBlock |
 	selectedPackages := Set new.
 	selectedClasses := Set new.
 	selectedMethods := Set new.
+
+	compiledMethodSortingBlock := [ :aMethod :anotherMethod | 
+	                              aMethod selector
+	                              = anotherMethod selector
+		                              ifTrue: [ 
+		                              aMethod methodClassName
+		                              < anotherMethod methodClassName ]
+		                              ifFalse: [ 
+		                              aMethod selector
+		                              < anotherMethod selector ] ].
 
 	packages := RPackageOrganizer default packages asOrderedCollection 
 		            sort: [ :a :b | a name < b name ].
@@ -45,7 +57,11 @@ MWCompiledMethodChoosePresenter >> initializePresenters [
 							                        anObject
 								                        activatedPackages: selectedPackages
 								                        classes: selectedClasses
-								                        methods: selectedMethods ];
+								                        methods: selectedMethods.
+
+							                        listPresenter items:
+									                        (selectedMethods asSortedCollection:
+											                         compiledMethodSortingBlock) ];
 						                        onDeactivation: [ :anObject | 
 							                        anObject
 								                        deactivatedPackages: selectedPackages
@@ -63,27 +79,83 @@ MWCompiledMethodChoosePresenter >> initializePresenters [
 					                        anObject name ]);
 				                       yourself);
 		                      whenSelectedItemChangedDo: [ :anObject | 
-			                      | newCoder |
-			                      newCoder := anObject beInCodePresenter: self.
-			                      "newCoder
-				                      withoutLineNumbers;
-				                      beNotEditable."
-			                      innerLayout replaceSecond: newCoder.
-			                      codePresenter := newCoder ];
+			                      anObject isCompiledMethod ifTrue: [ 
+				                      | newCoder |
+				                      newCoder := SpCodePresenter new
+					                                  text: anObject formattedCode;
+					                                  beForMethod: anObject;
+					                                  withoutLineNumbers;
+					                                  beNotEditable;
+					                                  yourself.
+
+				                      innerLayout replaceFirst: newCoder.
+				                      codePresenter := newCoder.
+
+				                      recipientListPresenter items:
+					                      (anObject sendNodes flatCollect: [ :aRBNode | 
+						                       aRBNode selector asSymbol implementors ])
+						                      asSet ] ];
 		                      yourself.
 
-	listPresenter := self newList.
+	listPresenter := self newFilteringList
+		                 display: [ :aCompiledMethod | aCompiledMethod name ];
+		                 yourself.
+
+	recipientListPresenter := self newTable
+		                          addColumn: (SpCompositeTableColumn new
+				                           title: 'Possible sends';
+				                           addColumn: ((SpCheckBoxTableColumn
+						                             title: ' '
+						                             evaluated: [ :anObject | 
+							                             selectedMethods includes: anObject ])
+						                            onActivation: [ :anObject | 
+							                            selectedMethods add: anObject.
+
+							                            listPresenter items:
+									                            (selectedMethods 
+										                             asSortedCollection:
+											                             compiledMethodSortingBlock) ];
+						                            onDeactivation: [ :anObject | 
+							                            selectedMethods remove: anObject.
+
+							                            listPresenter items:
+									                            (selectedMethods 
+										                             asSortedCollection:
+											                             compiledMethodSortingBlock) ];
+						                            yourself);
+				                           addColumn:
+				                           (SpStringTableColumn evaluated: [ 
+					                            :anObject | anObject name ]);
+				                           yourself);
+		                          sortingBlock: compiledMethodSortingBlock;
+		                          yourself.
+
 	codePresenter := self newCode.
+	selectorPresenter := self newCode
+		                     beForScripting;
+		                     yourself.
 
 	innerLayout := self newPanedLayoutTopToBottom
-		               add: treeTablePresenter;
 		               add: codePresenter;
-		               positionOfSlider: Float silverRatio;
+		               add: (self newPanedLayoutTopToBottom
+				                add: (self newPanedLayoutLeftToRight
+						                 add: recipientListPresenter;
+						                 add: listPresenter;
+						                 positionOfSlider: Float silverRatio;
+						                 yourself);
+				                add: selectorPresenter;
+				                positionOfSlider: Float silverRatio;
+				                yourself);
+		               positionOfSlider: 1 - Float silverRatio;
 		               yourself.
 
 	outerLayout := self newPanedLayoutLeftToRight
+		               add: (self newPanedLayoutTopToBottom
+				                add: treeTablePresenter;
+				                add: listPresenter;
+				                positionOfSlider: Float silverRatio;
+				                yourself);
 		               add: innerLayout;
-		               add: listPresenter;
 		               positionOfSlider: 1 - Float silverRatio;
 		               yourself.
 

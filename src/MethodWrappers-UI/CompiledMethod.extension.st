@@ -7,15 +7,6 @@ CompiledMethod >> activatedPackages: selectedPackages classes: selectedClasses m
 ]
 
 { #category : #'*MethodWrappers-UI' }
-CompiledMethod >> beInCodePresenter: aCodePresenter [
-
-	^ SpCodePresenter new
-		  text: self formattedCode;
-		  beForMethod: self;
-		  yourself
-]
-
-{ #category : #'*MethodWrappers-UI' }
 CompiledMethod >> belongsPackages: selectedPackages classes: selectedClasses methods: selectedMethods [
 
 	^ selectedMethods includes: self

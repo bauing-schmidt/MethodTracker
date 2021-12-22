@@ -7,15 +7,6 @@ Behavior >> activatedPackages: selectedPackages classes: selectedClasses methods
 ]
 
 { #category : #'*MethodWrappers-UI' }
-Behavior >> beInCodePresenter: aCodePresenter [
-
-	^ SpCodePresenter new
-		  beForBehavior: self;
-		  text: self definitionString;
-		  yourself
-]
-
-{ #category : #'*MethodWrappers-UI' }
 Behavior >> belongsPackages: selectedPackages classes: selectedClasses methods: selectedMethods [
 
 	^ selectedClasses includes: self

@@ -7,14 +7,6 @@ RPackage >> activatedPackages: selectedPackages classes: selectedClasses methods
 ]
 
 { #category : #'*MethodWrappers-UI' }
-RPackage >> beInCodePresenter: aCodePresenter [
-
-	^ SpObjectInspector new
-		  inspect: self;
-		  yourself
-]
-
-{ #category : #'*MethodWrappers-UI' }
 RPackage >> belongsPackages: selectedPackages classes: selectedClasses methods: selectedMethods [
 
 	^ selectedPackages includes: self
