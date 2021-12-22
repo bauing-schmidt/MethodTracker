@@ -5,3 +5,199 @@ Class {
 	#classTraits : 'TIceImagesExporting classTrait',
 	#category : #'MethodWrappers-Tests-Visualizations'
 }
+
+{ #category : #tests }
+MWVisualizationsTest >> testInspectLargeIntegerProfiled [
+
+	| m n large tree handlerExecution handlerCopying metadata presenter |
+	tree := CTOrderPreservingTree new.
+
+	handlerExecution := MWHandlerProfiling new
+		                    tree: tree;
+		                    yourself.
+
+	handlerCopying := MWHandlerReceiverArgumentsCopying new
+		                  handler: handlerExecution;
+		                  yourself.
+
+	m := 835.
+	n := 714.
+
+	large := (MWSession withAllImplementations: { 
+				          (Integer >> #dcMultiplyInteger:base:).
+				          (Number >> #add:).
+				          (Number >> #subtractNumber:).
+				          (Number >> #multiplyNumber:) })
+		         do: [ :each | each handler: handlerCopying ];
+		         value: [ large := m dcMultiplyInteger: n base: 10 ].
+
+	metadata := IdentityDictionary new.
+	handlerExecution metadata: metadata.
+	handlerCopying metadata: metadata.
+
+	"Show here the new presenter."
+	presenter := (MWSpPresenter on: tree -> metadata)
+		             useShapeSlotsDfsTree;
+		             openWithSpec;
+		             yourself.
+
+	self
+		assert: tree size equals: 41;
+		assert: large equals: m * n.
+
+	^ self
+		  export: tree
+		  pathSuffix: 'sequence-diagram'
+		  onCanvasDo: [ :aCanvas :useless | 
+			  presenter currentCanvas: aCanvas ];
+		  exportSlotsGraphOf: large
+	"exportShapeOf: tree
+		  accessorBlock: [ :aTree | 
+			  aTree asShapeValuesHorizontalTreeWithLabelShapes ]
+		  pathSuffix: 'contexts-tree';"
+]
+
+{ #category : #tests }
+MWVisualizationsTest >> testInspectLargeIntegerQuickProfiled [
+
+	| m n large tree handlerExecution handlerCopying metadata presenter |
+	tree := CTOrderPreservingTree new.
+
+	handlerExecution := MWHandlerProfiling new
+		                    tree: tree;
+		                    yourself.
+
+	handlerCopying := MWHandlerReceiverArgumentsCopying new
+		                  handler: handlerExecution;
+		                  yourself.
+
+	m := 835.
+	n := 714.
+
+	large := (MWSession withAllImplementations: { 
+				          (Integer >> #dcMultiplyIntegerQuick:base:).
+				          (Integer >> #bitAdd:).
+				          (Number >> #subtractNumber:).
+				          (Number >> #multiplyNumber:) })
+		         do: [ :each | each handler: handlerCopying ];
+		         value: [ large := m dcMultiplyIntegerQuick: n base: 10 ].
+
+	metadata := IdentityDictionary new.
+	handlerExecution metadata: metadata.
+	handlerCopying metadata: metadata.
+
+	"Show here the new presenter."
+	presenter := (MWSpPresenter on: tree -> metadata)
+		             openWithSpec;
+		             yourself.
+	"		useShapeSlotsDfsTree;"
+
+	self
+		assert: tree size equals: 41;
+		assert: large equals: m * n.
+
+	^ self
+		  export: tree
+		  pathSuffix: 'sequence-diagram'
+		  onCanvasDo: [ :aCanvas :useless | 
+			  presenter currentCanvas: aCanvas ];
+		  exportSlotsGraphOf: large
+	"exportShapeOf: tree
+		  accessorBlock: [ :aTree | 
+			  aTree asShapeValuesHorizontalTreeWithLabelShapes ]
+		  pathSuffix: 'contexts-tree';"
+]
+
+{ #category : #tests }
+MWVisualizationsTest >> testInspectLargeIntegerSlowProfiled [
+
+	| m n large tree handlerExecution handlerCopying metadata presenter |
+	tree := CTOrderPreservingTree new.
+
+	handlerExecution := MWHandlerProfiling new
+		                    tree: tree;
+		                    yourself.
+
+	handlerCopying := MWHandlerReceiverArgumentsCopying new
+		                  handler: handlerExecution;
+		                  yourself.
+
+	m := 835.
+	n := 714.
+
+	large := (MWSession withAllImplementations: { 
+				          (Integer >> #dcMultiplyIntegerSlow:base:).
+				          (Number >> #add:).
+				          (Number >> #subtractNumber:).
+				          (Number >> #multiplyNumber:) })
+		         do: [ :each | each handler: handlerCopying ];
+		         value: [ large := m dcMultiplyIntegerSlow: n base: 10 ].
+
+	metadata := IdentityDictionary new.
+	handlerExecution metadata: metadata.
+	handlerCopying metadata: metadata.
+
+	"Show here the new presenter."
+	presenter := (MWSpPresenter on: tree -> metadata)
+		             openWithSpec;
+		             yourself.
+	"		useShapeSlotsDfsTree;"
+
+	self
+		assert: tree size equals: 41;
+		assert: large equals: m * n.
+
+	^ self
+		  export: tree
+		  pathSuffix: 'sequence-diagram'
+		  onCanvasDo: [ :aCanvas :useless | 
+			  presenter currentCanvas: aCanvas ];
+		  exportSlotsGraphOf: large
+	"exportShapeOf: tree
+		  accessorBlock: [ :aTree | 
+			  aTree asShapeValuesHorizontalTreeWithLabelShapes ]
+		  pathSuffix: 'contexts-tree';"
+]
+
+{ #category : #tests }
+MWVisualizationsTest >> testSequenceableCollectionHornerInit [
+
+	| tree metadata result handlerExecution handlerCopying presenter |
+	tree := CTOrderPreservingTree new.
+
+	handlerExecution := MWHandlerProfiling new
+		                    tree: tree;
+		                    yourself.
+
+	handlerCopying := MWHandlerReceiverArgumentsCopying new
+		                  handler: handlerExecution;
+		                  yourself.
+
+	result := (MWSession withAllImplementations: { 
+				           (SequenceableCollection >> #horner:init:).
+				           "(Collection >> #inject:into:)."
+				           (Number >> #addNumber:).
+				           (Number >> #multiplyNumber:) })
+		          do: [ :each | each handler: handlerCopying ];
+		          value: [ { 1. 3. 5. 6 } hornerBase10 ].
+
+	metadata := IdentityDictionary new.
+	handlerExecution metadata: metadata.
+	handlerCopying metadata: metadata.
+
+	"Show here the new presenter."
+	presenter := (MWSpPresenter on: tree -> metadata)
+		             useShapeSlotsDfsTree;
+		             openWithSpec;
+		             yourself.
+
+	self
+		assert: tree size equals: 9;
+		assert: result equals: 1356.
+
+	self
+		export: tree
+		pathSuffix: 'sequence-diagram'
+		onCanvasDo: [ :aCanvas :useless | presenter currentCanvas: aCanvas ];
+		exportSlotsGraphOf: result
+]
