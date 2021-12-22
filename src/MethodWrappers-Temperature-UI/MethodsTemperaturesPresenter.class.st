@@ -30,7 +30,8 @@ Class {
 		'configuration',
 		'callsLog',
 		'checkboxShowMessageSendsArgs',
-		'checkboxSkipTestPackages'
+		'checkboxSkipTestPackages',
+		'confLabel'
 	],
 	#category : #'MethodWrappers-Temperature-UI'
 }
@@ -89,10 +90,10 @@ MethodsTemperaturesPresenter class >> defaultSpec [
 		  spacing: 5;
 		  add: #toolbar expand: false;
 		  add: (SpPanedLayout newLeftToRight
-				   positionOfSlider: Float silverRatio;
+				   positionOfSlider: 0.99;
 				   add: (SpBoxLayout newVertical
 						    spacing: 5;
-						    add: 'Behavior block' expand: false;
+						    add: #confLabel expand: false;
 						    add: #do expand: true;
 						    add: 'Packages selection' expand: false;
 						    add: #checkboxInstallOnAllMethods expand: false;
@@ -101,7 +102,7 @@ MethodsTemperaturesPresenter class >> defaultSpec [
 						    add: #packageNameText expand: false;
 						    add: 'CompiledMethod select block' expand: false;
 						    add: #select expand: true;
-						   " add: 'Temperature threshold block' expand: false;
+						    " add: 'Temperature threshold block' expand: false;
 						    add: #temperature expand: true;
 						    add: 'Selectors ordering block' expand: false;
 						    add: #selectorsSorter expand: true;
@@ -109,7 +110,7 @@ MethodsTemperaturesPresenter class >> defaultSpec [
 						    add: #classesSorter expand: true;
 						    add: 'Bar chart ordering block' expand: false;
 						    add: #barChartSorter expand: true;"
-						    yourself);
+							    yourself);
 				   "				   add: (SpPanedLayout newLeftToRight
 						    add: (SpBoxLayout newTopToBottom
 								     add: #checkboxShowMessageSendsArgs expand: false;
@@ -415,6 +416,10 @@ MethodsTemperaturesPresenter >> initializePresenters [
 
 	super initializePresenters.
 
+	confLabel := self newLabel
+		             label: 'Configuration: ';
+		             yourself.
+
 	toolbar := self newToolbar
 		           addStyle: 'stToolbar';
 		           fillWith: self toolbarActions;
@@ -618,8 +623,12 @@ MethodsTemperaturesPresenter >> loadConfigurationFromFileReference: fr [
 MethodsTemperaturesPresenter >> loadDefaultConfiguration [
 
 	^ self class defaultConfFileReference
-		  ifExists: [ :fr | self loadConfigurationFromFileReference: fr ]
-		  ifAbsent: [ self class defaultConfiguration ]
+		  ifExists: [ :fr | 
+			  confLabel label: 'Configured from ' , fr fullName.
+			  self loadConfigurationFromFileReference: fr ]
+		  ifAbsent: [ 
+			  confLabel label: 'Configured by default'.
+			  self class defaultConfiguration ]
 ]
 
 { #category : #initialization }
@@ -744,6 +753,8 @@ MethodsTemperaturesPresenter >> runConfLoadTemperatureMethodsStCommand: aCommand
 	dialog openModal answer ifNotNil: [ :answer | 
 		configuration := self loadConfigurationFromFileReference:
 			                 answer asFileReference.
+
+		confLabel label: 'Configured from ' , answer fullName.
 
 		self applyConfiguration ]
 ]
@@ -900,10 +911,21 @@ MethodsTemperaturesPresenter >> temperatureBlock [
 { #category : #initialization }
 MethodsTemperaturesPresenter >> toolbarActions [
 
-	| aGroup commandClasses |
+	| aGroup commandClasses includeCommandClasses |
+	includeCommandClasses := Set withAll: { 
+			                         ConfLoadTemperatureMethodsStCommand.
+			                         ConfSaveTemperatureMethodsStCommand.
+			                         InstallMethodTemperatureWrappersStCommand }.
+
 	aGroup := CmCommandGroup forSpec.
-	commandClasses := MethodsTemperaturesStCommand allSubclasses sorted: [ :a :b | a priority <= b priority ].
-	commandClasses do: [ :aCommandClass | aGroup register: (aCommandClass forSpecContext: self) ].
+
+	commandClasses := MethodsTemperaturesStCommand allSubclasses select: [ 
+		                  :each | includeCommandClasses includes: each ].
+
+	commandClasses sort: [ :a :b | a priority <= b priority ].
+
+	commandClasses do: [ :aCommandClass | 
+		aGroup register: (aCommandClass forSpecContext: self) ].
 
 	^ CmCommandGroup forSpec
 		  register: aGroup;

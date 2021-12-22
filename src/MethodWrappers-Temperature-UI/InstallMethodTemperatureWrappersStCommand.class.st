@@ -19,7 +19,7 @@ InstallMethodTemperatureWrappersStCommand class >> defaultIconName [
 { #category : #accessing }
 InstallMethodTemperatureWrappersStCommand class >> defaultName [
 
-	^ 'Install wrappers'
+	^ 'Wrap & Do'
 ]
 
 { #category : #accessing }
