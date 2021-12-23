@@ -361,8 +361,8 @@ MWVisualizationsTest >> testSequenceableCollectionEstrinInit [
 		             yourself.
 
 	self
-		assert: tree size equals: 13;
-		assert: result equals: 1356.
+		assert: tree size equals: 17;
+		assert: result equals: 13569.
 
 	self
 		export: tree
