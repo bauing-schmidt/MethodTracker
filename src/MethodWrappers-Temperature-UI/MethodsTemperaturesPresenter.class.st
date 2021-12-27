@@ -31,7 +31,8 @@ Class {
 		'callsLog',
 		'checkboxShowMessageSendsArgs',
 		'checkboxSkipTestPackages',
-		'confLabel'
+		'confLabel',
+		'clearPackagesButton'
 	],
 	#category : #'MethodWrappers-Temperature-UI'
 }
@@ -96,8 +97,14 @@ MethodsTemperaturesPresenter class >> defaultSpec [
 						    add: #confLabel expand: false;
 						    add: #do expand: true;
 						    add: 'Packages selection' expand: false;
-						    add: #checkboxInstallOnAllMethods expand: false;
-						    add: #checkboxSkipTestPackages expand: false;
+						    add: (SpBoxLayout newHorizontal
+								add: (SpBoxLayout newVertical
+									add: #checkboxInstallOnAllMethods expand: false;
+						 			add: #checkboxSkipTestPackages expand: false;
+								yourself);
+						   		add: (SpBoxLayout newVertical 
+									add: #clearPackagesButton expand: false) expand: false 
+								) expand: false;
 						    add: #packagesList expand: true;
 						    add: #packageNameText expand: false;
 						    add: 'CompiledMethod select block' expand: false;
@@ -193,6 +200,14 @@ MethodsTemperaturesPresenter >> barChartSorter [
 MethodsTemperaturesPresenter >> classesSorter [
 
 	^ classesSorter evaluateCompiledMethod
+]
+
+{ #category : #initialization }
+MethodsTemperaturesPresenter >> clearPackages [
+
+	selectedPackages removeAll.
+	packagesList refresh
+
 ]
 
 { #category : #'selection support' }
@@ -460,9 +475,13 @@ MethodsTemperaturesPresenter >> initializePresenters [
 					                  evaluated: #name;
 					                  yourself);
 			                 yourself).
+			
+	clearPackagesButton := self newButton 
+		label: 'Clear packages';
+		action: [ self clearPackages ].
 
 	packageNameText := self newTextInput
-		                   placeholder: 'Enter a package name';
+		                   placeholder: 'Enter a package name or a regular expression.';
 		                   autoAccept: true;
 		                   whenTextChangedDo: [ :text | 
 			                   self refreshPackagesTableWhenTextChanges: text ].
