@@ -97,36 +97,16 @@ MWHandlerProfiling >> metadata: metadata [
 MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver context: aContext carry: carry wrapper: aWrapper [
 
 	| timedResult |
-	timedResult := aWrapper
-		               withSuspendWrapping: [ MWTimedExecResult new ]
-		               context: aContext.
-
-	aWrapper
-		valueWithReceiver: aReceiver
-		arguments: anArray
-		timed: timedResult.
-
-	^ timedResult
-]
-
-{ #category : #evaluation }
-MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver post: aContext carry: carry return: aTimedResult wrapper: aWrapper [
-
-	| result |
 	aWrapper
 		withSuspendWrapping: [ 
-			timedReturns at: aContext put: aTimedResult.
-			result := aTimedResult result ]
+			timedResult := MWTimedExecResult new.
+			timedReturns at: aContext put: timedResult ]
 		context: aContext.
 
-	^ super
-		  run: aSelector
-		  with: anArray
-		  in: aReceiver
-		  post: aContext
-		  carry: carry
-		  return: result
-		  wrapper: aWrapper
+	^ aWrapper
+		  valueWithReceiver: aReceiver
+		  arguments: anArray
+		  timed: timedResult
 ]
 
 { #category : #evaluation }

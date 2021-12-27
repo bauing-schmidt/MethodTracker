@@ -7,6 +7,18 @@ Class {
 	#category : #MethodWrappers
 }
 
+{ #category : #operations }
+MWHandlerToggling >> activate [
+
+	enable := true
+]
+
+{ #category : #operations }
+MWHandlerToggling >> deactivate [
+
+	enable := false
+]
+
 { #category : #initialization }
 MWHandlerToggling >> initialize [
 

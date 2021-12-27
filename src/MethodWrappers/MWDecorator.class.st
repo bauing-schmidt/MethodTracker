@@ -157,9 +157,9 @@ MWDecorator >> valueWithReceiver: aReceiver arguments: anArray [
 MWDecorator >> valueWithReceiver: aReceiver arguments: anArray timed: model [
 
 	| result start |
-	start := self
-		         withSuspendWrapping: [ Time microsecondClockValue ]
-		         context: thisContext.
+	self
+		withSuspendWrapping: [ start := Time microsecondClockValue ]
+		context: thisContext.
 
 	result := self valueWithReceiver: aReceiver arguments: anArray.
 

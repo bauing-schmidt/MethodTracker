@@ -3,16 +3,11 @@ Class {
 	#superclass : #MWHandlerDecorating,
 	#instVars : [
 		'table',
-		'blockClosure'
+		'preBlock',
+		'postBlock'
 	],
 	#category : #MethodWrappers
 }
-
-{ #category : #accessing }
-MWHandlerSuspendPlugging >> blockClosure: anObject [
-
-	blockClosure := anObject
-]
 
 { #category : #hooks }
 MWHandlerSuspendPlugging >> initialize [
@@ -22,21 +17,41 @@ MWHandlerSuspendPlugging >> initialize [
 	table := Dictionary new
 ]
 
+{ #category : #accessing }
+MWHandlerSuspendPlugging >> post: anObject [
+
+	postBlock := anObject
+]
+
+{ #category : #accessing }
+MWHandlerSuspendPlugging >> pre: anObject [
+
+	preBlock := anObject
+]
+
 { #category : #hooks }
 MWHandlerSuspendPlugging >> run: aSelector with: anArray in: aReceiver context: aContext carry: carry wrapper: aWrapper [
+
+	| result |
+	aWrapper
+		withSuspendWrapping: [ :session | 
+			| anObj |
+			anObj := preBlock cull: session cull: aWrapper ]
+		context: aContext.
+
+	result := super
+		          run: aSelector
+		          with: anArray
+		          in: aReceiver
+		          context: aContext
+		          carry: carry
+		          wrapper: aWrapper.
 
 	aWrapper
 		withSuspendWrapping: [ :session | 
 			| anObj |
-			anObj := blockClosure cull: session.
-			table at: aContext put: anObj ]
+			anObj := postBlock cull: session cull: aWrapper ]
 		context: aContext.
 
-	^ super
-		  run: aSelector
-		  with: anArray
-		  in: aReceiver
-		  context: aContext
-		  carry: carry
-		  wrapper: aWrapper
+	^ result
 ]
