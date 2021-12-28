@@ -162,10 +162,8 @@ MWVisualizationsTest >> testInspectLargeIntegerSlowProfiled [
 { #category : #tests }
 MWVisualizationsTest >> testProfileSlowFibonacciMemoingWithAdd [
 
-	| handlerCounting handler tree result handlerExecution metadata presenter |
+	| handler tree result handlerExecution metadata presenter |
 	tree := CTOrderPreservingTree new.
-
-	handlerCounting := MWHandlerCounting new.
 
 	handlerExecution := MWHandlerProfiling new
 		                    tree: tree;
@@ -175,11 +173,14 @@ MWVisualizationsTest >> testProfileSlowFibonacciMemoingWithAdd [
 		           handler: handlerExecution;
 		           yourself.
 
-	result := (MWSession withAllImplementations: { (Number >> #add:) })
-		          do: [ :each | each handler: handler ];
+	result := MWSession new
 		          add: (MWDecorator new
 				           compiledMethod: Integer >> #slowFibonacci;
 				           handler: handler;
+				           yourself);
+		          add: (MWDecorator new
+				           compiledMethod: Number >> #addNumber:;
+				           handler: handlerExecution;
 				           yourself);
 		          value: [ 6 slowFibonacci ].
 
@@ -218,7 +219,7 @@ MWVisualizationsTest >> testProfileSlowFibonacciTailWithAdd [
 		           yourself.
 
 	wrapperAdd := MWDecorator new
-		              compiledMethod: Number >> #add:;
+		              compiledMethod: Number >> #addNumber:;
 		              handler: handlerExecution;
 		              yourself.
 

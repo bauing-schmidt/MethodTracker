@@ -13,12 +13,6 @@ Class {
 	#category : #MethodWrappers
 }
 
-{ #category : #accessing }
-MWHandlerProfiling >> at: aContext ifAbsent: aBlock [
-
-	^ tree parent: aContext ifAbsent: aBlock
-]
-
 { #category : #initialization }
 MWHandlerProfiling >> initialize [
 
@@ -99,6 +93,12 @@ MWHandlerProfiling >> metadata: metadata [
 	^ metadata
 ]
 
+{ #category : #accessing }
+MWHandlerProfiling >> parent: aContext ifAbsent: aBlock [
+
+	^ tree parent: aContext ifAbsent: aBlock
+]
+
 { #category : #hooks }
 MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver context: aContext carry: carry wrapper: aWrapper [
 
@@ -106,14 +106,11 @@ MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver context: aConte
 	aWrapper
 		withSuspendWrapping: [ 
 			start := Time microsecondClockValue.
-			timed := timedReturns
-				         at: aContext
-				         ifPresent: [ :t | self halt ]
-				         ifAbsentPut: [ 
-					         MWTimedExecResult new
-						         result: Maybe nothing;
-						         duration: (start to: start);
-						         yourself ] ]
+			timed := timedReturns at: aContext ifAbsentPut: [ 
+				         MWTimedExecResult new
+					         result: Maybe nothing;
+					         duration: (start to: start + 1);
+					         yourself ] ]
 		context: aContext.
 
 	result := aWrapper valueWithReceiver: aReceiver arguments: anArray.

@@ -692,8 +692,8 @@ MWHandlerTest >> testSequenceableCollectionMergeSortPlugging [
 
 	handlerBlockPlugging := MWHandlerSuspendPlugging new
 		                        handler: handlerExecution;
-		                        blockClosure: [ :session | 
-			                        (1 to: 20) shuffled sort ];
+		                        pre: [ (1 to: 20) shuffled sort ];
+		                        post: [  ];
 		                        yourself.
 
 	result := (MWSession withAllImplementations: { 

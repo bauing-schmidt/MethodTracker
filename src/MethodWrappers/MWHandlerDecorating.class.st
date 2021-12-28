@@ -8,15 +8,15 @@ Class {
 }
 
 { #category : #accessing }
-MWHandlerDecorating >> at: aContext ifAbsent: aBlock [
-
-	^ handler at: aContext ifAbsent: aBlock
-]
-
-{ #category : #accessing }
 MWHandlerDecorating >> handler: anObject [
 
 	handler := anObject
+]
+
+{ #category : #accessing }
+MWHandlerDecorating >> parent: aContext ifAbsent: aBlock [
+
+	^ handler parent: aContext ifAbsent: aBlock
 ]
 
 { #category : #hooks }
