@@ -26,14 +26,9 @@ MWHandlerTest >> exampleOpalCompiler [
 
 	metadata := IdentityDictionary new.
 	handlerExecution metadata: metadata.
-	
-	self halt.
-
-	"	tree asTreePresenter openWithSpec."
-	self inform: 'done'.
 
 	"Show here the new presenter."
-	"(MWSpPresenter on: tree -> metadata) openWithSpec"
+	(MWSpPresenter on: tree -> metadata) openWithSpec
 
 	"self assert: tree size equals: 16"
 ]
