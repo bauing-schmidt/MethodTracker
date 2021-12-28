@@ -7,6 +7,37 @@ Class {
 	#category : #'MethodWrappers-Tests'
 }
 
+{ #category : #tests }
+MWHandlerTest >> exampleOpalCompiler [
+
+	<script: 'MWHandlerTest new exampleOpalCompiler'>
+	| tree metadata result handlerExecution |
+	tree := CTOrderPreservingTree new.
+
+	handlerExecution := MWHandlerProfiling new
+		                    tree: tree;
+		                    yourself.
+
+	result := (MWSession
+		           forPackages: { #'AST-Core' asPackage }
+		           selectMethod: [ :aMethod | true ])
+		          do: [ :each | each handler: handlerExecution ];
+		          value: [ OpalCompiler recompile ].
+
+	metadata := IdentityDictionary new.
+	handlerExecution metadata: metadata.
+	
+	self halt.
+
+	"	tree asTreePresenter openWithSpec."
+	self inform: 'done'.
+
+	"Show here the new presenter."
+	"(MWSpPresenter on: tree -> metadata) openWithSpec"
+
+	"self assert: tree size equals: 16"
+]
+
 { #category : #accessing }
 MWHandlerTest >> foo [
 ]
@@ -17,6 +48,12 @@ MWHandlerTest >> ifTrue: aBlock [
 	"Fake version of `Boolean>>#ifTrue:`"
 
 	
+]
+
+{ #category : #tests }
+MWHandlerTest >> selfRaiseError [
+
+	Error signal
 ]
 
 { #category : #tests }
@@ -37,6 +74,14 @@ MWHandlerTest >> selfSend2 [
 MWHandlerTest >> selfSend3 [
 
 	^ 3 slowFibonacci
+]
+
+{ #category : #tests }
+MWHandlerTest >> selfSendBeforeRising: resume [
+
+	^ [ self selfRaiseError ]
+		  on: Error
+		  do: [ :ex | resume ]
 ]
 
 { #category : #tests }
@@ -401,6 +446,34 @@ MWHandlerTest >> testProfileSlowFibonacciMemoing [
 ]
 
 { #category : #tests }
+MWHandlerTest >> testSelfSendBeforeRising [
+
+	| tree metadata result handlerExecution |
+	tree := CTOrderPreservingTree new.
+
+	handlerExecution := MWHandlerProfiling new
+		                    tree: tree;
+		                    yourself.
+
+	result := (MWSession withAllImplementations: { 
+				           (self class >> #selfSendBeforeRising:).
+				           (self class >> #selfRaiseError) })
+		          do: [ :each | each handler: handlerExecution ];
+		          value: [ self selfSendBeforeRising: 0 ].
+
+	metadata := IdentityDictionary new.
+
+	handlerExecution metadata: metadata.
+
+	"Show here the new presenter."
+	(MWSpPresenter on: tree -> metadata) openWithSpec.
+
+	self
+		assert: tree size equals: 2;
+		assert: result equals: 0
+]
+
+{ #category : #tests }
 MWHandlerTest >> testSelfSendsSimple [
 
 	| tree metadata result handlerExecution |
@@ -558,9 +631,7 @@ MWHandlerTest >> testSequenceableCollectionMergeSortCopying [
 	handlerCopying metadata: metadata.
 
 	"Show here the new presenter."
-	(MWSpPresenter on: tree -> metadata)
-		useShapeSlotsDfsTree;
-		openWithSpec.
+	(MWSpPresenter on: tree -> metadata) openWithSpec.
 
 	self
 		assert: tree size equals: 81;

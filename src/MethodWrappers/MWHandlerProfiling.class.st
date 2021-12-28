@@ -7,7 +7,8 @@ Class {
 	#instVars : [
 		'tree',
 		'runWithInMethod',
-		'timedReturns'
+		'timedReturns',
+		'orphans'
 	],
 	#category : #MethodWrappers
 }
@@ -24,8 +25,10 @@ MWHandlerProfiling >> initialize [
 	super initialize.
 
 	runWithInMethod := MWDecorator >> #run:with:in:.
-	
-	timedReturns := IdentityDictionary new
+
+	timedReturns := IdentityDictionary new.
+
+	orphans := OrderedCollection new
 ]
 
 { #category : #accessing }
@@ -52,13 +55,15 @@ MWHandlerProfiling >> metadata: metadata [
 			model parent: (tree parent: each ifAbsent: [ Error signal ]).
 
 			model client: (model parent == each
-					 ifTrue: [ Object nothing ]
+					 ifTrue: [ Maybe nothing ]
 					 ifFalse: [ 
 					 (metadata at: model parent) reifiedContext receiver just ]).
 
-			timedResult := timedReturns at: each.
+			timedResult := timedReturns at: each ifAbsent: [ Error signal ].
 
-			model return: timedResult result.
+			model return: (timedResult result
+					 ifNothing: [ '†' ]
+					 ifJust: [ :aJust | aJust content ]).
 
 			model duration: (Duration microSeconds: timedResult duration size).
 
@@ -75,9 +80,10 @@ MWHandlerProfiling >> metadata: metadata [
 			ticks := ticks + 1.
 
 			eachReified method in: [ :aMethod | 
-				model count:
-					((selector at: aMethod ifAbsent: [ 0 ]) in: [ :count | 
-						 selector at: aMethod put: count + 1 ]) ] ]
+				| count |
+				count := selector at: aMethod ifAbsent: [ 0 ].
+				count := selector at: aMethod put: count + 1.
+				model count: count ] ]
 		post: [ :each | 
 			metadata
 				at: each
@@ -96,30 +102,51 @@ MWHandlerProfiling >> metadata: metadata [
 { #category : #hooks }
 MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver context: aContext carry: carry wrapper: aWrapper [
 
-	| timedResult |
+	| start result timed |
 	aWrapper
 		withSuspendWrapping: [ 
-			timedResult := MWTimedExecResult new.
-			timedReturns at: aContext put: timedResult ]
+			start := Time microsecondClockValue.
+			timed := timedReturns
+				         at: aContext
+				         ifPresent: [ :t | self halt ]
+				         ifAbsentPut: [ 
+					         MWTimedExecResult new
+						         result: Maybe nothing;
+						         duration: (start to: start);
+						         yourself ] ]
 		context: aContext.
 
-	^ aWrapper
-		  valueWithReceiver: aReceiver
-		  arguments: anArray
-		  timed: timedResult
+	result := aWrapper valueWithReceiver: aReceiver arguments: anArray.
+
+	aWrapper
+		withSuspendWrapping: [ 
+			| duration now by |
+			now := Time microsecondClockValue.
+			by := 1.
+			now = start ifTrue: [ now := now + by ].
+			duration := start to: now by: by.
+
+			timed
+				result: result just;
+				duration: duration ]
+		context: aContext.
+
+	^ result
 ]
 
 { #category : #evaluation }
 MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver pre: aContext wrapper: aWrapper [
 
 	aWrapper
-		withSuspendWrapping: [ :aJust | 
+		withSuspendWrapping: [ :aSession | 
 			| aParent |
 			aParent := aContext sender findContextSuchThat: [ :ctx | 
 				           runWithInMethod = ctx method ].
 
 			aParent
-				ifNil: [ tree parent: aContext child: aContext ]
+				ifNil: [ 
+					orphans add: aContext.
+					tree parent: aContext child: aContext ]
 				ifNotNil: [ tree parent: aParent child: aContext ] ]
 		context: aContext.
 

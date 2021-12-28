@@ -154,32 +154,6 @@ MWDecorator >> valueWithReceiver: aReceiver arguments: anArray [
 ]
 
 { #category : #evaluation }
-MWDecorator >> valueWithReceiver: aReceiver arguments: anArray timed: model [
-
-	| result start |
-	self
-		withSuspendWrapping: [ start := Time microsecondClockValue ]
-		context: thisContext.
-
-	result := self valueWithReceiver: aReceiver arguments: anArray.
-
-	self
-		withSuspendWrapping: [ 
-			| duration now by |
-			now := Time microsecondClockValue.
-			by := 1.
-			now = start ifTrue: [ now := now + by ].
-			duration := start to: now by: by.
-
-			model
-				result: result;
-				duration: duration ]
-		context: thisContext.
-
-	^ result
-]
-
-{ #category : #evaluation }
 MWDecorator >> withSuspendWrapping: aBlock context: aContext [
 
 	^ [ session pushContext: aContext ]

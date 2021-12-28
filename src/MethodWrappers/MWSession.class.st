@@ -69,7 +69,6 @@ MWSession class >> forbiddenMethods [
 		  addAll: (MWHandler >> #run:with:in:post:carry:return:wrapper:)
 				  allImplementations;
 		  add: MWDecorator >> #valueWithReceiver:arguments:;
-		  add: MWDecorator >> #valueWithReceiver:arguments:timed:;
 		  add: ProtoObject >> #withArgs:executeMethod:;
 		  add: MWDecorator >> #withSuspendWrapping:context:;
 		  yourself
