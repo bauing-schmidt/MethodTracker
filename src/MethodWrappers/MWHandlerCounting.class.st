@@ -27,7 +27,7 @@ Class {
 { #category : #evaluation }
 MWHandlerCounting >> add: a to: b [
 
-	^ a add: b
+	^ a addNumber: b
 ]
 
 { #category : #accessing }

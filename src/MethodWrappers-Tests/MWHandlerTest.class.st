@@ -60,7 +60,7 @@ MWHandlerTest >> selfSend1 [
 { #category : #tests }
 MWHandlerTest >> selfSend2 [
 
-	2 slowFibonacci add: self selfSend3.
+	2 slowFibonacci addNumber: self selfSend3.
 
 	^ (1 to: 20) asArray
 ]
@@ -99,9 +99,9 @@ MWHandlerTest >> testAddWithinDoObjectCentric [
 
 	result := (MWSession withAllImplementations: { 
 				           (Collection >> #do:).
-				           (Number >> #add:) })
+				           (Number >> #addNumber:) })
 		          do: [ :each | each handler: handlerCentric ];
-		          value: [ interval do: [ :each | each add: 4 ] ].
+		          value: [ interval do: [ :each | each addNumber: 4 ] ].
 
 	metadata := IdentityDictionary new.
 	handlerExecution metadata: metadata.
@@ -126,10 +126,10 @@ MWHandlerTest >> testAddWithinDoª [
 
 	result := (MWSession withAllImplementations: { 
 				           (Collection >> #doª:).
-				           (Number >> #add:) })
+				           (Number >> #addNumber:) })
 		          do: [ :each | each handler: handlerExecution ];
 		          value: [ 
-			          (1 to: 20) doª: [ :each | each add: 4 ].
+			          (1 to: 20) doª: [ :each | each addNumber: 4 ].
 			          (1 to: 5) doª: [ :each | each - 4 ] ].
 
 	metadata := IdentityDictionary new.
@@ -149,7 +149,7 @@ MWHandlerTest >> testCountAdd [
 	| handler |
 	handler := MWHandlerCounting new.
 
-	(MWSession withAllImplementations: { (Number >> #add:) })
+	(MWSession withAllImplementations: { (Number >> #addNumber:) })
 		do: [ :each | each handler: handler ];
 		value: [ 
 			handler

@@ -25,7 +25,7 @@ MWVisualizationsTest >> testInspectLargeIntegerProfiled [
 
 	large := (MWSession withAllImplementations: { 
 				          (Integer >> #dcMultiplyInteger:base:).
-				          (Number >> #add:).
+				          (Number >> #addNumber:).
 				          (Number >> #subtractNumber:).
 				          (Number >> #multiplyNumber:) })
 		         do: [ :each | each handler: handlerCopying ];
@@ -127,7 +127,7 @@ MWVisualizationsTest >> testInspectLargeIntegerSlowProfiled [
 
 	large := (MWSession withAllImplementations: { 
 				          (Integer >> #dcMultiplyIntegerSlow:base:).
-				          (Number >> #add:).
+				          (Number >> #addNumber:).
 				          (Number >> #subtractNumber:).
 				          (Number >> #multiplyNumber:) })
 		         do: [ :each | each handler: handlerCopying ];
