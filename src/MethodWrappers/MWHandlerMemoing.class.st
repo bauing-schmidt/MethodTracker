@@ -16,7 +16,7 @@ MWHandlerMemoing >> initialize [
 ]
 
 { #category : #'as yet unclassified' }
-MWHandlerMemoing >> run: aSelector with: anArray in: aReceiver context: aContext carry: carry wrapper: aWrapper [
+MWHandlerMemoing >> run: aSelector with: anArray in: aReceiver context: aContext wrapper: aWrapper [
 
 	| key missing value |
 	aWrapper
@@ -40,7 +40,6 @@ MWHandlerMemoing >> run: aSelector with: anArray in: aReceiver context: aContext
 				           with: anArray
 				           in: aReceiver
 				           context: aContext
-				           carry: carry
 				           wrapper: aWrapper.
 
 			  aWrapper

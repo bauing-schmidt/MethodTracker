@@ -25,7 +25,7 @@ MWHandlerReceiverArgumentsCopying >> initialize [
 ]
 
 { #category : #hooks }
-MWHandlerReceiverArgumentsCopying >> run: aSelector with: anArray in: aReceiver context: aContext carry: carry wrapper: aWrapper [
+MWHandlerReceiverArgumentsCopying >> run: aSelector with: anArray in: aReceiver context: aContext wrapper: aWrapper [
 
 	| result message |
 	message := aWrapper
@@ -41,7 +41,6 @@ MWHandlerReceiverArgumentsCopying >> run: aSelector with: anArray in: aReceiver 
 		          with: anArray
 		          in: aReceiver
 		          context: aContext
-		          carry: carry
 		          wrapper: aWrapper.
 
 	aWrapper

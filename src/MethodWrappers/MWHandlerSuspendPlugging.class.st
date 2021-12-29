@@ -30,7 +30,7 @@ MWHandlerSuspendPlugging >> pre: anObject [
 ]
 
 { #category : #hooks }
-MWHandlerSuspendPlugging >> run: aSelector with: anArray in: aReceiver context: aContext carry: carry wrapper: aWrapper [
+MWHandlerSuspendPlugging >> run: aSelector with: anArray in: aReceiver context: aContext wrapper: aWrapper [
 
 	| result |
 	aWrapper
@@ -44,7 +44,6 @@ MWHandlerSuspendPlugging >> run: aSelector with: anArray in: aReceiver context: 
 		          with: anArray
 		          in: aReceiver
 		          context: aContext
-		          carry: carry
 		          wrapper: aWrapper.
 
 	aWrapper

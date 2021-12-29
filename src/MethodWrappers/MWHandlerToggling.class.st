@@ -28,7 +28,7 @@ MWHandlerToggling >> initialize [
 ]
 
 { #category : #hooks }
-MWHandlerToggling >> run: aSelector with: anArray in: aReceiver context: aContext carry: carry wrapper: aWrapper [
+MWHandlerToggling >> run: aSelector with: anArray in: aReceiver context: aContext wrapper: aWrapper [
 
 	^ enable
 		  ifTrue: [ 
@@ -37,7 +37,6 @@ MWHandlerToggling >> run: aSelector with: anArray in: aReceiver context: aContex
 				  with: anArray
 				  in: aReceiver
 				  context: aContext
-				  carry: carry
 				  wrapper: aWrapper ]
 		  ifFalse: [ 
 		  aWrapper valueWithReceiver: aReceiver arguments: anArray ]

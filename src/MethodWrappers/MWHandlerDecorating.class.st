@@ -20,13 +20,12 @@ MWHandlerDecorating >> parent: aContext ifAbsent: aBlock [
 ]
 
 { #category : #hooks }
-MWHandlerDecorating >> run: aSelector with: anArray in: aReceiver context: aContext carry: carry wrapper: aWrapper [
+MWHandlerDecorating >> run: aSelector with: anArray in: aReceiver context: aContext wrapper: aWrapper [
 
 	^ handler
 		  run: aSelector
 		  with: anArray
 		  in: aReceiver
 		  context: aContext
-		  carry: carry
 		  wrapper: aWrapper
 ]

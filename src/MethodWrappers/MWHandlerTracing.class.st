@@ -8,7 +8,7 @@ Class {
 }
 
 { #category : #evaluation }
-MWHandlerTracing >> run: aSelector with: anArray in: aReceiver context: aContext carry: carry wrapper: aWrapper [
+MWHandlerTracing >> run: aSelector with: anArray in: aReceiver context: aContext wrapper: aWrapper [
 
 	aWrapper
 		withSuspendWrapping: [ 
@@ -24,6 +24,5 @@ MWHandlerTracing >> run: aSelector with: anArray in: aReceiver context: aContext
 		  with: anArray
 		  in: aReceiver
 		  context: aContext
-		  carry: carry
 		  wrapper: aWrapper
 ]

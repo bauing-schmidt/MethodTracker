@@ -5,7 +5,7 @@ Class {
 }
 
 { #category : #evaluation }
-MWHandlerHalting >> run: aSelector with: anArray in: aReceiver context: aContext carry: carry wrapper: aWrapper [
+MWHandlerHalting >> run: aSelector with: anArray in: aReceiver context: aContext wrapper: aWrapper [
 
 	aWrapper
 		withSuspendWrapping: [ Warning signal: 'Proceed when you''re done' ]
@@ -16,6 +16,5 @@ MWHandlerHalting >> run: aSelector with: anArray in: aReceiver context: aContext
 		  with: anArray
 		  in: aReceiver
 		  context: aContext
-		  carry: carry
 		  wrapper: aWrapper
 ]

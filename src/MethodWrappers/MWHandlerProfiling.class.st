@@ -100,7 +100,7 @@ MWHandlerProfiling >> parent: aContext ifAbsent: aBlock [
 ]
 
 { #category : #hooks }
-MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver context: aContext carry: carry wrapper: aWrapper [
+MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver context: aContext wrapper: aWrapper [
 
 	| start result timed |
 	aWrapper
@@ -128,7 +128,6 @@ MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver context: aConte
 		          with: anArray
 		          in: aReceiver
 		          context: aContext
-		          carry: carry
 		          wrapper: aWrapper.
 
 	aWrapper
