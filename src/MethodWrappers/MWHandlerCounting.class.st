@@ -45,7 +45,7 @@ MWHandlerCounting >> initialize [
 ]
 
 { #category : #evaluation }
-MWHandlerCounting >> run: aSelector with: anArray in: aReceiver pre: aContext wrapper: aWrapper [
+MWHandlerCounting >> run: aSelector with: anArray in: aReceiver context: aContext carry: carry wrapper: aWrapper [
 
 	aWrapper
 		withSuspendWrapping: [ count := self add: count to: 1 ]
@@ -55,6 +55,7 @@ MWHandlerCounting >> run: aSelector with: anArray in: aReceiver pre: aContext wr
 		  run: aSelector
 		  with: anArray
 		  in: aReceiver
-		  pre: aContext
+		  context: aContext
+		  carry: carry
 		  wrapper: aWrapper
 ]

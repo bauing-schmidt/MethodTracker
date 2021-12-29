@@ -105,6 +105,16 @@ MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver context: aConte
 	| start result timed |
 	aWrapper
 		withSuspendWrapping: [ 
+			| aParent |
+			aParent := aContext sender findContextSuchThat: [ :ctx | 
+				           runWithInMethod = ctx method ].
+
+			aParent
+				ifNil: [ 
+					orphans add: aContext.
+					tree parent: aContext child: aContext ]
+				ifNotNil: [ tree parent: aParent child: aContext ].
+
 			start := Time microsecondClockValue.
 			timed := timedReturns at: aContext ifAbsentPut: [ 
 				         MWTimedExecResult new
@@ -113,7 +123,13 @@ MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver context: aConte
 					         yourself ] ]
 		context: aContext.
 
-	result := aWrapper valueWithReceiver: aReceiver arguments: anArray.
+	result := super
+		          run: aSelector
+		          with: anArray
+		          in: aReceiver
+		          context: aContext
+		          carry: carry
+		          wrapper: aWrapper.
 
 	aWrapper
 		withSuspendWrapping: [ 
@@ -129,30 +145,6 @@ MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver context: aConte
 		context: aContext.
 
 	^ result
-]
-
-{ #category : #evaluation }
-MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver pre: aContext wrapper: aWrapper [
-
-	aWrapper
-		withSuspendWrapping: [ :aSession | 
-			| aParent |
-			aParent := aContext sender findContextSuchThat: [ :ctx | 
-				           runWithInMethod = ctx method ].
-
-			aParent
-				ifNil: [ 
-					orphans add: aContext.
-					tree parent: aContext child: aContext ]
-				ifNotNil: [ tree parent: aParent child: aContext ] ]
-		context: aContext.
-
-	^ super
-		  run: aSelector
-		  with: anArray
-		  in: aReceiver
-		  pre: aContext
-		  wrapper: aWrapper
 ]
 
 { #category : #accessing }

@@ -30,27 +30,3 @@ MWHandlerDecorating >> run: aSelector with: anArray in: aReceiver context: aCont
 		  carry: carry
 		  wrapper: aWrapper
 ]
-
-{ #category : #evaluation }
-MWHandlerDecorating >> run: aSelector with: anArray in: aReceiver post: aContext carry: carry return: anObject wrapper: aWrapper [
-
-	^ handler
-		  run: aSelector
-		  with: anArray
-		  in: aReceiver
-		  post: aContext
-		  carry: carry
-		  return: anObject
-		  wrapper: aWrapper
-]
-
-{ #category : #evaluation }
-MWHandlerDecorating >> run: aSelector with: anArray in: aReceiver pre: aContext wrapper: aWrapper [
-
-	^ handler
-		  run: aSelector
-		  with: anArray
-		  in: aReceiver
-		  pre: aContext
-		  wrapper: aWrapper
-]

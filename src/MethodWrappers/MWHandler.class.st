@@ -13,40 +13,11 @@ MWHandler >> run: aSelector with: anArray in: aReceiver context: aContext carry:
 { #category : #API }
 MWHandler >> run: aSelector with: anArray in: aReceiver context: aContext wrapper: aWrapper [
 
-	| carry result |
-	carry := self
-		         run: aSelector
-		         with: anArray
-		         in: aReceiver
-		         pre: aContext
-		         wrapper: aWrapper.
-
-	result := self
-		          run: aSelector
-		          with: anArray
-		          in: aReceiver
-		          context: aContext
-		          carry: carry
-		          wrapper: aWrapper.
-
 	^ self
 		  run: aSelector
 		  with: anArray
 		  in: aReceiver
-		  post: aContext
-		  carry: carry
-		  return: result
+		  context: aContext
+		  carry: nil
 		  wrapper: aWrapper
-]
-
-{ #category : #hooks }
-MWHandler >> run: aSelector with: anArray in: aReceiver post: aContext carry: carry return: anObject wrapper: aWrapper [
-
-	^ anObject
-]
-
-{ #category : #hooks }
-MWHandler >> run: aSelector with: anArray in: aReceiver pre: aContext wrapper: aWrapper [
-
-	
 ]
