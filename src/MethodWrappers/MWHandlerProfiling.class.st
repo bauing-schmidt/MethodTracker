@@ -3,7 +3,7 @@ I am a variant that waits a delay before returning from the hook notification me
 "
 Class {
 	#name : #MWHandlerProfiling,
-	#superclass : #MWHandler,
+	#superclass : #MWHandlerPrePostPlugging,
 	#instVars : [
 		'tree',
 		'runWithInMethod',
@@ -99,51 +99,43 @@ MWHandlerProfiling >> parent: aContext ifAbsent: aBlock [
 	^ tree parent: aContext ifAbsent: aBlock
 ]
 
+{ #category : #'as yet unclassified' }
+MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver postContext: aContext wrapper: aWrapper carry: timed return: result [
+
+	| duration now by start |
+	now := Time microsecondClockValue.
+	start := timed duration first.
+
+	by := 1.
+	now = start ifTrue: [ now := now + by ].
+	duration := start to: now by: by.
+
+	timed
+		result: result just;
+		duration: duration
+]
+
 { #category : #hooks }
-MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver context: aContext wrapper: aWrapper [
+MWHandlerProfiling >> run: aSelector with: anArray in: aReceiver preContext: aContext wrapper: aWrapper [
 
-	| start result timed |
-	aWrapper
-		withSuspendWrapping: [ 
-			| aParent |
-			aParent := aContext sender findContextSuchThat: [ :ctx | 
-				           runWithInMethod = ctx method ].
+	| aParent start timedResult |
+	aParent := aContext sender findContextSuchThat: [ :ctx | 
+		           runWithInMethod = ctx method ].
 
-			aParent
-				ifNil: [ 
-					orphans add: aContext.
-					tree parent: aContext child: aContext ]
-				ifNotNil: [ tree parent: aParent child: aContext ].
+	aParent
+		ifNil: [ 
+			orphans add: aContext.
+			tree parent: aContext child: aContext ]
+		ifNotNil: [ tree parent: aParent child: aContext ].
 
-			start := Time microsecondClockValue.
-			timed := timedReturns at: aContext ifAbsentPut: [ 
-				         MWTimedExecResult new
-					         result: Maybe nothing;
-					         duration: (start to: start + 1);
-					         yourself ] ]
-		context: aContext.
+	start := Time microsecondClockValue.
 
-	result := super
-		          run: aSelector
-		          with: anArray
-		          in: aReceiver
-		          context: aContext
-		          wrapper: aWrapper.
+	timedResult := MWTimedExecResult new
+		               result: Maybe nothing;
+		               duration: (start to: start + 1);
+		               yourself.
 
-	aWrapper
-		withSuspendWrapping: [ 
-			| duration now by |
-			now := Time microsecondClockValue.
-			by := 1.
-			now = start ifTrue: [ now := now + by ].
-			duration := start to: now by: by.
-
-			timed
-				result: result just;
-				duration: duration ]
-		context: aContext.
-
-	^ result
+	^ timedReturns at: aContext put: timedResult
 ]
 
 { #category : #accessing }

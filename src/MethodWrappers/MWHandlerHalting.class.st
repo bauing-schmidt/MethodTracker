@@ -1,20 +1,11 @@
 Class {
 	#name : #MWHandlerHalting,
-	#superclass : #MWHandler,
+	#superclass : #MWHandlerPrePostPlugging,
 	#category : #MethodWrappers
 }
 
 { #category : #evaluation }
-MWHandlerHalting >> run: aSelector with: anArray in: aReceiver context: aContext wrapper: aWrapper [
+MWHandlerHalting >> run: aSelector with: anArray in: aReceiver preContext: aContext wrapper: aWrapper [
 
-	aWrapper
-		withSuspendWrapping: [ Warning signal: 'Proceed when you''re done' ]
-		context: aContext.
-
-	^ super
-		  run: aSelector
-		  with: anArray
-		  in: aReceiver
-		  context: aContext
-		  wrapper: aWrapper
+	Warning signal: 'Proceed when you''re done'
 ]

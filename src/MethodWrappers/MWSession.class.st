@@ -61,6 +61,12 @@ MWSession class >> forbiddenMethods [
 		  add: MWDecorator >> #run:with:in:context:notSuspended:;
 		  addAll:
 			  (MWHandler >> #run:with:in:context:wrapper:) allImplementations;
+		  addAll:
+			  (MWHandlerPrePostPlugging >> #run:with:in:preContext:wrapper:)
+				  allImplementations;
+		  addAll: (MWHandlerPrePostPlugging
+			   >> #run:with:in:postContext:wrapper:carry:return:)
+				  allImplementations;
 		  add: MWDecorator >> #valueWithReceiver:arguments:;
 		  add: ProtoObject >> #withArgs:executeMethod:;
 		  add: MWDecorator >> #withSuspendWrapping:context:;

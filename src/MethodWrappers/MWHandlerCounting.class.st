@@ -17,7 +17,7 @@ wrappers detect: [ :e |  e value method = (PdmStandardNames>>#getOwnPersonIdForU
 "
 Class {
 	#name : #MWHandlerCounting,
-	#superclass : #MWHandler,
+	#superclass : #MWHandlerPrePostPlugging,
 	#instVars : [
 		'count'
 	],
@@ -45,16 +45,7 @@ MWHandlerCounting >> initialize [
 ]
 
 { #category : #evaluation }
-MWHandlerCounting >> run: aSelector with: anArray in: aReceiver context: aContext wrapper: aWrapper [
+MWHandlerCounting >> run: aSelector with: anArray in: aReceiver preContext: aContext wrapper: aWrapper [
 
-	aWrapper
-		withSuspendWrapping: [ count := self add: count to: 1 ]
-		context: aContext.
-
-	^ super
-		  run: aSelector
-		  with: anArray
-		  in: aReceiver
-		  context: aContext
-		  wrapper: aWrapper
+	count := self add: count to: 1
 ]

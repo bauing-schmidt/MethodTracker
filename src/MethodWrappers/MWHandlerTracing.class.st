@@ -3,26 +3,16 @@ I am a wrapper variant that pushes to the standard error output port the method 
 "
 Class {
 	#name : #MWHandlerTracing,
-	#superclass : #MWHandler,
+	#superclass : #MWHandlerPrePostPlugging,
 	#category : #MethodWrappers
 }
 
 { #category : #evaluation }
-MWHandlerTracing >> run: aSelector with: anArray in: aReceiver context: aContext wrapper: aWrapper [
+MWHandlerTracing >> run: aSelector with: anArray in: aReceiver preContext: aContext wrapper: aWrapper [
 
-	aWrapper
-		withSuspendWrapping: [ 
-			Stdio stderr
-				nextPutAll: aReceiver class name;
-				nextPutAll: '>>#';
-				nextPutAll: aSelector;
-				lf ]
-		context: aContext.
-
-	^ super
-		  run: aSelector
-		  with: anArray
-		  in: aReceiver
-		  context: aContext
-		  wrapper: aWrapper
+	Stdio stderr
+		nextPutAll: aReceiver class name;
+		nextPutAll: '>>#';
+		nextPutAll: aSelector;
+		lf
 ]

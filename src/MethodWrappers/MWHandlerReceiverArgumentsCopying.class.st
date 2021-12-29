@@ -45,14 +45,16 @@ MWHandlerReceiverArgumentsCopying >> run: aSelector with: anArray in: aReceiver 
 
 	aWrapper
 		withSuspendWrapping: [ 
-			| client |
+			| client clientCopied resultCopied |
 			client := (self parent: aContext ifAbsent: [ Error signal ])
 				          asContextReifiedFromWrapping receiver.
 
+			clientCopied := copier value: client.
+			resultCopied := copier value: result.
+
 			table
 				at: aContext
-				put:
-				(copier value: client) -> (message return: (copier value: result)) ]
+				put: clientCopied -> (message return: resultCopied) ]
 		context: aContext.
 
 	^ result
