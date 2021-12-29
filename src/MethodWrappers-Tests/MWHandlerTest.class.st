@@ -420,7 +420,7 @@ MWHandlerTest >> testProfileSlowFibonacciMemoing [
 		           handler: handlerExecution;
 		           yourself.
 
-	result := (MWSession withAllImplementations: { (Number >> #add:) })
+	result := (MWSession withAllImplementations: { (Number >> #addNumber:) })
 		          do: [ :each | each handler: handlerCounting ];
 		          add: (MWDecorator new
 				           compiledMethod: Integer >> #slowFibonacci;
@@ -435,7 +435,7 @@ MWHandlerTest >> testProfileSlowFibonacciMemoing [
 	(MWSpPresenter on: tree -> metadata) openWithSpec.
 
 	self
-		assert: tree size equals: 19;
+		assert: tree size equals: 11;
 		assert: result equals: 11 fibonacciNumbers last;
 		assert: handlerCounting count equals: 9
 ]
@@ -483,7 +483,7 @@ MWHandlerTest >> testSelfSendsSimple [
 				           (self class >> #selfSend2).
 				           (self class >> #selfSend3).
 				           (Integer >> #slowFibonacci).
-				           (Number >> #add:).
+				           (Number >> #addNumber:).
 				           (Interval lookupSelector: #asArray) })
 		          do: [ :each | each handler: handlerExecution ];
 		          value: [ self selfSend1 ].
@@ -544,7 +544,7 @@ MWHandlerTest >> testSelfSendsSimpleWithOutlinerShapes [
 				           (self class >> #selfSend2).
 				           (self class >> #selfSend3).
 				           (Integer >> #slowFibonacci).
-				           (Number >> #add:).
+				           (Number >> #addNumber:).
 				           (Interval lookupSelector: #asArray) })
 		          do: [ :each | each handler: handlerExecution ];
 		          value: [ self selfSend1 ].
@@ -744,6 +744,6 @@ MWHandlerTest >> testTimingSlowFibonacciMemoing [
 	(MWSpPresenter on: tree -> metadata) openWithSpec.
 
 	self
-		assert: tree size equals: 19;
+		assert: tree size equals: 11;
 		assert: result equals: 11 fibonacciNumbers last
 ]

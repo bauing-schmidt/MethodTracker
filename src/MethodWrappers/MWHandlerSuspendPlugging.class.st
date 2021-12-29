@@ -35,8 +35,7 @@ MWHandlerSuspendPlugging >> run: aSelector with: anArray in: aReceiver context: 
 	| result |
 	aWrapper
 		withSuspendWrapping: [ :session | 
-			| anObj |
-			anObj := preBlock cull: session cull: aWrapper ]
+		preBlock cull: session cull: aWrapper ]
 		context: aContext.
 
 	result := super
@@ -48,8 +47,7 @@ MWHandlerSuspendPlugging >> run: aSelector with: anArray in: aReceiver context: 
 
 	aWrapper
 		withSuspendWrapping: [ :session | 
-			| anObj |
-			anObj := postBlock cull: session cull: aWrapper ]
+		postBlock cull: session cull: aWrapper ]
 		context: aContext.
 
 	^ result
