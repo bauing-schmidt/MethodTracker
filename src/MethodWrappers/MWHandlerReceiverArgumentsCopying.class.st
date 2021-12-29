@@ -2,69 +2,58 @@ Class {
 	#name : #MWHandlerReceiverArgumentsCopying,
 	#superclass : #MWHandlerDecorating,
 	#instVars : [
-		'table'
+		'table',
+		'copier'
 	],
 	#category : #MethodWrappers
 }
+
+{ #category : #accessing }
+MWHandlerReceiverArgumentsCopying >> copier: anObject [
+
+	copier := anObject
+]
 
 { #category : #initialization }
 MWHandlerReceiverArgumentsCopying >> initialize [
 
 	super initialize.
 
-	table := Dictionary new
+	table := Dictionary new.
+
+	self copier: [ :each | each copy ]
 ]
 
 { #category : #hooks }
-MWHandlerReceiverArgumentsCopying >> run: aSelector with: anArray in: aReceiver post: aContext carry: carry return: anObject wrapper: aWrapper [
-
-	| result |
-	result := super
-		          run: aSelector
-		          with: anArray
-		          in: aReceiver
-		          post: aContext
-		          carry: carry
-		          return: anObject
-		          wrapper: aWrapper.
-
-	aWrapper
-		withSuspendWrapping: [ 
-			| anAssoc message |
-			anAssoc := table at: aContext.
-			message := anAssoc value.
-			anAssoc value: (message return: result copy) ]
-		context: aContext.
-
-	^ result
-]
-
-{ #category : #evaluation }
-MWHandlerReceiverArgumentsCopying >> run: aSelector with: anArray in: aReceiver pre: aContext wrapper: aWrapper [
+MWHandlerReceiverArgumentsCopying >> run: aSelector with: anArray in: aReceiver context: aContext carry: carry wrapper: aWrapper [
 
 	| result message |
 	message := aWrapper
 		           withSuspendWrapping: [ 
 			           table at: aContext put: (MessageSend
-					            receiver: aReceiver copy
+					            receiver: (copier value: aReceiver)
 					            selector: aSelector
-					            arguments: (anArray collect: [ :each | each copy ])) ]
+					            arguments: (anArray collect: copier)) ]
 		           context: aContext.
 
 	result := super
 		          run: aSelector
 		          with: anArray
 		          in: aReceiver
-		          pre: aContext
+		          context: aContext
+		          carry: carry
 		          wrapper: aWrapper.
 
 	aWrapper
 		withSuspendWrapping: [ 
 			| client |
-			client := (self parent: aContext ifAbsent: [ Error signal ])
-				          asContextReifiedFromWrapping receiver copy.
+			client := copier value:
+				          (self parent: aContext ifAbsent: [ Error signal ])
+					          asContextReifiedFromWrapping receiver.
 
-			table at: aContext put: client -> message ]
+			table
+				at: aContext
+				put: client -> (message return: (copier value: result)) ]
 		context: aContext.
 
 	^ result

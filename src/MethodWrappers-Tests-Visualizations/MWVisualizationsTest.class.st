@@ -162,30 +162,31 @@ MWVisualizationsTest >> testInspectLargeIntegerSlowProfiled [
 { #category : #tests }
 MWVisualizationsTest >> testProfileSlowFibonacciMemoingWithAdd [
 
-	| handler tree result handlerExecution metadata presenter |
+	| tree result handlerExecution metadata presenter handlerCopying |
 	tree := CTOrderPreservingTree new.
 
 	handlerExecution := MWHandlerProfiling new
 		                    tree: tree;
 		                    yourself.
 
-	handler := MWHandlerMemoing new
-		           handler: handlerExecution;
-		           yourself.
+	handlerCopying := MWHandlerReceiverArgumentsCopying new
+		                  handler: handlerExecution;
+		                  yourself.
 
 	result := MWSession new
 		          add: (MWDecorator new
-				           compiledMethod: Integer >> #slowFibonacci;
-				           handler: handler;
+				           compiledMethod: Integer >> #slowFibonacciMemo:;
+				           handler: handlerCopying;
 				           yourself);
 		          add: (MWDecorator new
 				           compiledMethod: Number >> #addNumber:;
 				           handler: handlerExecution;
 				           yourself);
-		          value: [ 6 slowFibonacci ].
+		          value: [ 6 slowFibonacciMemo: Dictionary new ].
 
 	metadata := IdentityDictionary new.
 	handlerExecution metadata: metadata.
+	handlerCopying metadata: metadata.
 
 	"Show here the new presenter."
 	presenter := (MWSpPresenter on: tree -> metadata)
