@@ -74,9 +74,9 @@ MWVisualizationsTest >> testInspectKaratsuba42FactorialSquaredProfiled [
 	m := 42 factorial.
 
 	large := (MWSession withAllImplementations:
-			          { (Integer >> #dcMultiplyInteger:base:) })
+			          { (Integer >> #karatsuba:base:) })
 		         do: [ :each | each handler: handlerCopying ];
-		         value: [ large := m dcMultiplyInteger: m base: 10 ].
+		         value: [ large := m karatsuba: m base: 10 ].
 
 	metadata := IdentityDictionary new.
 	handlerExecution metadata: metadata.
@@ -131,12 +131,12 @@ MWVisualizationsTest >> testInspectLargeIntegerProfiled [
 	n := 714.
 
 	large := (MWSession withAllImplementations: { 
-				          (Integer >> #dcMultiplyInteger:base:).
+				          (Integer >> #karatsuba:base:).
 				          (Number >> #addNumber:).
 				          (Number >> #subtractNumber:).
 				          (Number >> #multiplyNumber:) })
 		         do: [ :each | each handler: handlerCopying ];
-		         value: [ large := m dcMultiplyInteger: n base: 10 ].
+		         value: [ large := m karatsuba: n base: 10 ].
 
 	metadata := IdentityDictionary new.
 	handlerExecution metadata: metadata.
