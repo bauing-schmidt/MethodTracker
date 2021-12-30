@@ -7,6 +7,57 @@ Class {
 }
 
 { #category : #tests }
+MWVisualizationsTest >> testInspectFactorialRecursive [
+
+	| n factorial tree handlerExecution handlerCopying metadata presenter |
+	tree := CTOrderPreservingTree new.
+
+	handlerExecution := MWHandlerProfiling new
+		                    tree: tree;
+		                    yourself.
+
+	handlerCopying := MWHandlerReceiverArgumentsCopying new
+		                  handler: handlerExecution;
+		                  yourself.
+
+	n := 1 << 4.
+
+	factorial := (MWSession withAllImplementations: { 
+				              (Integer >> #factorialRecursive).
+				              "(Number >> #subtractNumber:)."
+				              (Number >> #multiplyNumber:) })
+		             do: [ :each | each handler: handlerCopying ];
+		             value: [ n factorialRecursive ].
+
+	metadata := IdentityDictionary new.
+	handlerExecution metadata: metadata.
+	handlerCopying metadata: metadata.
+
+	"Show here the new presenter."
+	presenter := (MWSpPresenter on: tree -> metadata)
+		             useShapeSlotsDfsTree;
+		             openWithSpec;
+		             yourself.
+	"		useShapeSlotsDfsTree;"
+
+	self
+		assert: tree size equals: 33;
+		assert: factorial equals: 20922789888000;
+		assert: factorial equals: n factorial.
+
+	^ self
+		  export: tree
+		  pathSuffix: 'sequence-diagram'
+		  onCanvasDo: [ :aCanvas :useless | 
+			  presenter currentCanvas: aCanvas ];
+		  exportSlotsGraphOf: factorial
+	"exportShapeOf: tree
+		  accessorBlock: [ :aTree | 
+			  aTree asShapeValuesHorizontalTreeWithLabelShapes ]
+		  pathSuffix: 'contexts-tree';"
+]
+
+{ #category : #tests }
 MWVisualizationsTest >> testInspectLargeIntegerProfiled [
 
 	| m n large tree handlerExecution handlerCopying metadata presenter |
@@ -153,6 +204,57 @@ MWVisualizationsTest >> testInspectLargeIntegerSlowProfiled [
 		  onCanvasDo: [ :aCanvas :useless | 
 			  presenter currentCanvas: aCanvas ];
 		  exportSlotsGraphOf: large
+	"exportShapeOf: tree
+		  accessorBlock: [ :aTree | 
+			  aTree asShapeValuesHorizontalTreeWithLabelShapes ]
+		  pathSuffix: 'contexts-tree';"
+]
+
+{ #category : #tests }
+MWVisualizationsTest >> testInspectProductTo [
+
+	| n factorial tree handlerExecution handlerCopying metadata presenter |
+	tree := CTOrderPreservingTree new.
+
+	handlerExecution := MWHandlerProfiling new
+		                    tree: tree;
+		                    yourself.
+
+	handlerCopying := MWHandlerReceiverArgumentsCopying new
+		                  handler: handlerExecution;
+		                  yourself.
+
+	n := 1 << 4.
+
+	factorial := (MWSession withAllImplementations: { 
+				              (Integer >> #productTo:).
+				              (Number >> #addNumber:).
+				              "(Number >> #subtractNumber:)."
+				              (Number >> #multiplyNumber:) })
+		             do: [ :each | each handler: handlerCopying ];
+		             value: [ 1 productTo: n ].
+
+	metadata := IdentityDictionary new.
+	handlerExecution metadata: metadata.
+	handlerCopying metadata: metadata.
+
+	"Show here the new presenter."
+	presenter := (MWSpPresenter on: tree -> metadata)
+		             useShapeSlotsDfsTree;
+		             openWithSpec;
+		             yourself.
+	"		useShapeSlotsDfsTree;"
+
+	self
+		assert: tree size equals: 21;
+		assert: factorial equals: n factorial.
+
+	^ self
+		  export: tree
+		  pathSuffix: 'sequence-diagram'
+		  onCanvasDo: [ :aCanvas :useless | 
+			  presenter currentCanvas: aCanvas ];
+		  exportSlotsGraphOf: factorial
 	"exportShapeOf: tree
 		  accessorBlock: [ :aTree | 
 			  aTree asShapeValuesHorizontalTreeWithLabelShapes ]
