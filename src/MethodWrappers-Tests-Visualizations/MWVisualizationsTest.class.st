@@ -58,6 +58,62 @@ MWVisualizationsTest >> testInspectFactorialRecursive [
 ]
 
 { #category : #tests }
+MWVisualizationsTest >> testInspectKaratsuba42FactorialSquaredProfiled [
+
+	| m large tree handlerExecution handlerCopying metadata presenter nBits leaves |
+	tree := CTOrderPreservingTree new.
+
+	handlerExecution := MWHandlerProfiling new
+		                    tree: tree;
+		                    yourself.
+
+	handlerCopying := MWHandlerReceiverArgumentsCopying new
+		                  handler: handlerExecution;
+		                  yourself.
+
+	m := 42 factorial.
+
+	large := (MWSession withAllImplementations:
+			          { (Integer >> #dcMultiplyInteger:base:) })
+		         do: [ :each | each handler: handlerCopying ];
+		         value: [ large := m dcMultiplyInteger: m base: 10 ].
+
+	metadata := IdentityDictionary new.
+	handlerExecution metadata: metadata.
+	handlerCopying metadata: metadata.
+
+	"Show here the new presenter."
+	presenter := (MWSpPresenter on: tree -> metadata)
+		             useShapeSlotsDfsTree;
+		             openWithSpec;
+		             yourself.
+
+	nBits := (m numberOfDigitsInBase: 10) + 1.
+
+	leaves := 0.
+	tree children keysAndValuesDo: [ :aNode :children | 
+		leaves := leaves + children isEmpty asBit ].
+
+	self
+		assert: tree size equals: 1264;
+		assert: tree size - leaves equals: 421;
+		assert: nBits equals: 53;
+		assert: (nBits ** (3 log: 2)) ceiling equals: 541;
+		assert: large equals: m * m
+
+	"^ self
+		  export: tree
+		  pathSuffix: 'sequence-diagram'
+		  onCanvasDo: [ :aCanvas :useless | 
+			  presenter currentCanvas: aCanvas ];
+		  exportSlotsGraphOf: large"
+	"exportShapeOf: tree
+		  accessorBlock: [ :aTree | 
+			  aTree asShapeValuesHorizontalTreeWithLabelShapes ]
+		  pathSuffix: 'contexts-tree';"
+]
+
+{ #category : #tests }
 MWVisualizationsTest >> testInspectLargeIntegerProfiled [
 
 	| m n large tree handlerExecution handlerCopying metadata presenter |
