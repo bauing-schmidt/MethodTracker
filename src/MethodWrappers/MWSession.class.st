@@ -93,13 +93,19 @@ MWSession >> add: aDecorator [
 
 	aDecorator owner: self.
 
-	^ decorators add: aDecorator
+	^ decorators
+		  at: aDecorator compiledMethod
+		  ifPresent: [ :aDec | Object new ]
+		  ifAbsentPut: [ 
+			  aDecorator
+				  owner: self;
+				  yourself ]
 ]
 
 { #category : #'*MethodWrappers' }
 MWSession >> do: aBlock [
 
-	decorators do: aBlock
+	decorators valuesDo: aBlock
 ]
 
 { #category : #initialization }
@@ -107,7 +113,7 @@ MWSession >> initialize [
 
 	super initialize.
 
-	decorators := OrderedCollection new.
+	decorators := Dictionary new.
 
 	stackCounter := 0
 ]

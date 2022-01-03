@@ -3,7 +3,7 @@ Extension { #name : #MWSession }
 { #category : #'*MethodWrappers' }
 MWSession >> do: aBlock [
 
-	decorators do: aBlock
+	decorators valuesDo: aBlock
 ]
 
 { #category : #'*MethodWrappers' }

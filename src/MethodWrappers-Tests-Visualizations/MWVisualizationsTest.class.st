@@ -318,6 +318,59 @@ MWVisualizationsTest >> testInspectProductTo [
 ]
 
 { #category : #tests }
+MWVisualizationsTest >> testInspectProductToPropagating [
+
+	| n factorial tree handlerExecution handlerCopying metadata presenter handlerPropagating |
+	tree := CTOrderPreservingTree new.
+
+	handlerExecution := MWHandlerProfiling new
+		                    tree: tree;
+		                    yourself.
+
+	handlerCopying := MWHandlerReceiverArgumentsCopying new
+		                  handler: handlerExecution;
+		                  yourself.
+
+	handlerPropagating := MWHandlerSenderPropagating new
+		                      handler: handlerCopying;
+		                      yourself.
+
+	n := 1 << 4.
+
+	factorial := (MWSession withAllImplementations:
+			              { (Number >> #multiplyNumber:) })
+		             do: [ :each | each handler: handlerPropagating ];
+		             value: [ 1 productTo: n ].
+	"(Integer >> #productTo:)."
+
+	metadata := IdentityDictionary new.
+	handlerExecution metadata: metadata.
+	handlerCopying metadata: metadata.
+
+	"Show here the new presenter."
+	presenter := (MWSpPresenter on: tree -> metadata)
+		             useShapeSlotsDfsTree;
+		             openWithSpec;
+		             yourself.
+	"		useShapeSlotsDfsTree;"
+
+	self
+		assert: tree size equals: 21;
+		assert: factorial equals: n factorial.
+
+	^ self
+		  export: tree
+		  pathSuffix: 'sequence-diagram'
+		  onCanvasDo: [ :aCanvas :useless | 
+			  presenter currentCanvas: aCanvas ];
+		  exportSlotsGraphOf: factorial
+	"exportShapeOf: tree
+		  accessorBlock: [ :aTree | 
+			  aTree asShapeValuesHorizontalTreeWithLabelShapes ]
+		  pathSuffix: 'contexts-tree';"
+]
+
+{ #category : #tests }
 MWVisualizationsTest >> testProfileSlowFibonacciMemoingWithAdd [
 
 	| tree result handlerExecution metadata presenter handlerCopying |

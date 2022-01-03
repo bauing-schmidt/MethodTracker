@@ -33,6 +33,12 @@ MWDecorator class >> reset [
 ]
 
 { #category : #initialization }
+MWDecorator >> compiledMethod [
+
+	^ compiledMethod
+]
+
+{ #category : #initialization }
 MWDecorator >> compiledMethod: aCompiledMethod [
 
 	compiledMethod := aCompiledMethod
