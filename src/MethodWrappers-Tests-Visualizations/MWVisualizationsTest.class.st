@@ -352,10 +352,9 @@ MWVisualizationsTest >> testInspectProductToPropagating [
 		             useShapeSlotsDfsTree;
 		             openWithSpec;
 		             yourself.
-	"		useShapeSlotsDfsTree;"
 
 	self
-		assert: tree size equals: 21;
+		assert: tree size equals: 18;
 		assert: factorial equals: n factorial.
 
 	^ self

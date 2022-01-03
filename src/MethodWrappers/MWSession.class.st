@@ -6,17 +6,19 @@ Class {
 		'decorators',
 		'home'
 	],
+	#classVars : [
+		'forbiddenMethods'
+	],
 	#category : #MethodWrappers
 }
 
 { #category : #API }
 MWSession class >> compiledMethods: aCollection thenSelect: methodBlock [
 
-	| methods session forbiddenMethods |
-	forbiddenMethods := self forbiddenMethods.
-
-	methods := (aCollection reject: [ :each | 
-		            forbiddenMethods includes: each ]) select: methodBlock.
+	| methods session |
+	methods := aCollection select: [ :each | 
+		           (forbiddenMethods includes: each) not and: [ 
+			           methodBlock value: each ] ].
 
 	session := self new.
 
@@ -52,25 +54,33 @@ MWSession class >> forPackages: aCollection selectMethod: methodBlock [
 ]
 
 { #category : #API }
-MWSession class >> forbiddenMethods [
+MWSession class >> initialize [
 
-	^ Set new
-		  add: MWDecorator >> #run:with:in:;
-		  add: MWSession >> #run:with:in:context:wrapper:;
-		  add: MWDecorator >> #run:with:in:context:suspended:;
-		  add: MWDecorator >> #run:with:in:context:notSuspended:;
-		  addAll:
-			  (MWHandler >> #run:with:in:context:wrapper:) allImplementations;
-		  addAll:
-			  (MWHandlerPrePostPlugging >> #run:with:in:preContext:wrapper:)
-				  allImplementations;
-		  addAll: (MWHandlerPrePostPlugging
-			   >> #run:with:in:postContext:wrapper:carry:return:)
-				  allImplementations;
-		  add: MWDecorator >> #valueWithReceiver:arguments:;
-		  add: ProtoObject >> #withArgs:executeMethod:;
-		  add: MWDecorator >> #withSuspendWrapping:context:;
-		  yourself
+	forbiddenMethods := Set new
+		                    add: MWDecorator >> #run:with:in:;
+		                    add: MWSession >> #run:with:in:context:wrapper:;
+		                    add:
+			                    MWDecorator >> #run:with:in:context:suspended:;
+		                    add:
+			                    MWDecorator
+			                    >> #run:with:in:context:notSuspended:;
+		                    addAll:
+			                    (MWHandler >> #run:with:in:context:wrapper:)
+				                    allImplementations;
+		                    addAll:
+			                    (MWHandlerPrePostPlugging
+			                     >> #run:with:in:preContext:wrapper:)
+				                    allImplementations;
+		                    addAll: (MWHandlerPrePostPlugging
+			                     >>
+				                     #run:with:in:postContext:wrapper:carry:return:)
+				                    allImplementations;
+		                    add:
+			                    MWDecorator >> #valueWithReceiver:arguments:;
+		                    add: ProtoObject >> #withArgs:executeMethod:;
+		                    add:
+			                    MWDecorator >> #withSuspendWrapping:context:;
+		                    yourself
 ]
 
 { #category : #'instance creation' }
@@ -91,15 +101,16 @@ MWSession class >> withAllImplementations: aCollection [
 { #category : #adding }
 MWSession >> add: aDecorator [
 
-	aDecorator owner: self.
+	| key |
+	key := aDecorator compiledMethod.
 
-	^ decorators
-		  at: aDecorator compiledMethod
-		  ifPresent: [ :aDec | Object new ]
-		  ifAbsentPut: [ 
-			  aDecorator
-				  owner: self;
-				  yourself ]
+	^ (forbiddenMethods includes: key)
+		  ifTrue: [ Object new ]
+		  ifFalse: [ 
+			  decorators at: key ifAbsentPut: [ 
+				  aDecorator
+					  owner: self;
+					  yourself ] ]
 ]
 
 { #category : #'*MethodWrappers' }
