@@ -76,7 +76,10 @@ MWVisualizationsTest >> testInspectInversions [
 	inversions := (MWSession withAllImplementations: { 
 				               (SequenceableCollection >> #inversions:).
 				               (PositionableStream
-				                >> #merge:sortBlock:on:inversionsOrNil:) })
+				                >> #merge:sortBlock:on:inversionsOrNil:).
+				               (SequenceableCollection >> #bisect:baseBlock:).
+				               (SequenceableCollection
+				                >> #bisect:from:to:baseBlock:) })
 		              do: [ :each | each handler: handlerCopying ];
 		              value: [ 
 			              { 2. 4. 1. 3. 5 } inversions: [ :i :j | i < j ] ].
@@ -92,11 +95,11 @@ MWVisualizationsTest >> testInspectInversions [
 		             yourself.
 
 	self
-		assert: tree size equals: 21;
+		assert: tree size equals: 15;
 		assert: inversions equals: { 
 				(1 -> 2).
 				(1 -> 4).
-				(3 -> 4) }.
+				(3 -> 4) }
 
 	"^ self
 		  export: tree
