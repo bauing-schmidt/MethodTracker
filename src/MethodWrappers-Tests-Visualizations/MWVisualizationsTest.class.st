@@ -60,7 +60,7 @@ MWVisualizationsTest >> testInspectFactorialRecursive [
 { #category : #tests }
 MWVisualizationsTest >> testInspectInversions [
 
-	|  inversions tree handlerExecution handlerCopying metadata presenter |
+	| inversions tree handlerExecution handlerCopying metadata presenter |
 	tree := CTOrderPreservingTree new.
 
 	handlerExecution := MWHandlerProfiling new
@@ -98,14 +98,14 @@ MWVisualizationsTest >> testInspectInversions [
 		assert: inversions equals: { 
 				(1 -> 2).
 				(1 -> 4).
-				(3 -> 4) }
+				(3 -> 4) }.
 
-	"^ self
+	^ self
 		  export: tree
 		  pathSuffix: 'sequence-diagram'
 		  onCanvasDo: [ :aCanvas :useless | 
 			  presenter currentCanvas: aCanvas ];
-		  exportSlotsGraphOf: inversions"
+		  exportSlotsGraphOf: inversions
 ]
 
 { #category : #tests }
@@ -121,7 +121,6 @@ MWVisualizationsTest >> testInspectInversionsReversed [
 	handlerCopying := MWHandlerReceiverArgumentsCopying new
 		                  handler: handlerExecution;
 		                  yourself.
-
 
 	inversions := (MWSession withAllImplementations: { 
 				               (SequenceableCollection >> #inversions:).
@@ -157,14 +156,14 @@ MWVisualizationsTest >> testInspectInversionsReversed [
 				(1 -> 5).
 				(2 -> 3).
 				(2 -> 4).
-				(2 -> 5) }
+				(2 -> 5) }.
 
-	"^ self
+	^ self
 		  export: tree
 		  pathSuffix: 'sequence-diagram'
 		  onCanvasDo: [ :aCanvas :useless | 
 			  presenter currentCanvas: aCanvas ];
-		  exportSlotsGraphOf: inversions"
+		  exportSlotsGraphOf: inversions
 ]
 
 { #category : #tests }

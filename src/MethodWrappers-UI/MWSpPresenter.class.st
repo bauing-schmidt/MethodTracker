@@ -336,7 +336,7 @@ MWSpPresenter >> useShapeSlotsDfsTree [
 	| block |
 	block := [ :anObject | 
 	         anObject asShapeSlotsDfsTree:
-		         (anObject slotDescriptorsContext collect: [ :aDescriptor | 
+		         (MWSlotDescriptorsVisitor new collect: [ :aDescriptor | 
 			          aDescriptor
 				          headerWithClass;
 				          yourself ]) ].
