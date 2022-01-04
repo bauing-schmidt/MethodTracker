@@ -7,7 +7,6 @@ Class {
 		'tablePresenter',
 		'tree',
 		'metadata',
-		'methodCountDurationDictionary',
 		'tableItems',
 		'exportButton',
 		'receiverArgumentsShape',
@@ -249,72 +248,11 @@ MWSpPresenter >> sequenceDiagramTree: aTree canvas: aCanvas [
 ]
 
 { #category : #initialization }
-MWSpPresenter >> setModelBeforeInitialization: treeMetadataAssociation [
+MWSpPresenter >> setModelBeforeInitialization: observedData [
 
-	tree := treeMetadataAssociation key.
-	metadata := treeMetadataAssociation value.
-
-	methodCountDurationDictionary := Dictionary new.
-	metadata keysAndValuesDo: [ :each :model | 
-		| anArray |
-		anArray := methodCountDurationDictionary
-			           at: model reifiedContext method
-			           ifAbsentPut: [ 
-				           { 
-					           IdentitySet new.
-					           IdentitySet new.
-					           0.
-					           OrderedCollection new.
-					           nil } ].
-
-		model statisticsArray: anArray.
-
-		(anArray at: 1) add: ((metadata at: each) client
-				 ifNothing: [ Object new ]
-				 ifJust: [ :aJust | aJust content ]).
-		(anArray at: 2) add: each asContextReifiedFromWrapping receiver.
-		anArray at: 3 put: (anArray at: 3) + 1.
-		(anArray at: 4) add: model duration ].
-
-	tableItems := OrderedCollection new.
-	methodCountDurationDictionary keysAndValuesDo: [ :aMethod :anArray | 
-		| row duration durationAvg durationMinSquaresSum count durationStDev durations |
-		count := anArray third.
-		durations := anArray fourth.
-
-		duration := durations
-			            inject: 0
-			            into: [ :nanoSecs :each | 
-			            nanoSecs + each asNanoSeconds ].
-
-		durationAvg := duration / count.
-
-		durationMinSquaresSum := durations
-			                         inject: 0
-			                         into: [ :nanoSecs :each | 
-				                         | squaredError |
-				                         squaredError := (each asNanoSeconds
-				                                          - durationAvg) squared.
-				                         nanoSecs + squaredError ].
-
-		durationStDev := count > 1
-			                 ifTrue: [ 
-			                 (durationMinSquaresSum / (count - 1)) sqrt ]
-			                 ifFalse: [ 0 ].
-		row := Dictionary new
-			       at: #compiledMethod put: aMethod;
-			       at: #count put: count;
-			       at: #duration put: (Duration nanoSeconds: duration);
-			       at: #durationAvg put: (Duration nanoSeconds: durationAvg);
-			       at: #durationStDev
-			       put: (Duration nanoSeconds: durationStDev);
-			       at: #clients put: anArray first size;
-			       at: #receivers put: anArray second size;
-			       yourself.
-
-		tableItems add: row.
-
-		anArray at: 5 put: row ]
+	tree := observedData tree.
+	metadata := observedData metadata.
+	tableItems := observedData statistics values
 ]
 
 { #category : #'as yet unclassified' }

@@ -1,8 +1,8 @@
 Class {
 	#name : #MWVisualizationsTest,
 	#superclass : #TestCase,
-	#traits : 'TIceImagesExporting',
-	#classTraits : 'TIceImagesExporting classTrait',
+	#traits : 'TIceImagesExporting + MWTProfilingCopying',
+	#classTraits : 'TIceImagesExporting classTrait + MWTProfilingCopying classTrait',
 	#category : #'MethodWrappers-Tests-Visualizations'
 }
 
@@ -33,12 +33,10 @@ MWVisualizationsTest >> testInspectFactorialRecursive [
 	handlerExecution metadata: metadata.
 	handlerCopying metadata: metadata.
 
-	"Show here the new presenter."
 	presenter := (MWSpPresenter on: tree -> metadata)
 		             useShapeSlotsDfsTree;
 		             openWithSpec;
 		             yourself.
-	"		useShapeSlotsDfsTree;"
 
 	self
 		assert: tree size equals: 33;
@@ -60,52 +58,36 @@ MWVisualizationsTest >> testInspectFactorialRecursive [
 { #category : #tests }
 MWVisualizationsTest >> testInspectInversions [
 
-	| inversions tree handlerExecution handlerCopying metadata presenter |
-	tree := CTOrderPreservingTree new.
-
-	handlerExecution := MWHandlerProfiling new
-		                    tree: tree;
-		                    yourself.
-
-	handlerCopying := MWHandlerReceiverArgumentsCopying new
-		                  handler: handlerExecution;
-		                  yourself.
-
-	inversions := (MWSession withAllImplementations: { 
-				               (SequenceableCollection >> #inversions:).
-				               (PositionableStream
-				                >> #merge:sortBlock:on:inversionsOrNil:).
-				               (SequenceableCollection >> #bisect:baseBlock:).
-				               (SequenceableCollection
-				                >> #bisect:from:to:baseBlock:).
-				               (Stream >> #nextPut:inversion:) })
-		              do: [ :each | each handler: handlerCopying ];
-		              value: [ 
-			              { 2. 4. 1. 3. 5 } inversions: [ :i :j | i < j ] ].
-
-	metadata := IdentityDictionary new.
-	handlerExecution metadata: metadata.
-	handlerCopying metadata: metadata.
-
-	"Show here the new presenter."
-	presenter := (MWSpPresenter on: tree -> metadata)
-		             useShapeSlotsDfsTree;
-		             openWithSpec;
-		             yourself.
-
-	self
-		assert: tree size equals: 18;
-		assert: inversions equals: { 
-				(1 -> 2).
-				(1 -> 4).
-				(3 -> 4) }.
-
 	^ self
-		  export: tree
-		  pathSuffix: 'sequence-diagram'
-		  onCanvasDo: [ :aCanvas :useless | 
-			  presenter currentCanvas: aCanvas ];
-		  exportSlotsGraphOf: inversions
+		  compiledMethods: { 
+				  (SequenceableCollection >> #inversions:).
+				  (PositionableStream >> #merge:sortBlock:on:inversionsOrNil:).
+				  (SequenceableCollection >> #bisect:baseBlock:).
+				  (SequenceableCollection >> #bisect:from:to:baseBlock:).
+				  (Stream >> #nextPut:inversion:) }
+		  wrapping: [ { 2. 4. 1. 3. 5 } inversions: [ :i :j | i < j ] ]
+		  then: [ :inversions :observedData | 
+			  | presenter tree |
+			  tree := observedData tree.
+
+			  presenter := (MWSpPresenter on: observedData)
+				               useShapeSlotsDfsTree;
+				               openWithSpec;
+				               yourself.
+
+			  self
+				  assert: tree size equals: 18;
+				  assert: inversions equals: { 
+						  (1 -> 2).
+						  (1 -> 4).
+						  (3 -> 4) }.
+
+			  self
+				  export: tree
+				  pathSuffix: 'sequence-diagram'
+				  onCanvasDo: [ :aCanvas :useless | 
+					  presenter currentCanvas: aCanvas ];
+				  exportSlotsGraphOf: inversions ]
 ]
 
 { #category : #tests }
