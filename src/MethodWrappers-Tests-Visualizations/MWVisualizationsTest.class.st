@@ -60,7 +60,7 @@ MWVisualizationsTest >> testInspectFactorialRecursive [
 { #category : #tests }
 MWVisualizationsTest >> testInspectInversions [
 
-	| n inversions tree handlerExecution handlerCopying metadata presenter |
+	|  inversions tree handlerExecution handlerCopying metadata presenter |
 	tree := CTOrderPreservingTree new.
 
 	handlerExecution := MWHandlerProfiling new
@@ -70,8 +70,6 @@ MWVisualizationsTest >> testInspectInversions [
 	handlerCopying := MWHandlerReceiverArgumentsCopying new
 		                  handler: handlerExecution;
 		                  yourself.
-
-	n := 1 << 4.
 
 	inversions := (MWSession withAllImplementations: { 
 				               (SequenceableCollection >> #inversions:).
@@ -101,6 +99,65 @@ MWVisualizationsTest >> testInspectInversions [
 				(1 -> 2).
 				(1 -> 4).
 				(3 -> 4) }
+
+	"^ self
+		  export: tree
+		  pathSuffix: 'sequence-diagram'
+		  onCanvasDo: [ :aCanvas :useless | 
+			  presenter currentCanvas: aCanvas ];
+		  exportSlotsGraphOf: inversions"
+]
+
+{ #category : #tests }
+MWVisualizationsTest >> testInspectInversionsReversed [
+
+	| inversions tree handlerExecution handlerCopying metadata presenter |
+	tree := CTOrderPreservingTree new.
+
+	handlerExecution := MWHandlerProfiling new
+		                    tree: tree;
+		                    yourself.
+
+	handlerCopying := MWHandlerReceiverArgumentsCopying new
+		                  handler: handlerExecution;
+		                  yourself.
+
+
+	inversions := (MWSession withAllImplementations: { 
+				               (SequenceableCollection >> #inversions:).
+				               (PositionableStream
+				                >> #merge:sortBlock:on:inversionsOrNil:).
+				               (SequenceableCollection >> #bisect:baseBlock:).
+				               (SequenceableCollection
+				                >> #bisect:from:to:baseBlock:).
+				               (Stream >> #nextPut:inversion:) })
+		              do: [ :each | each handler: handlerCopying ];
+		              value: [ 
+			              { 5. 4. 3. 2. 1 } inversions: [ :i :j | i < j ] ].
+
+	metadata := IdentityDictionary new.
+	handlerExecution metadata: metadata.
+	handlerCopying metadata: metadata.
+
+	"Show here the new presenter."
+	presenter := (MWSpPresenter on: tree -> metadata)
+		             useShapeSlotsDfsTree;
+		             openWithSpec;
+		             yourself.
+
+	self
+		assert: tree size equals: 25;
+		assert: inversions equals: { 
+				(4 -> 5).
+				(3 -> 4).
+				(3 -> 5).
+				(1 -> 2).
+				(1 -> 3).
+				(1 -> 4).
+				(1 -> 5).
+				(2 -> 3).
+				(2 -> 4).
+				(2 -> 5) }
 
 	"^ self
 		  export: tree
