@@ -3,7 +3,7 @@ Trait {
 	#category : #MethodWrappers
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #collecting }
 MWTProfilingCopying >> compiledMethods: methods wrapping: behaviorBlock then: thenBlock [
 
 	| result tree handlerExecution handlerCopying metadata observed |
@@ -36,7 +36,7 @@ MWTProfilingCopying >> compiledMethods: methods wrapping: behaviorBlock then: th
 	^ thenBlock value: result value: observed
 ]
 
-{ #category : #accessing }
+{ #category : #collecting }
 MWTProfilingCopying >> statistics: metadata [
 
 	| methodCountDurationDictionary tableItems |
@@ -51,22 +51,26 @@ MWTProfilingCopying >> statistics: metadata [
 					           IdentitySet new.
 					           IdentitySet new.
 					           0.
-					           OrderedCollection new.
-					           nil } ].
+					           OrderedCollection new } ].
 
-		model statisticsArray: anArray.
-
-		(anArray at: 1) add: ((metadata at: each) client
+		"Clients."
+		anArray first add: ((metadata at: each) client
 				 ifNothing: [ Object new ]
 				 ifJust: [ :aJust | aJust content ]).
-		(anArray at: 2) add: each asContextReifiedFromWrapping receiver.
+
+		"Receivers."
+		anArray second add: each asContextReifiedFromWrapping receiver.
+
+		"Count."
 		anArray at: 3 update: [ :count | count + 1 ].
-		(anArray at: 4) add: model duration ].
+
+		"Durations."
+		anArray fourth add: model duration ].
 
 	tableItems := Dictionary new.
 
 	methodCountDurationDictionary keysAndValuesDo: [ :aMethod :anArray | 
-		| row duration durationAvg durationMinSquaresSum count durationStDev durations |
+		| duration durationAvg durationMinSquaresSum count durationStDev durations sample |
 		count := anArray third.
 		durations := anArray fourth.
 
@@ -89,20 +93,17 @@ MWTProfilingCopying >> statistics: metadata [
 			                 (durationMinSquaresSum / (count - 1)) sqrt ]
 			                 ifFalse: [ 0 ].
 
-		row := Dictionary new
-			       at: #compiledMethod put: aMethod;
-			       at: #count put: count;
-			       at: #duration put: (Duration nanoSeconds: duration);
-			       at: #durationAvg put: (Duration nanoSeconds: durationAvg);
-			       at: #durationStDev
-			       put: (Duration nanoSeconds: durationStDev);
-			       at: #clients put: anArray first size;
-			       at: #receivers put: anArray second size;
-			       yourself.
+		sample := MWObservedSample new
+			          compiledMethod: aMethod;
+			          count: count;
+			          duration: (Duration nanoSeconds: duration);
+			          durationAvg: (Duration nanoSeconds: durationAvg);
+			          durationStDev: (Duration nanoSeconds: durationStDev);
+			          clients: anArray first size;
+			          receivers: anArray second size;
+			          yourself.
 
-		tableItems at: aMethod put: row.
-
-		anArray at: 5 put: row ].
+		tableItems at: aMethod put: sample ].
 
 	^ tableItems
 ]

@@ -62,38 +62,35 @@ MWSpPresenter >> initializePresenters [
 		                  items: tableItems;
 		                  beResizable;
 		                  sortingBlock: [ :aDict :anotherDict | 
-			                  (aDict at: #count) > (anotherDict at: #count) ];
+			                  aDict count > anotherDict count ];
 		                  addColumn: (SpStringTableColumn
 				                   title: 'CompiledMethod'
 				                   evaluated: [ :aDictionary | 
-					                   (aDictionary at: #compiledMethod)
-						                   displayString ]);
+					                   aDictionary compiledMethod displayString ]);
 		                  addColumn: (SpStringTableColumn
 				                   title: 'Sends count'
-				                   evaluated: [ :aDictionary | 
-					                   aDictionary at: #count ]);
+				                   evaluated: [ :aDictionary | aDictionary count ]);
 		                  "addColumn: (SpStringTableColumn
 				                   title: 'Clients'
 				                   evaluated: [ :aDictionary | 
-					                   aDictionary at: #clients ]);"
+					                   aDictionary clients ]);"
 		                  addColumn: (SpStringTableColumn
 				                   title: 'Receivers'
 				                   evaluated: [ :aDictionary | 
-					                   aDictionary at: #receivers ]);
+					                   aDictionary receivers ]);
 		                  addColumn: (SpStringTableColumn
 				                   title: 'Cumulated duration'
 				                   evaluated: [ :aDictionary | 
-					                   (aDictionary at: #duration)
-						                   asStringScaledUptoHours ]);
+					                   aDictionary duration asStringScaledUptoHours ]);
 		                  addColumn: (SpStringTableColumn
 				                   title: 'Avg duration'
 				                   evaluated: [ :aDictionary | 
-					                   (aDictionary at: #durationAvg)
+					                   aDictionary durationAvg
 						                   asStringScaledUptoHours ]);
 		                  addColumn: (SpStringTableColumn
 				                   title: 'StDev duration'
 				                   evaluated: [ :aDictionary | 
-					                   (aDictionary at: #durationStDev)
+					                   aDictionary durationStDev
 						                   asStringScaledUptoHours ]);
 		                  yourself.
 
@@ -132,9 +129,9 @@ MWSpPresenter >> initializeWindow: aWindow [
 					 eta := Duration zero.
 
 					 tableItems do: [ :aDictionary | 
-							 sends := sends + (aDictionary at: #count).
-							 recvs := recvs + (aDictionary at: #receivers).
-							 eta := eta + (aDictionary at: #duration) ].
+							 sends := sends + aDictionary count.
+							 recvs := recvs + aDictionary receivers.
+							 eta := eta + aDictionary duration ].
 
 					 aStream
 						 nextPutAll: tableItems size asString;

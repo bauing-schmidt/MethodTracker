@@ -11,8 +11,7 @@ Class {
 		'startTime',
 		'total',
 		'reifiedContext',
-		'client',
-		'statisticsArray'
+		'client'
 	],
 	#category : #MethodWrappers
 }
@@ -117,18 +116,6 @@ MWModelHandlerProfiling >> startTime [
 MWModelHandlerProfiling >> startTime: anObject [
 
 	startTime := anObject
-]
-
-{ #category : #accessing }
-MWModelHandlerProfiling >> statisticsArray [
-
-	^ statisticsArray
-]
-
-{ #category : #accessing }
-MWModelHandlerProfiling >> statisticsArray: anArray [
-
-	statisticsArray := anArray
 ]
 
 { #category : #accessing }
