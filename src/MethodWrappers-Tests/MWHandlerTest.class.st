@@ -4,6 +4,8 @@ A MWHandlerTest is a test class for testing the behavior of MWHandler
 Class {
 	#name : #MWHandlerTest,
 	#superclass : #TestCase,
+	#traits : 'MWTProfilingCopying',
+	#classTraits : 'MWTProfilingCopying classTrait',
 	#category : #'MethodWrappers-Tests'
 }
 
@@ -82,7 +84,7 @@ MWHandlerTest >> selfSendBeforeRising: resume [
 { #category : #tests }
 MWHandlerTest >> testAddWithinDoObjectCentric [
 
-	| tree metadata result handlerExecution handlerCentric interval |
+	| tree metadata result handlerExecution handlerCentric interval observedData |
 	tree := CTOrderPreservingTree new.
 
 	handlerExecution := MWHandlerProfiling new
@@ -106,8 +108,15 @@ MWHandlerTest >> testAddWithinDoObjectCentric [
 	metadata := IdentityDictionary new.
 	handlerExecution metadata: metadata.
 
+	observedData := MWObservedData new
+		                tree: tree;
+		                metadata: metadata;
+		                statistics: (self statistics: metadata);
+		                yourself.
+
+
 	"Show here the new presenter."
-	(MWSpPresenter on: tree -> metadata) openWithSpec.
+	(MWSpPresenter on: observedData) openWithSpec.
 
 	self
 		assert: tree size equals: 11;
@@ -117,30 +126,25 @@ MWHandlerTest >> testAddWithinDoObjectCentric [
 { #category : #tests }
 MWHandlerTest >> testAddWithinDoª [
 
-	| tree metadata result handlerExecution |
-	tree := CTOrderPreservingTree new.
+	^ self
+		  compiledMethods: { 
+				  (Collection >> #doª:).
+				  (Number >> #addNumber:) }
+		  wrapping: [ 
+			  (1 to: 20) doª: [ :each | each addNumber: 4 ].
+			  (1 to: 5) doª: [ :each | each - 4 ] ]
+		  then: [ :result :observedData | 
+			  | presenter tree |
+			  tree := observedData tree.
 
-	handlerExecution := MWHandlerProfiling new
-		                    tree: tree;
-		                    yourself.
+			  presenter := (MWSpPresenter on: observedData)
+				               useShapeSlotsDfsTree;
+				               openWithSpec;
+				               yourself.
 
-	result := (MWSession withAllImplementations: { 
-				           (Collection >> #doª:).
-				           (Number >> #addNumber:) })
-		          do: [ :each | each handler: handlerExecution ];
-		          value: [ 
-			          (1 to: 20) doª: [ :each | each addNumber: 4 ].
-			          (1 to: 5) doª: [ :each | each - 4 ] ].
-
-	metadata := IdentityDictionary new.
-	handlerExecution metadata: metadata.
-
-	"Show here the new presenter."
-	(MWSpPresenter on: tree -> metadata) openWithSpec.
-
-	self
-		assert: tree size equals: 22;
-		assert: result equals: (1 to: 5) asArray
+			  self
+				  assert: tree size equals: 22;
+				  assert: result equals: (1 to: 5) asArray ]
 ]
 
 { #category : #tests }
@@ -149,7 +153,7 @@ MWHandlerTest >> testCountAdd [
 	| handler |
 	handler := MWHandlerCounting new.
 
-	(MWSession withAllImplementations: { (Number >> #addNumber:) })
+	(MWSession withAll: { (Number >> #addNumber:) })
 		do: [ :each | each handler: handler ];
 		value: [ 
 			handler
@@ -301,79 +305,60 @@ MWHandlerTest >> testCountSlowFactorial [
 { #category : #tests }
 MWHandlerTest >> testHeapWithAll [
 
-	| tree result handlerExecution handlerCopying metadata |
-	tree := CTOrderPreservingTree new.
+	^ self
+		  compiledMethods: { 
+				  (Heap class >> #withAll:).
+				  (Heap >> #reSort).
+				  (Heap >> #downHeap:).
+				  (Heap >> #sorts:before:).
+				  (Integer >> #bitShift:).
+				  (Array lookupSelector: #at:put:) }
+		  wrapping: [ 
+			  Heap withAll: ((1 to: 20) asArray
+					   shuffleBy: (Random seed: 17);
+					   yourself) ]
+		  then: [ :result :observedData | 
+			  | presenter tree |
+			  tree := observedData tree.
 
-	handlerExecution := MWHandlerProfiling new
-		                    tree: tree;
-		                    yourself.
+			  "Show here the new presenter."
+			  tree := tree select: [ :aChild :aParent | 
+				          aChild == aParent
+					          ifTrue: [ 
+						          | method |
+						          method := aParent asContextReifiedFromWrapping method.
+						          method = (Heap class >> #withAll:) ]
+					          ifFalse: [ true ] ].
 
-	handlerCopying := MWHandlerReceiverArgumentsCopying new
-		                  handler: handlerExecution;
-		                  yourself.
+			  presenter := (MWSpPresenter on: observedData)
+				               useShapeSlotsDfsTree;
+				               openWithSpec;
+				               yourself.
 
-	result := (MWSession withAllImplementations: { 
-				           (Heap class >> #withAll:).
-				           (Heap >> #reSort).
-				           (Heap >> #downHeap:).
-				           (Heap >> #sorts:before:).
-				           (Integer >> #bitShift:) })
-		          add: (MWDecorator new
-				           compiledMethod: (Array lookupSelector: #at:put:);
-				           yourself);
-		          do: [ :each | each handler: handlerCopying ];
-		          value: [ 
-			          Heap withAll: ((1 to: 20) asArray
-					           shuffleBy: (Random seed: 17);
-					           yourself) ].
-
-	metadata := IdentityDictionary new.
-	handlerExecution metadata: metadata.
-	handlerCopying metadata: metadata.
-
-	"Show here the new presenter."
-	tree := tree select: [ :aChild :aParent | 
-		        aChild == aParent
-			        ifTrue: [ 
-				        | method |
-				        method := aParent asContextReifiedFromWrapping method.
-				        method = (Heap class >> #withAll:) ]
-			        ifFalse: [ true ] ].
-
-	(MWSpPresenter on: tree -> metadata) openWithSpec.
-
-	self
-		assert: tree size equals: 74;
-		assert: result array
-		equals: #( 1 2 7 3 4 8 11 9 5 6 10 15 17 12 19 20 14 16 13 18 )
+			  self
+				  assert: tree size equals: 64;
+				  assert: result array
+				  equals: #( 1 2 7 3 4 8 11 9 5 6 10 15 17 12 19 20 14 16 13 18 ) ]
 ]
 
 { #category : #tests }
 MWHandlerTest >> testProfileSlowFactorial [
 
-	| result tree metadata handlerExecution |
-	tree := CTOrderPreservingTree new.
+	^ self
+		  compiledMethods: { (Integer >> #slowFactorial) }
+		  wrapping: [ 5 slowFactorial ]
+		  then: [ :result :observedData | 
+			  | presenter tree |
+			  tree := observedData tree.
 
-	handlerExecution := MWHandlerProfiling new
-		                    tree: tree;
-		                    yourself.
+			  presenter := (MWSpPresenter on: observedData)
+				               useShapeSlotsDfsTree;
+				               openWithSpec;
+				               yourself.
 
-	result := MWSession new
-		          add: (MWDecorator new
-				           compiledMethod: Integer >> #slowFactorial;
-				           handler: handlerExecution;
-				           yourself);
-		          value: [ 5 slowFactorial ].
-
-	metadata := IdentityDictionary new.
-	handlerExecution metadata: metadata.
-
-	"Show here the new presenter."
-	(MWSpPresenter on: tree -> metadata) openWithSpec.
-
-	self
-		assert: tree size equals: 6;
-		assert: result equals: 5 factorial
+			  self
+				  assert: tree size equals: 6;
+				  assert: result equals: 5 factorial ]
 ]
 
 { #category : #tests }

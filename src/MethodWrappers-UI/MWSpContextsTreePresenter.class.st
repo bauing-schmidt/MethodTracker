@@ -119,7 +119,7 @@ MWSpContextsTreePresenter >> openDetailsWithSpec [
 					 title: 'Send occurrence'
 					 evaluated: [ :aContext | (metadata at: aContext) occurrence ]);
 			addColumn: (SpStringTableColumn
-					 title: 'Send progress'
+					 title: 'Call no. @ of total'
 					 evaluated: [ :aContext | (metadata at: aContext) ratio ]);
 			addColumn: (SpStringTableColumn
 					 title: 'Entry @ Exit ticks'
