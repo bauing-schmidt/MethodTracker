@@ -69,7 +69,7 @@ MethodsTemperaturesPresenter class >> defaultConfiguration [
 		put: '[ :aClass :anotherClass | aClass name < anotherClass name ]'.
 	conf
 		at: #defaultCodeForCompiledMethodSelection
-		put: '[ :aMethod | true ]'.
+		put: '[ :aMethod :packages | true ]'.
 	conf at: #defaultCodeForDoBehavior put: 'PdmSystem start.'.
 	conf
 		at: #defaultCodeForSelectorsSorter
