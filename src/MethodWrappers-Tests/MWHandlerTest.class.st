@@ -364,35 +364,27 @@ MWHandlerTest >> testProfileSlowFactorial [
 { #category : #tests }
 MWHandlerTest >> testProfileSlowFibonacci [
 
-	| handlerExecution tree metadata result |
-	tree := CTOrderPreservingTree new.
+	^ self
+		  compiledMethods: { (Integer >> #slowFibonacci) }
+		  wrapping: [ 10 slowFibonacci ]
+		  then: [ :result :observedData | 
+			  | presenter tree |
+			  tree := observedData tree.
 
-	handlerExecution := MWHandlerProfiling new
-		                    tree: tree;
-		                    yourself.
+			  presenter := (MWSpPresenter on: observedData)
+				               useShapeSlotsDfsTree;
+				               openWithSpec;
+				               yourself.
 
-	result := MWSession new
-		          add: (MWDecorator new
-				           compiledMethod: Integer >> #slowFibonacci;
-				           handler: handlerExecution;
-				           yourself);
-		          value: [ 10 slowFibonacci ].
-
-	metadata := IdentityDictionary new.
-	handlerExecution metadata: metadata.
-
-	"Show here the new presenter."
-	(MWSpPresenter on: tree -> metadata) openWithSpec.
-
-	self
-		assert: tree size equals: 177;
-		assert: result equals: 11 fibonacciNumbers last
+			  self
+				  assert: tree size equals: 177;
+				  assert: result equals: 11 fibonacciNumbers last ]
 ]
 
 { #category : #tests }
 MWHandlerTest >> testProfileSlowFibonacciMemoing [
 
-	| handlerCounting handler tree result handlerExecution metadata |
+	| handlerCounting handler tree result handlerExecution metadata observedData |
 	tree := CTOrderPreservingTree new.
 
 	handlerCounting := MWHandlerCounting new.
@@ -405,7 +397,8 @@ MWHandlerTest >> testProfileSlowFibonacciMemoing [
 		           handler: handlerExecution;
 		           yourself.
 
-	result := (MWSession withAllImplementations: { (Number >> #addNumber:) })
+	result := (MWSession withAllImplementations:
+			           { (Number >> #addNumber:) })
 		          do: [ :each | each handler: handlerCounting ];
 		          add: (MWDecorator new
 				           compiledMethod: Integer >> #slowFibonacci;
@@ -416,8 +409,14 @@ MWHandlerTest >> testProfileSlowFibonacciMemoing [
 	metadata := IdentityDictionary new.
 	handlerExecution metadata: metadata.
 
+	observedData := MWObservedData new
+		                tree: tree;
+		                metadata: metadata;
+		                statistics: (self statistics: metadata);
+		                yourself.
+
 	"Show here the new presenter."
-	(MWSpPresenter on: tree -> metadata) openWithSpec.
+	(MWSpPresenter on: observedData) openWithSpec.
 
 	self
 		assert: tree size equals: 11;
@@ -428,7 +427,7 @@ MWHandlerTest >> testProfileSlowFibonacciMemoing [
 { #category : #tests }
 MWHandlerTest >> testSelfSendBeforeRising [
 
-	| tree metadata result handlerExecution |
+	| tree metadata result handlerExecution observedData |
 	tree := CTOrderPreservingTree new.
 
 	handlerExecution := MWHandlerProfiling new
@@ -445,8 +444,13 @@ MWHandlerTest >> testSelfSendBeforeRising [
 
 	handlerExecution metadata: metadata.
 
-	"Show here the new presenter."
-	(MWSpPresenter on: tree -> metadata) openWithSpec.
+	observedData := MWObservedData new
+		                tree: tree;
+		                metadata: metadata;
+		                statistics: (self statistics: metadata);
+		                yourself.
+
+	(MWSpPresenter on: observedData) openWithSpec.
 
 	self
 		assert: tree size equals: 2;
@@ -456,214 +460,139 @@ MWHandlerTest >> testSelfSendBeforeRising [
 { #category : #tests }
 MWHandlerTest >> testSelfSendsSimple [
 
-	| tree metadata result handlerExecution |
-	tree := CTOrderPreservingTree new.
+	^ self
+		  compiledMethods: { 
+				  (self class >> #selfSend1).
+				  (self class >> #selfSend2).
+				  (self class >> #selfSend3).
+				  (Integer >> #slowFibonacci).
+				  (Number >> #addNumber:).
+				  (Interval lookupSelector: #asArray) }
+		  wrapping: [ self selfSend1 ]
+		  then: [ :result :observedData | 
+			  | presenter tree |
+			  tree := observedData tree.
 
-	handlerExecution := MWHandlerProfiling new
-		                    tree: tree;
-		                    yourself.
+			  presenter := (MWSpPresenter on: observedData)
+				               useShapeSlotsDfsTree;
+				               openWithSpec;
+				               yourself.
 
-	result := (MWSession withAllImplementations: { 
-				           (self class >> #selfSend1).
-				           (self class >> #selfSend2).
-				           (self class >> #selfSend3).
-				           (Integer >> #slowFibonacci).
-				           (Number >> #addNumber:).
-				           (Interval lookupSelector: #asArray) })
-		          do: [ :each | each handler: handlerExecution ];
-		          value: [ self selfSend1 ].
-
-	metadata := IdentityDictionary new.
-	handlerExecution metadata: metadata.
-
-	"Show here the new presenter."
-	(MWSpPresenter on: tree -> metadata) openWithSpec.
-
-	self
-		assert: tree size equals: 16;
-		assert: result equals: (1 to: 20) asArray
+			  self
+				  assert: tree size equals: 16;
+				  assert: result equals: (1 to: 20) asArray ]
 ]
 
 { #category : #tests }
 MWHandlerTest >> testSelfSendsSimpleUsingPlus [
 
-	| tree metadata result handlerExecution |
-	tree := CTOrderPreservingTree new.
+	^ self
+		  compiledMethods: { 
+				  (self class >> #selfSend1).
+				  (self class >> #selfSend2).
+				  (self class >> #selfSend3).
+				  (Integer >> #slowFibonacci) }
+			  , (Integer >> #+) allImplementations
+		  wrapping: [ self selfSend1 ]
+		  then: [ :result :observedData | 
+			  | presenter tree |
+			  tree := observedData tree.
 
-	handlerExecution := MWHandlerProfiling new
-		                    tree: tree;
-		                    yourself.
+			  presenter := (MWSpPresenter on: observedData)
+				               useShapeSlotsDfsTree;
+				               openWithSpec;
+				               yourself.
 
-	result := (MWSession withAllImplementations: { 
-				           (self class >> #selfSend1).
-				           (self class >> #selfSend2).
-				           (self class >> #selfSend3).
-				           (Integer >> #slowFibonacci).
-				           (Integer >> #+) })
-		          do: [ :each | each handler: handlerExecution ];
-		          value: [ self selfSend1 ].
-
-	metadata := IdentityDictionary new.
-	handlerExecution metadata: metadata.
-
-	"Show here the new presenter."
-	(MWSpPresenter on: tree -> metadata) openWithSpec.
-
-	self
-		assert: tree size equals: 33;
-		assert: result equals: (1 to: 20) asArray
+			  self assert: result equals: (1 to: 20) asArray
+			  "assert: tree size equals: 33;" ]
 ]
 
 { #category : #tests }
 MWHandlerTest >> testSelfSendsSimpleWithOutlinerShapes [
 
-	| tree metadata result handlerExecution |
-	tree := CTOrderPreservingTree new.
+	^ self
+		  compiledMethods: { 
+				  (self class >> #selfSend1).
+				  (self class >> #selfSend2).
+				  (self class >> #selfSend3).
+				  (Integer >> #slowFibonacci).
+				  (Number >> #addNumber:).
+				  (Interval lookupSelector: #asArray) }
+		  wrapping: [ self selfSend1 ]
+		  then: [ :result :observedData | 
+			  | presenter tree |
+			  tree := observedData tree.
 
-	handlerExecution := MWHandlerProfiling new
-		                    tree: tree;
-		                    yourself.
+			  presenter := (MWSpPresenter on: observedData)
+				               useShapeSlotsDfsTree;
+				               openWithSpec;
+				               yourself.
 
-	result := (MWSession withAllImplementations: { 
-				           (self class >> #selfSend1).
-				           (self class >> #selfSend2).
-				           (self class >> #selfSend3).
-				           (Integer >> #slowFibonacci).
-				           (Number >> #addNumber:).
-				           (Interval lookupSelector: #asArray) })
-		          do: [ :each | each handler: handlerExecution ];
-		          value: [ self selfSend1 ].
-
-	metadata := IdentityDictionary new.
-	handlerExecution metadata: metadata.
-
-	"Show here the new presenter."
-	(MWSpPresenter on: tree -> metadata)
-		useShapeSlotsDfsTree;
-		openWithSpec.
-
-	self
-		assert: tree size equals: 16;
-		assert: result equals: (1 to: 20) asArray
-]
-
-{ #category : #tests }
-MWHandlerTest >> testSequenceableCollectionMergeSort [
-
-	| tree metadata result handlerExecution |
-	tree := CTOrderPreservingTree new.
-
-	handlerExecution := MWHandlerProfiling new
-		                    tree: tree;
-		                    yourself.
-
-	result := (MWSession withAllImplementations: { 
-				           (SequenceableCollection >> #sort).
-				           (SequenceableCollection >> #mergeSortFrom:to:by:).
-				           (SequenceableCollection
-				            >> #mergeFirst:middle:last:into:by:).
-				           (SequenceableCollection
-				            >> #mergeSortFrom:to:src:dst:by:).
-				           (SequenceableCollection
-				            >> #replaceFrom:to:with:startingAt:) })
-		          do: [ :each | each handler: handlerExecution ];
-		          value: [ (1 to: 20) shuffled sort ].
-
-	metadata := IdentityDictionary new.
-	handlerExecution metadata: metadata.
-
-	"Show here the new presenter."
-	(MWSpPresenter on: tree -> metadata) openWithSpec.
-
-	self
-		assert: tree size equals: 81;
-		assert: result equals: (1 to: 20) asArray
+			  self
+				  assert: tree size equals: 16;
+				  assert: result equals: (1 to: 20) asArray ]
 ]
 
 { #category : #tests }
 MWHandlerTest >> testSequenceableCollectionMergeSortCopying [
 
-	| tree result handlerExecution handlerCopying metadata |
-	tree := CTOrderPreservingTree new.
+	^ self
+		  compiledMethods: { 
+				  (SequenceableCollection >> #sort).
+				  (SequenceableCollection >> #mergeSortFrom:to:by:).
+				  (SequenceableCollection >> #mergeFirst:middle:last:into:by:).
+				  (SequenceableCollection >> #mergeSortFrom:to:src:dst:by:) }
+			  , (SequenceableCollection >> #replaceFrom:to:with:startingAt:)
+					  allImplementations
+		  wrapping: [ (1 to: 20) shuffled sort ]
+		  then: [ :result :observedData | 
+			  | presenter tree |
+			  tree := observedData tree.
 
-	handlerExecution := MWHandlerProfiling new
-		                    tree: tree;
-		                    yourself.
+			  presenter := (MWSpPresenter on: observedData)
+				               useShapeSlotsDfsTree;
+				               openWithSpec;
+				               yourself.
 
-	handlerCopying := MWHandlerReceiverArgumentsCopying new
-		                  handler: handlerExecution;
-		                  yourself.
-
-	result := (MWSession withAllImplementations: { 
-				           (SequenceableCollection >> #sort).
-				           (SequenceableCollection >> #mergeSortFrom:to:by:).
-				           (SequenceableCollection
-				            >> #mergeFirst:middle:last:into:by:).
-				           (SequenceableCollection
-				            >> #mergeSortFrom:to:src:dst:by:).
-				           (SequenceableCollection
-				            >> #replaceFrom:to:with:startingAt:) })
-		          do: [ :each | each handler: handlerCopying ];
-		          value: [ (1 to: 20) shuffled sort ].
-
-	metadata := IdentityDictionary new.
-	handlerExecution metadata: metadata.
-	handlerCopying metadata: metadata.
-
-	"Show here the new presenter."
-	(MWSpPresenter on: tree -> metadata) openWithSpec.
-
-	self
-		assert: tree size equals: 81;
-		assert: result equals: (1 to: 20) asArray
+			  self
+				  assert: tree size equals: 81;
+				  assert: result equals: (1 to: 20) asArray ]
 ]
 
 { #category : #tests }
 MWHandlerTest >> testSequenceableCollectionMergeSortCopyingDetailed [
 
-	| tree metadata result handlerExecution handlerCopying |
-	tree := CTOrderPreservingTree new.
+	^ self
+		  compiledMethods: { 
+				  (SequenceableCollection >> #sort).
+				  (SequenceableCollection >> #mergeSortFrom:to:by:).
+				  (SequenceableCollection >> #mergeFirst:middle:last:into:by:).
+				  (SequenceableCollection >> #mergeSortFrom:to:src:dst:by:).
+				  (SequenceableCollection >> #shuffle).
+				  (SequenceableCollection >> #shuffleBy:).
+				  (SequenceableCollection >> #swap:with:) }
+			  , (SequenceableCollection >> #replaceFrom:to:with:startingAt:)
+					  allImplementations
+			  , (SequenceableCollection >> #shuffled) allImplementations
+		  wrapping: [ (1 to: 20) shuffled sort ]
+		  then: [ :result :observedData | 
+			  | presenter tree |
+			  tree := observedData tree.
 
-	handlerExecution := MWHandlerProfiling new
-		                    tree: tree;
-		                    yourself.
+			  presenter := (MWSpPresenter on: observedData)
+				               useShapeSlotsDfsTree;
+				               openWithSpec;
+				               yourself.
 
-	handlerCopying := MWHandlerReceiverArgumentsCopying new
-		                  handler: handlerExecution;
-		                  yourself.
-
-	result := (MWSession withAllImplementations: { 
-				           (SequenceableCollection >> #sort).
-				           (SequenceableCollection >> #mergeSortFrom:to:by:).
-				           (SequenceableCollection
-				            >> #mergeFirst:middle:last:into:by:).
-				           (SequenceableCollection
-				            >> #mergeSortFrom:to:src:dst:by:).
-				           (SequenceableCollection
-				            >> #replaceFrom:to:with:startingAt:).
-				           (SequenceableCollection >> #shuffled).
-				           (SequenceableCollection >> #shuffle).
-				           (SequenceableCollection >> #shuffleBy:).
-				           (SequenceableCollection >> #swap:with:) })
-		          do: [ :each | each handler: handlerCopying ];
-		          value: [ (1 to: 20) shuffled sort ].
-
-	metadata := IdentityDictionary new.
-	handlerExecution metadata: metadata.
-	handlerCopying metadata: metadata.
-
-	"Show here the new presenter."
-	(MWSpPresenter on: tree -> metadata) openWithSpec.
-
-	self
-		assert: tree size equals: 103;
-		assert: result equals: (1 to: 20) asArray
+			  self
+				  assert: tree size equals: 103;
+				  assert: result equals: (1 to: 20) asArray ]
 ]
 
 { #category : #tests }
 MWHandlerTest >> testSequenceableCollectionMergeSortPlugging [
 
-	| tree metadata result handlerExecution handlerBlockPlugging |
+	| tree metadata result handlerExecution handlerBlockPlugging observedData |
 	tree := CTOrderPreservingTree new.
 
 	handlerExecution := MWHandlerProfiling new
@@ -692,8 +621,14 @@ MWHandlerTest >> testSequenceableCollectionMergeSortPlugging [
 	handlerExecution metadata: metadata.
 	handlerBlockPlugging metadata: metadata.
 
+	observedData := MWObservedData new
+		                tree: tree;
+		                metadata: metadata;
+		                statistics: (self statistics: metadata);
+		                yourself.
+
 	"Show here the new presenter."
-	(MWSpPresenter on: tree -> metadata) openWithSpec.
+	(MWSpPresenter on: observedData) openWithSpec.
 
 	self
 		assert: tree size equals: 81;
@@ -701,34 +636,40 @@ MWHandlerTest >> testSequenceableCollectionMergeSortPlugging [
 ]
 
 { #category : #tests }
-MWHandlerTest >> testTimingSlowFibonacciMemoing [
+MWHandlerTest >> testSequenceableCollectionMergeSortWithoutCopying [
 
-	| handlerMemoing tree metadata result handlerExecution |
+	| tree result handlerExecution metadata observedData |
 	tree := CTOrderPreservingTree new.
 
 	handlerExecution := MWHandlerProfiling new
 		                    tree: tree;
 		                    yourself.
 
-	handlerMemoing := MWHandlerMemoing new
-		                  handler: handlerExecution;
-		                  yourself.
-
-	result := MWSession new
-		          add: (MWDecorator new
-				           compiledMethod: Integer >> #slowFibonacci;
-				           handler: handlerMemoing;
-				           yourself);
-		          value: [ 10 slowFibonacci ].
+	result := (MWSession withAllImplementations: { 
+				           (SequenceableCollection >> #sort).
+				           (SequenceableCollection >> #mergeSortFrom:to:by:).
+				           (SequenceableCollection
+				            >> #mergeFirst:middle:last:into:by:).
+				           (SequenceableCollection
+				            >> #mergeSortFrom:to:src:dst:by:).
+				           (SequenceableCollection
+				            >> #replaceFrom:to:with:startingAt:) })
+		          do: [ :each | each handler: handlerExecution ];
+		          value: [ (1 to: 20) shuffled sort ].
 
 	metadata := IdentityDictionary new.
 	handlerExecution metadata: metadata.
-	handlerMemoing metadata: metadata.
+
+	observedData := MWObservedData new
+		                tree: tree;
+		                metadata: metadata;
+		                statistics: (self statistics: metadata);
+		                yourself.
 
 	"Show here the new presenter."
-	(MWSpPresenter on: tree -> metadata) openWithSpec.
+	(MWSpPresenter on: observedData) openWithSpec.
 
 	self
-		assert: tree size equals: 11;
-		assert: result equals: 11 fibonacciNumbers last
+		assert: tree size equals: 81;
+		assert: result equals: (1 to: 20) asArray
 ]
