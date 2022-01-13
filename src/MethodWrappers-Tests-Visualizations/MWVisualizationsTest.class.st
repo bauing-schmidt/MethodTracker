@@ -382,6 +382,36 @@ MWVisualizationsTest >> testInspectProductToPropagating [
 ]
 
 { #category : #tests }
+MWVisualizationsTest >> testProfileSlowExplicitFibonacciTailWithAdd [
+
+	^ self
+		  compiledMethods: { 
+				  (Integer >> #slowExplicitFibonacci:tail:).
+				  (Integer >> #slowExplicitFibonacci:tail:greaterThanZeroIsTrue:).
+				  (Integer >> #slowExplicitFibonacci:tail:greaterThanZeroIsFalse:).
+				  (Number >> #addNumber:) }
+		  wrapping: [ 6 slowExplicitFibonacci: 0 tail: 1 ]
+		  then: [ :result :observedData | 
+			  | presenter tree |
+			  tree := observedData tree.
+
+			  presenter := (MWSpPresenter on: observedData)
+				               useShapeSlotsDfsTree;
+				               openWithSpec;
+				               yourself.
+
+			  self
+				  assert: tree size equals: 20;
+				  assert: result equals: 6 fibonacciNumbers last.
+
+			  self
+				  export: tree
+				  pathSuffix: 'sequence-diagram'
+				  onCanvasDo: [ :aCanvas :useless | 
+				  presenter currentCanvas: aCanvas ] ]
+]
+
+{ #category : #tests }
 MWVisualizationsTest >> testProfileSlowFibonacciMemoingWithAdd [
 
 	^ self
@@ -428,7 +458,7 @@ MWVisualizationsTest >> testProfileSlowFibonacciTailWithAdd [
 
 			  self
 				  assert: tree size equals: 13;
-				  assert: result equals: 7 fibonacciNumbers last.
+				  assert: result equals: 6 fibonacciNumbers last.
 
 			  self
 				  export: tree
