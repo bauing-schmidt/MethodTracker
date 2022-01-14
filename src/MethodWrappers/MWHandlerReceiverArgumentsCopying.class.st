@@ -24,6 +24,31 @@ MWHandlerReceiverArgumentsCopying >> initialize [
 	self copier: [ :each | each copy ]
 ]
 
+{ #category : #accessing }
+MWHandlerReceiverArgumentsCopying >> metadata: metadata [
+
+	table keysAndValuesDo: [ :each :anAssoc | 
+		| model ctx messageSend messageSent |
+		model := metadata at: each.
+
+		messageSent := anAssoc value.
+		messageSend := messageSent messageSend.
+
+		ctx := model reifiedContext.
+
+		model reifiedContext: (Context
+				 sender: ctx sender
+				 receiver: messageSend receiver
+				 method: ctx method
+				 arguments: messageSend arguments).
+
+		model return: messageSent return.
+
+		model client
+			ifNothing: [  ]
+			ifJust: [ :aJust | model client: anAssoc key just ] ]
+]
+
 { #category : #hooks }
 MWHandlerReceiverArgumentsCopying >> run: aSelector with: anArray in: aReceiver context: aContext wrapper: aWrapper [
 

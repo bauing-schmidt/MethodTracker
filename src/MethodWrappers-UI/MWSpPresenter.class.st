@@ -160,7 +160,7 @@ MWSpPresenter >> sequenceDiagramTree: aTree canvas: aCanvas [
 	"Preprocessing to create the sequence of message sends."
 	aTree
 		pre: [ :each | 
-			| parent recv client reifiedContext reifiedParentContext timedMessageSend |
+			| parent recv client reifiedContext reifiedParentContext timedMessageSend model timespan |
 			"Retrive the parent of the `each` context, it is mandatory to have it."
 			parent := aTree parent: each ifAbsent: [ Error signal ].
 
@@ -179,12 +179,22 @@ MWSpPresenter >> sequenceDiagramTree: aTree canvas: aCanvas [
 				ifAbsentPutOrderAt: recv.
 
 			"Final addition of this entry."
+
+			model := metadata at: each.
+
+			timespan := TimespanDiscrete new
+				            start: model startTime asDateAndTime;
+				            duration: model duration;
+				            logicalStart: model visit x;
+				            logicalDuration: model visitDuration;
+				            yourself.
+
 			timedMessageSend := MWTimedMessageSend new
-				                    timespan: (self timespanOfContext: each);
+				                    timespan: timespan;
 				                    messageSend: ((RSFullMessageSend
 						                      receiver: recv
 						                      selector: reifiedContext selector
-						                      arguments: reifiedContext arguments)
+						                      arguments: model reifiedContext arguments)
 						                     client: client;
 						                     callerSelector:
 							                     reifiedParentContext selector;
@@ -215,9 +225,7 @@ MWSpPresenter >> sequenceDiagramTree: aTree canvas: aCanvas [
 						                           yourself);
 				                          yourself.
 
-			timedMessageSends add: returnTimedMessageSend.
-
-			returnTimedMessageSend ].
+			timedMessageSends add: returnTimedMessageSend ].
 
 	builder := RSUMLSequenceBuilder new
 		           objectsSeenSoFar: objectsSeenSoFar;
@@ -251,19 +259,6 @@ MWSpPresenter >> setModelBeforeInitialization: observedData [
 	tree := observedData tree.
 	metadata := observedData metadata.
 	tableItems := observedData statistics values
-]
-
-{ #category : #'as yet unclassified' }
-MWSpPresenter >> timespanOfContext: each [
-
-	| model |
-	model := metadata at: each.
-	^ TimespanDiscrete new
-		  start: model startTime asDateAndTime;
-		  duration: model duration;
-		  logicalStart: model visit x;
-		  logicalDuration: model visitDuration;
-		  yourself
 ]
 
 { #category : #'as yet unclassified' }
