@@ -35,7 +35,7 @@ MWSpPresenter >> connectPresenters [
 { #category : #initialization }
 MWSpPresenter >> currentCanvas: aCanvas [
 
-	^ self sequenceDiagramTree: treePresenter treeShown canvas: aCanvas
+	^ self sequenceDiagramTree: tree canvas: aCanvas
 ]
 
 { #category : #'as yet unclassified' }
@@ -203,7 +203,8 @@ MWSpPresenter >> sequenceDiagramTree: aTree canvas: aCanvas [
 				                  start: timespan end;
 				                  duration: Duration zero;
 				                  logicalStart: timespan logicalStart;
-				                  logicalDuration: timespan logicalDuration.
+				                  logicalDuration: timespan logicalDuration;
+				                  yourself.
 
 			returnTimedMessageSend := MWTimedMessageSend new
 				                          timespan: returnTimespan;

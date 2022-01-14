@@ -26,10 +26,7 @@ MWSpContextsTreePresenter >> connectPresenters [
 
 	showDetailsButton action: [ self openDetailsWithSpec ].
 
-	treeRefreshDisplayBlock := [ :ann | 
-	                           treePresenter
-		                           display: self treePresenterDisplayBlock;
-		                           refresh ].
+	treeRefreshDisplayBlock := [ :ann | treePresenter refresh ].
 
 	clientCheckbox whenChangedDo: treeRefreshDisplayBlock.
 
@@ -189,26 +186,12 @@ MWSpContextsTreePresenter >> treePresenterDisplayBlock [
 				  nextPutAll: ')' ]" ] ]
 ]
 
-{ #category : #'as yet unclassified' }
-MWSpContextsTreePresenter >> treeShown [
-
-	| treeShown |
-	treeShown := tree class new.
-
-	treePresenter allShownItems do: [ :each | 
-		| aParent witness |
-		witness := Object new.
-
-		aParent := tree parent: each ifAbsent: [ witness ].
-
-		aParent == witness ifFalse: [ treeShown parent: aParent child: each ] ].
-
-	^ treeShown
-]
-
 { #category : #initialization }
 MWSpContextsTreePresenter >> whenTreeShownChangedDo: aBlock [
 
 	^ treePresenter whenSelectionChangedDo: [ :selectedItem | 
-		  aBlock value: self treeShown ]
+		  | treeShown |
+		  treeShown := treePresenter shownOrderPreservingTree: tree.
+
+		  aBlock value: treeShown ]
 ]
