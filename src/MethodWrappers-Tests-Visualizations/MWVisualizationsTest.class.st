@@ -297,6 +297,47 @@ MWVisualizationsTest >> testInspectLargeIntegerSlowProfiled [
 ]
 
 { #category : #tests }
+MWVisualizationsTest >> testInspectProbabilisticMedian [
+
+	| n random collection |
+	n := 20.
+	random := Random seed: 541.
+	collection := OrderedCollection new.
+	1 to: n do: [ :i | collection add: (random nextInteger: n) ].
+
+	^ self
+		  compiledMethods: { 
+				  (SequenceableCollection >> #kth:ranking:atRandom:).
+				  (SequenceableCollection >> #atRandom:) }
+		  wrapping: [ 
+			  collection
+				  kth: (n / 2) floor
+				  ranking: [ :each :pivot | each < pivot ]
+				  atRandom: random ]
+		  then: [ :median :observedData | 
+			  | presenter tree |
+			  tree := observedData tree.
+
+			  presenter := (MWSpPresenter on: observedData)
+				               useShapeSlotsDfsTree;
+				               openWithSpec;
+				               yourself.
+
+			  self
+				  assert: tree size equals: 8;
+				  assert: median equals: (collection sorted at: (n / 2) floor).
+
+			  self
+				  export: tree
+				  pathSuffix: 'sequence-diagram'
+				  onCanvasDo: [ :aCanvas :useless | 
+					  presenter currentCanvas: aCanvas ];
+				  exportSlotsGraphOf: median;
+				  exportSlotsGraphOf: collection pathSuffix: 'original';
+				  exportSlotsGraphOf: collection sorted pathSuffix: 'sorted' ]
+]
+
+{ #category : #tests }
 MWVisualizationsTest >> testInspectProductTo [
 
 	| n |
