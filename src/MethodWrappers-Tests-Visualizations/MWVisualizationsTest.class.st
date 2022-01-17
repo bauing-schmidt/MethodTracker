@@ -57,8 +57,8 @@ MWVisualizationsTest >> testInspectFactorialRecursive [
 			  self
 				  export: tree
 				  pathSuffix: 'sequence-diagram'
-				  onCanvasDo: [ :aCanvas :useless | 
-					  presenter currentCanvas: aCanvas ];
+				  onCanvasDo: [ :aCanvas :aTree | 
+					  presenter sequenceDiagramTree: aTree canvas: aCanvas ];
 				  exportSlotsGraphOf: factorial ]
 ]
 
@@ -99,8 +99,8 @@ MWVisualizationsTest >> testInspectInversions [
 			  self
 				  export: tree
 				  pathSuffix: 'sequence-diagram'
-				  onCanvasDo: [ :aCanvas :useless | 
-					  presenter currentCanvas: aCanvas ];
+				  onCanvasDo: [ :aCanvas :aTree | 
+					  presenter sequenceDiagramTree: aTree canvas: aCanvas ];
 				  exportSlotsGraphOf: inversions ]
 ]
 
@@ -148,8 +148,8 @@ MWVisualizationsTest >> testInspectInversionsReversed [
 			  self
 				  export: tree
 				  pathSuffix: 'sequence-diagram'
-				  onCanvasDo: [ :aCanvas :useless | 
-					  presenter currentCanvas: aCanvas ];
+				  onCanvasDo: [ :aCanvas :aTree | 
+					  presenter sequenceDiagramTree: aTree canvas: aCanvas ];
 				  exportSlotsGraphOf: inversions ]
 ]
 
@@ -221,8 +221,8 @@ MWVisualizationsTest >> testInspectLargeIntegerProfiled [
 			  self
 				  export: tree
 				  pathSuffix: 'sequence-diagram'
-				  onCanvasDo: [ :aCanvas :useless | 
-					  presenter currentCanvas: aCanvas ];
+				  onCanvasDo: [ :aCanvas :aTree | 
+					  presenter sequenceDiagramTree: aTree canvas: aCanvas ];
 				  exportSlotsGraphOf: large ]
 ]
 
@@ -256,8 +256,8 @@ MWVisualizationsTest >> testInspectLargeIntegerQuickProfiled [
 			  self
 				  export: tree
 				  pathSuffix: 'sequence-diagram'
-				  onCanvasDo: [ :aCanvas :useless | 
-					  presenter currentCanvas: aCanvas ];
+				  onCanvasDo: [ :aCanvas :aTree | 
+					  presenter sequenceDiagramTree: aTree canvas: aCanvas ];
 				  exportSlotsGraphOf: large ]
 ]
 
@@ -291,8 +291,8 @@ MWVisualizationsTest >> testInspectLargeIntegerSlowProfiled [
 			  self
 				  export: tree
 				  pathSuffix: 'sequence-diagram'
-				  onCanvasDo: [ :aCanvas :useless | 
-					  presenter currentCanvas: aCanvas ];
+				  onCanvasDo: [ :aCanvas :aTree | 
+					  presenter sequenceDiagramTree: aTree canvas: aCanvas ];
 				  exportSlotsGraphOf: large ]
 ]
 
@@ -330,8 +330,8 @@ MWVisualizationsTest >> testInspectProbabilisticMedian [
 			  self
 				  export: tree
 				  pathSuffix: 'sequence-diagram'
-				  onCanvasDo: [ :aCanvas :useless | 
-					  presenter currentCanvas: aCanvas ];
+				  onCanvasDo: [ :aCanvas :aTree | 
+					  presenter sequenceDiagramTree: aTree canvas: aCanvas ];
 				  exportSlotsGraphOf: median;
 				  exportSlotsGraphOf: collection pathSuffix: 'original';
 				  exportSlotsGraphOf: collection sorted pathSuffix: 'sorted' ]
@@ -365,8 +365,8 @@ MWVisualizationsTest >> testInspectProductTo [
 			  self
 				  export: tree
 				  pathSuffix: 'sequence-diagram'
-				  onCanvasDo: [ :aCanvas :useless | 
-					  presenter currentCanvas: aCanvas ];
+				  onCanvasDo: [ :aCanvas :aTree | 
+					  presenter sequenceDiagramTree: aTree canvas: aCanvas ];
 				  exportSlotsGraphOf: factorial ]
 ]
 
@@ -417,8 +417,8 @@ MWVisualizationsTest >> testInspectProductToPropagating [
 	^ self
 		  export: tree
 		  pathSuffix: 'sequence-diagram'
-		  onCanvasDo: [ :aCanvas :useless | 
-			  presenter currentCanvas: aCanvas ];
+		  onCanvasDo: [ :aCanvas :aTree | 
+			  presenter sequenceDiagramTree: aTree canvas: aCanvas ];
 		  exportSlotsGraphOf: factorial
 ]
 
@@ -448,8 +448,8 @@ MWVisualizationsTest >> testProfileSlowExplicitFibonacciTailWithAdd [
 			  self
 				  export: tree
 				  pathSuffix: 'sequence-diagram'
-				  onCanvasDo: [ :aCanvas :useless | 
-				  presenter currentCanvas: aCanvas ] ]
+				  onCanvasDo: [ :aCanvas :aTree | 
+					  presenter sequenceDiagramTree: aTree canvas: aCanvas ] ]
 ]
 
 { #category : #tests }
@@ -476,8 +476,8 @@ MWVisualizationsTest >> testProfileSlowFibonacciMemoingWithAdd [
 			  self
 				  export: tree
 				  pathSuffix: 'sequence-diagram'
-				  onCanvasDo: [ :aCanvas :useless | 
-				  presenter currentCanvas: aCanvas ] ]
+				  onCanvasDo: [ :aCanvas :aTree | 
+					  presenter sequenceDiagramTree: aTree canvas: aCanvas ] ]
 ]
 
 { #category : #tests }
@@ -504,8 +504,8 @@ MWVisualizationsTest >> testProfileSlowFibonacciTailWithAdd [
 			  self
 				  export: tree
 				  pathSuffix: 'sequence-diagram'
-				  onCanvasDo: [ :aCanvas :useless | 
-				  presenter currentCanvas: aCanvas ] ]
+				  onCanvasDo: [ :aCanvas :aTree | 
+					  presenter sequenceDiagramTree: aTree canvas: aCanvas ] ]
 ]
 
 { #category : #tests }
@@ -532,8 +532,8 @@ MWVisualizationsTest >> testProfileSlowFibonacciWithAdd [
 			  self
 				  export: tree
 				  pathSuffix: 'sequence-diagram'
-				  onCanvasDo: [ :aCanvas :useless | 
-				  presenter currentCanvas: aCanvas ] ]
+				  onCanvasDo: [ :aCanvas :aTree | 
+					  presenter sequenceDiagramTree: aTree canvas: aCanvas ] ]
 ]
 
 { #category : #tests }
@@ -558,8 +558,8 @@ MWVisualizationsTest >> testProfileSlowFibonacciWithAddOnly [
 			  self
 				  export: tree
 				  pathSuffix: 'sequence-diagram'
-				  onCanvasDo: [ :aCanvas :useless | 
-				  presenter currentCanvas: aCanvas ] ]
+				  onCanvasDo: [ :aCanvas :aTree | 
+					  presenter sequenceDiagramTree: aTree canvas: aCanvas ] ]
 ]
 
 { #category : #tests }
@@ -587,8 +587,8 @@ MWVisualizationsTest >> testSequenceableCollectionEstrinInit [
 			  self
 				  export: tree
 				  pathSuffix: 'sequence-diagram'
-				  onCanvasDo: [ :aCanvas :useless | 
-					  presenter currentCanvas: aCanvas ];
+				  onCanvasDo: [ :aCanvas :aTree | 
+					  presenter sequenceDiagramTree: aTree canvas: aCanvas ];
 				  exportSlotsGraphOf: result ]
 ]
 
@@ -617,7 +617,7 @@ MWVisualizationsTest >> testSequenceableCollectionHornerInit [
 			  self
 				  export: tree
 				  pathSuffix: 'sequence-diagram'
-				  onCanvasDo: [ :aCanvas :useless | 
-					  presenter currentCanvas: aCanvas ];
+				  onCanvasDo: [ :aCanvas :aTree | 
+					  presenter sequenceDiagramTree: aTree canvas: aCanvas ];
 				  exportSlotsGraphOf: result ]
 ]

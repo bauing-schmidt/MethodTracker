@@ -17,6 +17,52 @@ Class {
 }
 
 { #category : #initialization }
+MWSpContextsTreePresenter >> asStringContext: each [
+
+	| reifiedContext model |
+	model := metadata at: each.
+	
+	reifiedContext := model reifiedContext.
+
+	^ String streamContents: [ :aStream | 
+		  clientCheckbox state ifTrue: [ 
+			  model client
+				  ifNothing: [ aStream nextPutAll: '•' ]
+				  ifJust: [ :aJust | aStream nextPutAll: aJust content asString ].
+
+			  aStream nextPutAll: ' ◆ ' ].
+
+		  recvCheckbox state
+			  ifTrue: [ 
+				  aStream
+					  nextPutAll: reifiedContext receiver asString;
+					  nextPut: Character space ]
+			  ifFalse: [ 
+				  aStream
+					  nextPutAll:
+						  (reifiedContext receiver class lookupSelector:
+								   reifiedContext selector) methodClassName;
+					  nextPutAll: '>>#' ].
+
+		  argsCheckbox state
+			  ifTrue: [ 
+				  aStream nextPutAll:
+					  reifiedContext asStringInterpolationOfSelectorArguments ]
+			  ifFalse: [ aStream nextPutAll: reifiedContext selector ].
+
+		  returnCheckbox state ifTrue: [ "		  squaredErrorCheckbox state ifTrue: [ 
+			  aStream
+				  nextPutAll: ' (';
+				  nextPutAll: ((metadata at: each) duration
+					   - ((metadata at: each) statisticsArray fifth at: #durationAvg))
+						  squared totalSeconds asFloat asString;
+				  nextPutAll: ')' ]"
+			  aStream
+				  nextPutAll: ' → ';
+				  nextPutAll: model return asString ] ]
+]
+
+{ #category : #initialization }
 MWSpContextsTreePresenter >> connectPresenters [
 
 	| treeRefreshDisplayBlock |
@@ -72,8 +118,8 @@ MWSpContextsTreePresenter >> initializePresenters [
 		                  state: true;
 		                  yourself.
 
-	treePresenter := tree asTreePresenter display:
-		                 self treePresenterDisplayBlock.
+	treePresenter := tree asTreePresenter display: [ :each | 
+		                 self asStringContext: each ].
 
 	self layout: (self newBoxLayoutTopToBottom
 			 add: (self newBoxLayoutLeftToRight
@@ -137,53 +183,6 @@ MWSpContextsTreePresenter >> setModelBeforeInitialization: treeMetadataAssociati
 
 	tree := treeMetadataAssociation key.
 	metadata := treeMetadataAssociation value
-]
-
-{ #category : #initialization }
-MWSpContextsTreePresenter >> treePresenterDisplayBlock [
-
-	^ [ :each | 
-	  | reifiedContext |
-	  reifiedContext := (metadata at: each) reifiedContext.
-
-	  String streamContents: [ :aStream | 
-		  clientCheckbox state ifTrue: [ 
-			  (metadata at: each) client
-				  ifNothing: [ aStream nextPutAll: '•' ]
-				  ifJust: [ :aJust | aStream nextPutAll: aJust content asString ].
-
-			  aStream nextPutAll: ' ◆ ' ].
-
-		  recvCheckbox state
-			  ifTrue: [ 
-				  aStream
-					  nextPutAll: reifiedContext receiver asString;
-					  nextPut: Character space ]
-			  ifFalse: [ 
-				  aStream
-					  nextPutAll:
-						  (reifiedContext receiver class lookupSelector:
-								   reifiedContext selector) methodClassName;
-					  nextPutAll: '>>#' ].
-
-		  argsCheckbox state
-			  ifTrue: [ 
-				  aStream nextPutAll:
-					  reifiedContext asStringInterpolationOfSelectorArguments ]
-			  ifFalse: [ aStream nextPutAll: reifiedContext selector ].
-
-		  returnCheckbox state ifTrue: [ 
-			  aStream
-				  nextPutAll: ' → ';
-				  nextPutAll: (metadata at: each) return asString ].
-
-"		  squaredErrorCheckbox state ifTrue: [ 
-			  aStream
-				  nextPutAll: ' (';
-				  nextPutAll: ((metadata at: each) duration
-					   - ((metadata at: each) statisticsArray fifth at: #durationAvg))
-						  squared totalSeconds asFloat asString;
-				  nextPutAll: ')' ]" ] ]
 ]
 
 { #category : #initialization }

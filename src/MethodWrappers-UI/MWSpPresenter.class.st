@@ -32,12 +32,6 @@ MWSpPresenter >> connectPresenters [
 			export ]
 ]
 
-{ #category : #initialization }
-MWSpPresenter >> currentCanvas: aCanvas [
-
-	^ self sequenceDiagramTree: tree canvas: aCanvas
-]
-
 { #category : #'as yet unclassified' }
 MWSpPresenter >> headerShape: block [
 
@@ -179,7 +173,6 @@ MWSpPresenter >> sequenceDiagramTree: aTree canvas: aCanvas [
 				ifAbsentPutOrderAt: recv.
 
 			"Final addition of this entry."
-
 			model := metadata at: each.
 
 			timespan := TimespanDiscrete new
@@ -264,13 +257,13 @@ MWSpPresenter >> setModelBeforeInitialization: observedData [
 { #category : #'as yet unclassified' }
 MWSpPresenter >> useShapeSlotsDfsTree [
 
-	| block |
-	block := [ :anObject | 
-	         anObject asShapeSlotsDfsTree:
-		         (MWSlotDescriptorsVisitor new collect: [ :aDescriptor | 
-			          aDescriptor
-				          headerWithClass;
-				          yourself ]) ].
+	| block slotsVisitor |
+	slotsVisitor := MWSlotDescriptorsVisitor new collect: [ :aDescriptor | 
+		                aDescriptor
+			                headerWithClass;
+			                yourself ].
+
+	block := [ :anObject | anObject asShapeSlotsDfsTree: slotsVisitor ].
 
 	self
 		headerShape: block;
