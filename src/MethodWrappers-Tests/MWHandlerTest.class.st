@@ -14,7 +14,7 @@ MWHandlerTest >> exampleOpalCompiler [
 
 	<script: 'MWHandlerTest new exampleOpalCompiler'>
 	| tree metadata result handlerExecution observedData |
-	tree := CTOrderPreservingTree new.
+	tree := MWContextsTree new.
 
 	handlerExecution := MWHandlerProfiling new
 		                    tree: tree;
@@ -90,7 +90,7 @@ MWHandlerTest >> selfSendBeforeRising: resume [
 MWHandlerTest >> testAddWithinDoObjectCentric [
 
 	| tree metadata result handlerExecution handlerCentric interval observedData |
-	tree := CTOrderPreservingTree new.
+	tree := MWContextsTree new.
 
 	handlerExecution := MWHandlerProfiling new
 		                    tree: tree;
@@ -389,7 +389,7 @@ MWHandlerTest >> testProfileSlowFibonacci [
 MWHandlerTest >> testProfileSlowFibonacciMemoing [
 
 	| handlerCounting handler tree result handlerExecution metadata observedData |
-	tree := CTOrderPreservingTree new.
+	tree := MWContextsTree new.
 
 	handlerCounting := MWHandlerCounting new.
 
@@ -431,7 +431,7 @@ MWHandlerTest >> testProfileSlowFibonacciMemoing [
 MWHandlerTest >> testSelfSendBeforeRising [
 
 	| tree metadata result handlerExecution observedData |
-	tree := CTOrderPreservingTree new.
+	tree := MWContextsTree new.
 
 	handlerExecution := MWHandlerProfiling new
 		                    tree: tree;
@@ -595,7 +595,7 @@ MWHandlerTest >> testSequenceableCollectionMergeSortCopyingDetailed [
 MWHandlerTest >> testSequenceableCollectionMergeSortPlugging [
 
 	| tree metadata result handlerExecution handlerBlockPlugging observedData |
-	tree := CTOrderPreservingTree new.
+	tree := MWContextsTree new.
 
 	handlerExecution := MWHandlerProfiling new
 		                    tree: tree;
@@ -640,7 +640,7 @@ MWHandlerTest >> testSequenceableCollectionMergeSortPlugging [
 MWHandlerTest >> testSequenceableCollectionMergeSortWithoutCopying [
 
 	| tree result handlerExecution metadata observedData |
-	tree := CTOrderPreservingTree new.
+	tree := MWContextsTree new.
 
 	handlerExecution := MWHandlerProfiling new
 		                    tree: tree;

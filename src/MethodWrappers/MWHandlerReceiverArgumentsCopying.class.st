@@ -24,7 +24,7 @@ MWHandlerReceiverArgumentsCopying >> initialize [
 	self copier: [ :each | each copy ]
 ]
 
-{ #category : #accessing }
+{ #category : #hooks }
 MWHandlerReceiverArgumentsCopying >> metadata: metadata [
 
 	table keysAndValuesDo: [ :each :anAssoc | 

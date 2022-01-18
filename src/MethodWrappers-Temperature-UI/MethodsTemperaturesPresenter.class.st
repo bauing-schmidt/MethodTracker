@@ -802,7 +802,7 @@ MethodsTemperaturesPresenter >> runDoitWrappedTemperatureMethodsStCommand: aComm
 MethodsTemperaturesPresenter >> runInstallMethodTemperatureWrappersStCommand: aCommand [
 
 	| tree handlerExecution metadata observedData |
-	tree := CTOrderPreservingTree new.
+	tree := MWContextsTree new.
 
 	handlerExecution := MWHandlerProfiling new
 		                    tree: tree;

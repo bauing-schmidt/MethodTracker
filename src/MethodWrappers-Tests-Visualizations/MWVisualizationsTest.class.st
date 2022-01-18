@@ -374,7 +374,7 @@ MWVisualizationsTest >> testInspectProductTo [
 MWVisualizationsTest >> testInspectProductToPropagating [
 
 	| n factorial tree handlerExecution handlerCopying metadata presenter handlerPropagating observedData |
-	tree := CTOrderPreservingTree new.
+	tree := MWContextsTree new.
 
 	handlerExecution := MWHandlerProfiling new
 		                    tree: tree;

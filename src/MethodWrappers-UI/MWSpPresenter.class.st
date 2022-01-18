@@ -145,84 +145,8 @@ MWSpPresenter >> receiverArgumentsShape: aBlock [
 { #category : #'as yet unclassified' }
 MWSpPresenter >> sequenceDiagramTree: aTree canvas: aCanvas [
 
-	| builder shapes timedMessageSends objectsSeenSoFar |
-	shapes := OrderedCollection new.
-
-	timedMessageSends := OrderedCollection new.
-	objectsSeenSoFar := IdentityDictionary new.
-
-	"Preprocessing to create the sequence of message sends."
-	aTree
-		pre: [ :each | 
-			| parent recv client reifiedContext reifiedParentContext timedMessageSend model timespan |
-			"Retrive the parent of the `each` context, it is mandatory to have it."
-			parent := aTree parent: each ifAbsent: [ Error signal ].
-
-			"Reify the context but ignoring the metadata info because we want to draw
-			 the skeleton of the real objects that are involved and not their clones."
-			reifiedContext := each asContextReifiedFromWrapping.
-			reifiedParentContext := parent asContextReifiedFromWrapping.
-
-			client := reifiedParentContext receiver.
-			recv := reifiedContext receiver.
-
-			"Mark both `recv` and `client` as seen in order to stick an alias in the interpolation.
-			 The order in which client and recv are inserted matters."
-			objectsSeenSoFar
-				ifAbsentPutOrderAt: client;
-				ifAbsentPutOrderAt: recv.
-
-			"Final addition of this entry."
-			model := metadata at: each.
-
-			timespan := TimespanDiscrete new
-				            start: model startTime asDateAndTime;
-				            duration: model duration;
-				            logicalStart: model visit x;
-				            logicalDuration: model visitDuration;
-				            yourself.
-
-			timedMessageSend := MWTimedMessageSend new
-				                    timespan: timespan;
-				                    messageSend: ((RSFullMessageSend
-						                      receiver: recv
-						                      selector: reifiedContext selector
-						                      arguments: model reifiedContext arguments)
-						                     client: client;
-						                     callerSelector:
-							                     reifiedParentContext selector;
-						                     yourself);
-				                    yourself.
-
-			timedMessageSends add: timedMessageSend.
-
-			"Such association is then passed in the `post:` block as second argument."
-			timedMessageSend ]
-		post: [ :each :timedMessageSend | 
-			| timespan returnTimespan returnTimedMessageSend |
-			timespan := timedMessageSend timespan.
-
-			returnTimespan := TimespanDiscrete new
-				                  start: timespan end;
-				                  duration: Duration zero;
-				                  logicalStart: timespan logicalStart;
-				                  logicalDuration: timespan logicalDuration;
-				                  yourself.
-
-			returnTimedMessageSend := MWTimedMessageSend new
-				                          timespan: returnTimespan;
-				                          messageSend:
-					                          (timedMessageSend messageSend
-						                           asReturnMessageSend
-						                           return: (metadata at: each) return;
-						                           yourself);
-				                          yourself.
-
-			timedMessageSends add: returnTimedMessageSend ].
-
+	| sequenceDiagramShape builder |
 	builder := RSUMLSequenceBuilder new
-		           objectsSeenSoFar: objectsSeenSoFar;
-		           messagesSends: timedMessageSends;
 		           previousHeaders: OrderedCollection new;
 		           previousMessagesSends: OrderedCollection new;
 		           yourself.
@@ -232,17 +156,12 @@ MWSpPresenter >> sequenceDiagramTree: aTree canvas: aCanvas [
 	receiverArgumentsShape ifNotNil: [ 
 		builder receiverArgumentsShape: receiverArgumentsShape ].
 
-	builder build.
-
-	shapes add: builder canvas asShape.
-
-	RSVerticalLineLayout new
-		verticalGap: -5;
-		alignLeft;
-		on: shapes.
+	sequenceDiagramShape := aTree
+		                        asShapeUMLSequenceDiagram: builder
+		                        metadata: metadata.
 
 	^ aCanvas
-		  addAll: shapes;
+		  add: sequenceDiagramShape;
 		  yourself
 ]
 

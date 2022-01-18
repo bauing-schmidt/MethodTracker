@@ -7,7 +7,7 @@ Trait {
 MWTProfilingCopying >> compiledMethods: methods wrapping: behaviorBlock then: thenBlock [
 
 	| result tree handlerExecution handlerCopying metadata observed |
-	tree := CTOrderPreservingTree new.
+	tree := MWContextsTree new.
 
 	handlerExecution := MWHandlerProfiling new
 		                    tree: tree;
