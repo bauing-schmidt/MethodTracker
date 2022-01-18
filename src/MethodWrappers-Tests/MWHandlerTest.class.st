@@ -13,7 +13,7 @@ Class {
 MWHandlerTest >> exampleOpalCompiler [
 
 	<script: 'MWHandlerTest new exampleOpalCompiler'>
-	| tree metadata result handlerExecution |
+	| tree metadata result handlerExecution observedData |
 	tree := CTOrderPreservingTree new.
 
 	handlerExecution := MWHandlerProfiling new
@@ -29,8 +29,13 @@ MWHandlerTest >> exampleOpalCompiler [
 	metadata := IdentityDictionary new.
 	handlerExecution metadata: metadata.
 
+	observedData := MWObservedData new
+		                tree: tree;
+		                metadata: metadata;
+		                yourself.
+
 	"Show here the new presenter."
-	(MWSpPresenter on: tree -> metadata) openWithSpec
+	(MWSpPresenter on: observedData) openWithSpec
 
 	"self assert: tree size equals: 16"
 ]
@@ -111,7 +116,6 @@ MWHandlerTest >> testAddWithinDoObjectCentric [
 	observedData := MWObservedData new
 		                tree: tree;
 		                metadata: metadata;
-		                statistics: (self statistics: metadata);
 		                yourself.
 
 
@@ -412,7 +416,6 @@ MWHandlerTest >> testProfileSlowFibonacciMemoing [
 	observedData := MWObservedData new
 		                tree: tree;
 		                metadata: metadata;
-		                statistics: (self statistics: metadata);
 		                yourself.
 
 	"Show here the new presenter."
@@ -447,7 +450,6 @@ MWHandlerTest >> testSelfSendBeforeRising [
 	observedData := MWObservedData new
 		                tree: tree;
 		                metadata: metadata;
-		                statistics: (self statistics: metadata);
 		                yourself.
 
 	(MWSpPresenter on: observedData) openWithSpec.
@@ -624,7 +626,6 @@ MWHandlerTest >> testSequenceableCollectionMergeSortPlugging [
 	observedData := MWObservedData new
 		                tree: tree;
 		                metadata: metadata;
-		                statistics: (self statistics: metadata);
 		                yourself.
 
 	"Show here the new presenter."
@@ -663,7 +664,6 @@ MWHandlerTest >> testSequenceableCollectionMergeSortWithoutCopying [
 	observedData := MWObservedData new
 		                tree: tree;
 		                metadata: metadata;
-		                statistics: (self statistics: metadata);
 		                yourself.
 
 	"Show here the new presenter."

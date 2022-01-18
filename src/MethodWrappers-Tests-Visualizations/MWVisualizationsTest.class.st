@@ -402,7 +402,6 @@ MWVisualizationsTest >> testInspectProductToPropagating [
 	observedData := MWObservedData new
 		                tree: tree;
 		                metadata: metadata;
-		                statistics: (self statistics: metadata);
 		                yourself.
 
 	presenter := (MWSpPresenter on: observedData)
