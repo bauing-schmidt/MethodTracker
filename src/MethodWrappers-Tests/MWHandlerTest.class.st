@@ -4,8 +4,8 @@ A MWHandlerTest is a test class for testing the behavior of MWHandler
 Class {
 	#name : #MWHandlerTest,
 	#superclass : #TestCase,
-	#traits : 'MWTProfilingCopying',
-	#classTraits : 'MWTProfilingCopying classTrait',
+	#traits : 'MWTProfilingCopying + MWTUmlSequenceDiagramBuilderWithOutliners',
+	#classTraits : 'MWTProfilingCopying classTrait + MWTUmlSequenceDiagramBuilderWithOutliners classTrait',
 	#category : #'MethodWrappers-Tests'
 }
 
@@ -34,10 +34,9 @@ MWHandlerTest >> exampleOpalCompiler [
 		                metadata: metadata;
 		                yourself.
 
-	"Show here the new presenter."
-	(MWSpPresenter on: observedData) openWithSpec
-
-	"self assert: tree size equals: 16"
+	(MWSpPresenter on: observedData)
+		umlSequenceDiagramBuilder: RSUMLSequenceBuilder new;
+		openWithSpec
 ]
 
 { #category : #accessing }
@@ -118,9 +117,9 @@ MWHandlerTest >> testAddWithinDoObjectCentric [
 		                metadata: metadata;
 		                yourself.
 
-
-	"Show here the new presenter."
-	(MWSpPresenter on: observedData) openWithSpec.
+	(MWSpPresenter on: observedData)
+		umlSequenceDiagramBuilder: RSUMLSequenceBuilder new;
+		openWithSpec.
 
 	self
 		assert: tree size equals: 11;
@@ -138,11 +137,14 @@ MWHandlerTest >> testAddWithinDoª [
 			  (1 to: 20) doª: [ :each | each addNumber: 4 ].
 			  (1 to: 5) doª: [ :each | each - 4 ] ]
 		  then: [ :result :observedData | 
-			  | presenter tree |
+			  | presenter tree builder |
 			  tree := observedData tree.
 
+			  builder := self umlSequenceDiagramBuilder:
+				             RSUMLSequenceBuilder new.
+
 			  presenter := (MWSpPresenter on: observedData)
-				               useShapeSlotsDfsTree;
+				               umlSequenceDiagramBuilder: builder;
 				               openWithSpec;
 				               yourself.
 
@@ -322,11 +324,8 @@ MWHandlerTest >> testHeapWithAll [
 					   shuffleBy: (Random seed: 17);
 					   yourself) ]
 		  then: [ :result :observedData | 
-			  | presenter tree |
-			  tree := observedData tree.
-
-			  "Show here the new presenter."
-			  tree := tree select: [ :aChild :aParent | 
+			  | presenter tree builder |
+			  tree := observedData tree select: [ :aChild :aParent | 
 				          aChild == aParent
 					          ifTrue: [ 
 						          | method |
@@ -334,8 +333,11 @@ MWHandlerTest >> testHeapWithAll [
 						          method = (Heap class >> #withAll:) ]
 					          ifFalse: [ true ] ].
 
+			  builder := self umlSequenceDiagramBuilder:
+				             RSUMLSequenceBuilder new.
+
 			  presenter := (MWSpPresenter on: observedData)
-				               useShapeSlotsDfsTree;
+				               umlSequenceDiagramBuilder: builder;
 				               openWithSpec;
 				               yourself.
 
@@ -352,11 +354,14 @@ MWHandlerTest >> testProfileSlowFactorial [
 		  compiledMethods: { (Integer >> #slowFactorial) }
 		  wrapping: [ 5 slowFactorial ]
 		  then: [ :result :observedData | 
-			  | presenter tree |
+			  | presenter tree builder |
 			  tree := observedData tree.
 
+			  builder := self umlSequenceDiagramBuilder:
+				             RSUMLSequenceBuilder new.
+
 			  presenter := (MWSpPresenter on: observedData)
-				               useShapeSlotsDfsTree;
+				               umlSequenceDiagramBuilder: builder;
 				               openWithSpec;
 				               yourself.
 
@@ -372,11 +377,14 @@ MWHandlerTest >> testProfileSlowFibonacci [
 		  compiledMethods: { (Integer >> #slowFibonacci) }
 		  wrapping: [ 10 slowFibonacci ]
 		  then: [ :result :observedData | 
-			  | presenter tree |
+			  | presenter tree builder |
 			  tree := observedData tree.
 
+			  builder := self umlSequenceDiagramBuilder:
+				             RSUMLSequenceBuilder new.
+
 			  presenter := (MWSpPresenter on: observedData)
-				               useShapeSlotsDfsTree;
+				               umlSequenceDiagramBuilder: builder;
 				               openWithSpec;
 				               yourself.
 
@@ -419,7 +427,9 @@ MWHandlerTest >> testProfileSlowFibonacciMemoing [
 		                yourself.
 
 	"Show here the new presenter."
-	(MWSpPresenter on: observedData) openWithSpec.
+	(MWSpPresenter on: observedData)
+		umlSequenceDiagramBuilder: RSUMLSequenceBuilder new;
+		openWithSpec.
 
 	self
 		assert: tree size equals: 11;
@@ -452,7 +462,9 @@ MWHandlerTest >> testSelfSendBeforeRising [
 		                metadata: metadata;
 		                yourself.
 
-	(MWSpPresenter on: observedData) openWithSpec.
+	(MWSpPresenter on: observedData)
+		umlSequenceDiagramBuilder: RSUMLSequenceBuilder new;
+		openWithSpec.
 
 	self
 		assert: tree size equals: 2;
@@ -472,11 +484,14 @@ MWHandlerTest >> testSelfSendsSimple [
 				  (Interval lookupSelector: #asArray) }
 		  wrapping: [ self selfSend1 ]
 		  then: [ :result :observedData | 
-			  | presenter tree |
+			  | presenter tree builder |
 			  tree := observedData tree.
 
+			  builder := self umlSequenceDiagramBuilder:
+				             RSUMLSequenceBuilder new.
+
 			  presenter := (MWSpPresenter on: observedData)
-				               useShapeSlotsDfsTree;
+				               umlSequenceDiagramBuilder: builder;
 				               openWithSpec;
 				               yourself.
 
@@ -497,11 +512,14 @@ MWHandlerTest >> testSelfSendsSimpleUsingPlus [
 			  , (Integer >> #+) allImplementations
 		  wrapping: [ self selfSend1 ]
 		  then: [ :result :observedData | 
-			  | presenter tree |
+			  | presenter tree builder |
 			  tree := observedData tree.
 
+			  builder := self umlSequenceDiagramBuilder:
+				             RSUMLSequenceBuilder new.
+
 			  presenter := (MWSpPresenter on: observedData)
-				               useShapeSlotsDfsTree;
+				               umlSequenceDiagramBuilder: builder;
 				               openWithSpec;
 				               yourself.
 
@@ -522,11 +540,14 @@ MWHandlerTest >> testSelfSendsSimpleWithOutlinerShapes [
 				  (Interval lookupSelector: #asArray) }
 		  wrapping: [ self selfSend1 ]
 		  then: [ :result :observedData | 
-			  | presenter tree |
+			  | presenter tree builder |
 			  tree := observedData tree.
 
+			  builder := self umlSequenceDiagramBuilder:
+				             RSUMLSequenceBuilder new.
+
 			  presenter := (MWSpPresenter on: observedData)
-				               useShapeSlotsDfsTree;
+				               umlSequenceDiagramBuilder: builder;
 				               openWithSpec;
 				               yourself.
 
@@ -548,11 +569,14 @@ MWHandlerTest >> testSequenceableCollectionMergeSortCopying [
 					  allImplementations
 		  wrapping: [ (1 to: 20) shuffled sort ]
 		  then: [ :result :observedData | 
-			  | presenter tree |
+			  | presenter tree builder |
 			  tree := observedData tree.
 
+			  builder := self umlSequenceDiagramBuilder:
+				             RSUMLSequenceBuilder new.
+
 			  presenter := (MWSpPresenter on: observedData)
-				               useShapeSlotsDfsTree;
+				               umlSequenceDiagramBuilder: builder;
 				               openWithSpec;
 				               yourself.
 
@@ -578,11 +602,14 @@ MWHandlerTest >> testSequenceableCollectionMergeSortCopyingDetailed [
 			  , (SequenceableCollection >> #shuffled) allImplementations
 		  wrapping: [ (1 to: 20) shuffled sort ]
 		  then: [ :result :observedData | 
-			  | presenter tree |
+			  | presenter tree builder |
 			  tree := observedData tree.
 
+			  builder := self umlSequenceDiagramBuilder:
+				             RSUMLSequenceBuilder new.
+
 			  presenter := (MWSpPresenter on: observedData)
-				               useShapeSlotsDfsTree;
+				               umlSequenceDiagramBuilder: builder;
 				               openWithSpec;
 				               yourself.
 
@@ -629,7 +656,9 @@ MWHandlerTest >> testSequenceableCollectionMergeSortPlugging [
 		                yourself.
 
 	"Show here the new presenter."
-	(MWSpPresenter on: observedData) openWithSpec.
+	(MWSpPresenter on: observedData)
+		umlSequenceDiagramBuilder: RSUMLSequenceBuilder new;
+		openWithSpec.
 
 	self
 		assert: tree size equals: 81;
@@ -667,7 +696,9 @@ MWHandlerTest >> testSequenceableCollectionMergeSortWithoutCopying [
 		                yourself.
 
 	"Show here the new presenter."
-	(MWSpPresenter on: observedData) openWithSpec.
+	(MWSpPresenter on: observedData)
+		umlSequenceDiagramBuilder: RSUMLSequenceBuilder new;
+		openWithSpec.
 
 	self
 		assert: tree size equals: 81;

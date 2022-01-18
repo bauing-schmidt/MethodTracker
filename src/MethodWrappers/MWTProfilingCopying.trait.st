@@ -24,6 +24,7 @@ MWTProfilingCopying >> compiledMethods: methods wrapping: behaviorBlock then: th
 		          value: behaviorBlock.
 
 	metadata := IdentityDictionary new.
+
 	handlerExecution metadata: metadata.
 	handlerCopying metadata: metadata.
 

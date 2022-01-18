@@ -9,8 +9,7 @@ Class {
 		'metadata',
 		'tableItems',
 		'exportButton',
-		'receiverArgumentsShape',
-		'headerShape'
+		'umlSequenceDiagramBuilder'
 	],
 	#category : #'MethodWrappers-UI'
 }
@@ -20,9 +19,14 @@ MWSpPresenter >> connectPresenters [
 
 	treePresenter whenTreeShownChangedDo: [ :treeShown | 
 		sequenceDiagramPresenter script: [ :aCanvas | 
-			self sequenceDiagramTree: treeShown canvas: aCanvas.
-			
+			| sequenceDiagramShape |
+			sequenceDiagramShape := treeShown
+				                        asShapeUMLSequenceDiagram:
+				                        umlSequenceDiagramBuilder
+				                        metadata: metadata.
+
 			aCanvas
+				add: sequenceDiagramShape;
 				zoomToFit;
 				addInteraction: RSCanvasController new ] ].
 
@@ -30,12 +34,6 @@ MWSpPresenter >> connectPresenters [
 		sequenceDiagramPresenter canvas svgCairoExporter
 			zoomToShapesWithPadding: Float goldenPlatinumRatio * 2;
 			export ]
-]
-
-{ #category : #'as yet unclassified' }
-MWSpPresenter >> headerShape: block [
-
-	headerShape := block
 ]
 
 { #category : #initialization }
@@ -136,35 +134,6 @@ MWSpPresenter >> initializeWindow: aWindow [
 						 nextPutAll: ' duration.' ])
 ]
 
-{ #category : #'as yet unclassified' }
-MWSpPresenter >> receiverArgumentsShape: aBlock [
-
-	receiverArgumentsShape := aBlock
-]
-
-{ #category : #'as yet unclassified' }
-MWSpPresenter >> sequenceDiagramTree: aTree canvas: aCanvas [
-
-	| sequenceDiagramShape builder |
-	builder := RSUMLSequenceBuilder new
-		           previousHeaders: OrderedCollection new;
-		           previousMessagesSends: OrderedCollection new;
-		           yourself.
-
-	headerShape ifNotNil: [ builder headerShape: headerShape ].
-
-	receiverArgumentsShape ifNotNil: [ 
-		builder receiverArgumentsShape: receiverArgumentsShape ].
-
-	sequenceDiagramShape := aTree
-		                        asShapeUMLSequenceDiagram: builder
-		                        metadata: metadata.
-
-	^ aCanvas
-		  add: sequenceDiagramShape;
-		  yourself
-]
-
 { #category : #initialization }
 MWSpPresenter >> setModelBeforeInitialization: observedData [
 
@@ -173,18 +142,8 @@ MWSpPresenter >> setModelBeforeInitialization: observedData [
 	tableItems := observedData statistics values
 ]
 
-{ #category : #'as yet unclassified' }
-MWSpPresenter >> useShapeSlotsDfsTree [
+{ #category : #accessing }
+MWSpPresenter >> umlSequenceDiagramBuilder: aBuilder [
 
-	| block slotsVisitor |
-	slotsVisitor := MWSlotDescriptorsVisitor new collect: [ :aDescriptor | 
-		                aDescriptor
-			                headerWithClass;
-			                yourself ].
-
-	block := [ :anObject | anObject asShapeSlotsDfsTree: slotsVisitor ].
-
-	self
-		headerShape: block;
-		receiverArgumentsShape: block
+	umlSequenceDiagramBuilder := aBuilder
 ]

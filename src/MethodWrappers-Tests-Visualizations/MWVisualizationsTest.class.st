@@ -1,8 +1,8 @@
 Class {
 	#name : #MWVisualizationsTest,
 	#superclass : #TestCase,
-	#traits : 'TIceImagesExporting + MWTProfilingCopying',
-	#classTraits : 'TIceImagesExporting classTrait + MWTProfilingCopying classTrait',
+	#traits : 'TIceImagesExporting + MWTProfilingCopying + MWTUmlSequenceDiagramBuilderWithOutliners',
+	#classTraits : 'TIceImagesExporting classTrait + MWTProfilingCopying classTrait + MWTUmlSequenceDiagramBuilderWithOutliners classTrait',
 	#category : #'MethodWrappers-Tests-Visualizations'
 }
 
@@ -30,11 +30,14 @@ MWVisualizationsTest >> testInspectFactorialRecursive [
 				  (Number >> #multiplyNumber:) }
 		  wrapping: [ n factorialRecursive ]
 		  then: [ :factorial :observedData | 
-			  | presenter tree |
+			  | presenter tree builder |
 			  tree := observedData tree.
 
+			  builder := self umlSequenceDiagramBuilder:
+				             RSUMLSequenceBuilder new.
+
 			  presenter := (MWSpPresenter on: observedData)
-				               useShapeSlotsDfsTree;
+				               umlSequenceDiagramBuilder: builder;
 				               openWithSpec;
 				               yourself.
 
@@ -55,11 +58,14 @@ MWVisualizationsTest >> testInspectFactorialRecursive [
 				  equals: 16.
 
 			  self
-				  export: tree
-				  pathSuffix: 'sequence-diagram'
-				  onCanvasDo: [ :aCanvas :aTree | 
-					  presenter sequenceDiagramTree: aTree canvas: aCanvas ];
-				  exportSlotsGraphOf: factorial ]
+				  exportShapeOf: tree
+				  accessorBlock: [ :aTree | 
+					  aTree
+						  asShapeUMLSequenceDiagram: builder
+						  metadata: observedData metadata ]
+				  pathSuffix: 'sequence-diagram'.
+
+			  self exportSlotsGraphOf: factorial ]
 ]
 
 { #category : #tests }
@@ -74,11 +80,14 @@ MWVisualizationsTest >> testInspectInversions [
 				  (Stream >> #nextPut:inversion:) }
 		  wrapping: [ { 2. 4. 1. 3. 5 } inversions: [ :i :j | i < j ] ]
 		  then: [ :inversions :observedData | 
-			  | presenter tree |
+			  | presenter tree builder |
 			  tree := observedData tree.
 
+			  builder := self umlSequenceDiagramBuilder:
+				             RSUMLSequenceBuilder new.
+
 			  presenter := (MWSpPresenter on: observedData)
-				               useShapeSlotsDfsTree;
+				               umlSequenceDiagramBuilder: builder;
 				               openWithSpec;
 				               yourself.
 
@@ -97,11 +106,14 @@ MWVisualizationsTest >> testInspectInversions [
 				  equals: inversions size.
 
 			  self
-				  export: tree
-				  pathSuffix: 'sequence-diagram'
-				  onCanvasDo: [ :aCanvas :aTree | 
-					  presenter sequenceDiagramTree: aTree canvas: aCanvas ];
-				  exportSlotsGraphOf: inversions ]
+				  exportShapeOf: tree
+				  accessorBlock: [ :aTree | 
+					  aTree
+						  asShapeUMLSequenceDiagram: builder
+						  metadata: observedData metadata ]
+				  pathSuffix: 'sequence-diagram'.
+
+			  self exportSlotsGraphOf: inversions ]
 ]
 
 { #category : #tests }
@@ -116,11 +128,14 @@ MWVisualizationsTest >> testInspectInversionsReversed [
 				  (Stream >> #nextPut:inversion:) }
 		  wrapping: [ { 5. 4. 3. 2. 1 } inversions: [ :i :j | i < j ] ]
 		  then: [ :inversions :observedData | 
-			  | presenter tree |
+			  | presenter tree builder |
 			  tree := observedData tree.
 
+			  builder := self umlSequenceDiagramBuilder:
+				             RSUMLSequenceBuilder new.
+
 			  presenter := (MWSpPresenter on: observedData)
-				               useShapeSlotsDfsTree;
+				               umlSequenceDiagramBuilder: builder;
 				               openWithSpec;
 				               yourself.
 
@@ -146,11 +161,14 @@ MWVisualizationsTest >> testInspectInversionsReversed [
 				  equals: inversions size.
 
 			  self
-				  export: tree
-				  pathSuffix: 'sequence-diagram'
-				  onCanvasDo: [ :aCanvas :aTree | 
-					  presenter sequenceDiagramTree: aTree canvas: aCanvas ];
-				  exportSlotsGraphOf: inversions ]
+				  exportShapeOf: tree
+				  accessorBlock: [ :aTree | 
+					  aTree
+						  asShapeUMLSequenceDiagram: builder
+						  metadata: observedData metadata ]
+				  pathSuffix: 'sequence-diagram'.
+
+			  self exportSlotsGraphOf: inversions ]
 ]
 
 { #category : #tests }
@@ -163,11 +181,14 @@ MWVisualizationsTest >> testInspectKaratsuba42FactorialSquaredProfiled [
 		  compiledMethods: { (Integer >> #karatsuba:base:) }
 		  wrapping: [ m karatsuba: m base: 10 ]
 		  then: [ :large :observedData | 
-			  | presenter tree nBits leaves |
+			  | presenter tree builder nBits leaves |
 			  tree := observedData tree.
 
+			  builder := self umlSequenceDiagramBuilder:
+				             RSUMLSequenceBuilder new.
+
 			  presenter := (MWSpPresenter on: observedData)
-				               useShapeSlotsDfsTree;
+				               umlSequenceDiagramBuilder: builder;
 				               openWithSpec;
 				               yourself.
 
@@ -206,11 +227,14 @@ MWVisualizationsTest >> testInspectLargeIntegerProfiled [
 				  (Number >> #multiplyNumber:) }
 		  wrapping: [ m karatsuba: n base: 10 ]
 		  then: [ :large :observedData | 
-			  | presenter tree |
+			  | presenter tree builder |
 			  tree := observedData tree.
 
+			  builder := self umlSequenceDiagramBuilder:
+				             RSUMLSequenceBuilder new.
+
 			  presenter := (MWSpPresenter on: observedData)
-				               useShapeSlotsDfsTree;
+				               umlSequenceDiagramBuilder: builder;
 				               openWithSpec;
 				               yourself.
 
@@ -219,11 +243,14 @@ MWVisualizationsTest >> testInspectLargeIntegerProfiled [
 				  assert: large equals: m * n.
 
 			  self
-				  export: tree
-				  pathSuffix: 'sequence-diagram'
-				  onCanvasDo: [ :aCanvas :aTree | 
-					  presenter sequenceDiagramTree: aTree canvas: aCanvas ];
-				  exportSlotsGraphOf: large ]
+				  exportShapeOf: tree
+				  accessorBlock: [ :aTree | 
+					  aTree
+						  asShapeUMLSequenceDiagram: builder
+						  metadata: observedData metadata ]
+				  pathSuffix: 'sequence-diagram'.
+
+			  self exportSlotsGraphOf: large ]
 ]
 
 { #category : #tests }
@@ -241,11 +268,14 @@ MWVisualizationsTest >> testInspectLargeIntegerQuickProfiled [
 				  (Number >> #multiplyNumber:) }
 		  wrapping: [ m dcMultiplyIntegerQuick: n base: 10 ]
 		  then: [ :large :observedData | 
-			  | presenter tree |
+			  | presenter tree builder |
 			  tree := observedData tree.
 
+			  builder := self umlSequenceDiagramBuilder:
+				             RSUMLSequenceBuilder new.
+
 			  presenter := (MWSpPresenter on: observedData)
-				               useShapeSlotsDfsTree;
+				               umlSequenceDiagramBuilder: builder;
 				               openWithSpec;
 				               yourself.
 
@@ -254,11 +284,14 @@ MWVisualizationsTest >> testInspectLargeIntegerQuickProfiled [
 				  assert: large equals: m * n.
 
 			  self
-				  export: tree
-				  pathSuffix: 'sequence-diagram'
-				  onCanvasDo: [ :aCanvas :aTree | 
-					  presenter sequenceDiagramTree: aTree canvas: aCanvas ];
-				  exportSlotsGraphOf: large ]
+				  exportShapeOf: tree
+				  accessorBlock: [ :aTree | 
+					  aTree
+						  asShapeUMLSequenceDiagram: builder
+						  metadata: observedData metadata ]
+				  pathSuffix: 'sequence-diagram'.
+
+			  self exportSlotsGraphOf: large ]
 ]
 
 { #category : #tests }
@@ -276,11 +309,14 @@ MWVisualizationsTest >> testInspectLargeIntegerSlowProfiled [
 				  (Number >> #multiplyNumber:) }
 		  wrapping: [ m dcMultiplyIntegerSlow: n base: 10 ]
 		  then: [ :large :observedData | 
-			  | presenter tree |
+			  | presenter tree builder |
 			  tree := observedData tree.
 
+			  builder := self umlSequenceDiagramBuilder:
+				             RSUMLSequenceBuilder new.
+
 			  presenter := (MWSpPresenter on: observedData)
-				               useShapeSlotsDfsTree;
+				               umlSequenceDiagramBuilder: builder;
 				               openWithSpec;
 				               yourself.
 
@@ -289,11 +325,14 @@ MWVisualizationsTest >> testInspectLargeIntegerSlowProfiled [
 				  assert: large equals: m * n.
 
 			  self
-				  export: tree
-				  pathSuffix: 'sequence-diagram'
-				  onCanvasDo: [ :aCanvas :aTree | 
-					  presenter sequenceDiagramTree: aTree canvas: aCanvas ];
-				  exportSlotsGraphOf: large ]
+				  exportShapeOf: tree
+				  accessorBlock: [ :aTree | 
+					  aTree
+						  asShapeUMLSequenceDiagram: builder
+						  metadata: observedData metadata ]
+				  pathSuffix: 'sequence-diagram'.
+
+			  self exportSlotsGraphOf: large ]
 ]
 
 { #category : #tests }
@@ -315,11 +354,14 @@ MWVisualizationsTest >> testInspectProbabilisticMedian [
 				  ranking: [ :each :pivot | each < pivot ]
 				  atRandom: random ]
 		  then: [ :median :observedData | 
-			  | presenter tree |
+			  | presenter tree builder |
 			  tree := observedData tree.
 
+			  builder := self umlSequenceDiagramBuilder:
+				             RSUMLSequenceBuilder new.
+
 			  presenter := (MWSpPresenter on: observedData)
-				               useShapeSlotsDfsTree;
+				               umlSequenceDiagramBuilder: builder;
 				               openWithSpec;
 				               yourself.
 
@@ -328,10 +370,14 @@ MWVisualizationsTest >> testInspectProbabilisticMedian [
 				  assert: median equals: (collection sorted at: (n / 2) floor).
 
 			  self
-				  export: tree
-				  pathSuffix: 'sequence-diagram'
-				  onCanvasDo: [ :aCanvas :aTree | 
-					  presenter sequenceDiagramTree: aTree canvas: aCanvas ];
+				  exportShapeOf: tree
+				  accessorBlock: [ :aTree | 
+					  aTree
+						  asShapeUMLSequenceDiagram: builder
+						  metadata: observedData metadata ]
+				  pathSuffix: 'sequence-diagram'.
+
+			  self
 				  exportSlotsGraphOf: median;
 				  exportSlotsGraphOf: collection pathSuffix: 'original';
 				  exportSlotsGraphOf: collection sorted pathSuffix: 'sorted' ]
@@ -350,11 +396,14 @@ MWVisualizationsTest >> testInspectProductTo [
 				  (Number >> #multiplyNumber:) }
 		  wrapping: [ 1 productTo: n ]
 		  then: [ :factorial :observedData | 
-			  | presenter tree |
+			  | presenter tree builder |
 			  tree := observedData tree.
 
+			  builder := self umlSequenceDiagramBuilder:
+				             RSUMLSequenceBuilder new.
+
 			  presenter := (MWSpPresenter on: observedData)
-				               useShapeSlotsDfsTree;
+				               umlSequenceDiagramBuilder: builder;
 				               openWithSpec;
 				               yourself.
 
@@ -363,17 +412,20 @@ MWVisualizationsTest >> testInspectProductTo [
 				  assert: factorial equals: n factorial.
 
 			  self
-				  export: tree
-				  pathSuffix: 'sequence-diagram'
-				  onCanvasDo: [ :aCanvas :aTree | 
-					  presenter sequenceDiagramTree: aTree canvas: aCanvas ];
-				  exportSlotsGraphOf: factorial ]
+				  exportShapeOf: tree
+				  accessorBlock: [ :aTree | 
+					  aTree
+						  asShapeUMLSequenceDiagram: builder
+						  metadata: observedData metadata ]
+				  pathSuffix: 'sequence-diagram'.
+
+			  self exportSlotsGraphOf: factorial ]
 ]
 
 { #category : #tests }
 MWVisualizationsTest >> testInspectProductToPropagating [
 
-	| n factorial tree handlerExecution handlerCopying metadata presenter handlerPropagating observedData |
+	| n factorial tree handlerExecution handlerCopying metadata presenter handlerPropagating observedData builder |
 	tree := MWContextsTree new.
 
 	handlerExecution := MWHandlerProfiling new
@@ -404,8 +456,10 @@ MWVisualizationsTest >> testInspectProductToPropagating [
 		                metadata: metadata;
 		                yourself.
 
+	builder := self umlSequenceDiagramBuilder: RSUMLSequenceBuilder new.
+
 	presenter := (MWSpPresenter on: observedData)
-		             useShapeSlotsDfsTree;
+		             umlSequenceDiagramBuilder: builder;
 		             openWithSpec;
 		             yourself.
 
@@ -413,12 +467,15 @@ MWVisualizationsTest >> testInspectProductToPropagating [
 		assert: tree size equals: 18;
 		assert: factorial equals: n factorial.
 
-	^ self
-		  export: tree
-		  pathSuffix: 'sequence-diagram'
-		  onCanvasDo: [ :aCanvas :aTree | 
-			  presenter sequenceDiagramTree: aTree canvas: aCanvas ];
-		  exportSlotsGraphOf: factorial
+	self
+		exportShapeOf: tree
+		accessorBlock: [ :aTree | 
+			aTree
+				asShapeUMLSequenceDiagram: builder
+				metadata: observedData metadata ]
+		pathSuffix: 'sequence-diagram'.
+
+	self exportSlotsGraphOf: factorial
 ]
 
 { #category : #tests }
@@ -432,11 +489,14 @@ MWVisualizationsTest >> testProfileSlowExplicitFibonacciTailWithAdd [
 				  (Number >> #addNumber:) }
 		  wrapping: [ 6 slowExplicitFibonacci: 0 tail: 1 ]
 		  then: [ :result :observedData | 
-			  | presenter tree |
+			  | presenter tree builder |
 			  tree := observedData tree.
 
+			  builder := self umlSequenceDiagramBuilder:
+				             RSUMLSequenceBuilder new.
+
 			  presenter := (MWSpPresenter on: observedData)
-				               useShapeSlotsDfsTree;
+				               umlSequenceDiagramBuilder: builder;
 				               openWithSpec;
 				               yourself.
 
@@ -445,10 +505,12 @@ MWVisualizationsTest >> testProfileSlowExplicitFibonacciTailWithAdd [
 				  assert: result equals: 6 fibonacciNumbers last.
 
 			  self
-				  export: tree
-				  pathSuffix: 'sequence-diagram'
-				  onCanvasDo: [ :aCanvas :aTree | 
-					  presenter sequenceDiagramTree: aTree canvas: aCanvas ] ]
+				  exportShapeOf: tree
+				  accessorBlock: [ :aTree | 
+					  aTree
+						  asShapeUMLSequenceDiagram: builder
+						  metadata: observedData metadata ]
+				  pathSuffix: 'sequence-diagram' ]
 ]
 
 { #category : #tests }
@@ -460,11 +522,14 @@ MWVisualizationsTest >> testProfileSlowFibonacciMemoingWithAdd [
 				  (Number >> #addNumber:) }
 		  wrapping: [ 6 slowFibonacciMemo: Dictionary new ]
 		  then: [ :result :observedData | 
-			  | presenter tree |
+			  | presenter tree builder |
 			  tree := observedData tree.
 
+			  builder := self umlSequenceDiagramBuilder:
+				             RSUMLSequenceBuilder new.
+
 			  presenter := (MWSpPresenter on: observedData)
-				               useShapeSlotsDfsTree;
+				               umlSequenceDiagramBuilder: builder;
 				               openWithSpec;
 				               yourself.
 
@@ -473,10 +538,12 @@ MWVisualizationsTest >> testProfileSlowFibonacciMemoingWithAdd [
 				  assert: result equals: 7 fibonacciNumbers last.
 
 			  self
-				  export: tree
-				  pathSuffix: 'sequence-diagram'
-				  onCanvasDo: [ :aCanvas :aTree | 
-					  presenter sequenceDiagramTree: aTree canvas: aCanvas ] ]
+				  exportShapeOf: tree
+				  accessorBlock: [ :aTree | 
+					  aTree
+						  asShapeUMLSequenceDiagram: builder
+						  metadata: observedData metadata ]
+				  pathSuffix: 'sequence-diagram' ]
 ]
 
 { #category : #tests }
@@ -488,11 +555,14 @@ MWVisualizationsTest >> testProfileSlowFibonacciTailWithAdd [
 				  (Number >> #addNumber:) }
 		  wrapping: [ 6 slowFibonacci: 0 tail: 1 ]
 		  then: [ :result :observedData | 
-			  | presenter tree |
+			  | presenter tree builder |
 			  tree := observedData tree.
 
+			  builder := self umlSequenceDiagramBuilder:
+				             RSUMLSequenceBuilder new.
+
 			  presenter := (MWSpPresenter on: observedData)
-				               useShapeSlotsDfsTree;
+				               umlSequenceDiagramBuilder: builder;
 				               openWithSpec;
 				               yourself.
 
@@ -501,10 +571,12 @@ MWVisualizationsTest >> testProfileSlowFibonacciTailWithAdd [
 				  assert: result equals: 6 fibonacciNumbers last.
 
 			  self
-				  export: tree
-				  pathSuffix: 'sequence-diagram'
-				  onCanvasDo: [ :aCanvas :aTree | 
-					  presenter sequenceDiagramTree: aTree canvas: aCanvas ] ]
+				  exportShapeOf: tree
+				  accessorBlock: [ :aTree | 
+					  aTree
+						  asShapeUMLSequenceDiagram: builder
+						  metadata: observedData metadata ]
+				  pathSuffix: 'sequence-diagram' ]
 ]
 
 { #category : #tests }
@@ -516,11 +588,14 @@ MWVisualizationsTest >> testProfileSlowFibonacciWithAdd [
 				  (Number >> #addNumber:) }
 		  wrapping: [ 6 slowFibonacci ]
 		  then: [ :result :observedData | 
-			  | presenter tree |
+			  | presenter tree builder |
 			  tree := observedData tree.
 
+			  builder := self umlSequenceDiagramBuilder:
+				             RSUMLSequenceBuilder new.
+
 			  presenter := (MWSpPresenter on: observedData)
-				               useShapeSlotsDfsTree;
+				               umlSequenceDiagramBuilder: builder;
 				               openWithSpec;
 				               yourself.
 
@@ -529,10 +604,12 @@ MWVisualizationsTest >> testProfileSlowFibonacciWithAdd [
 				  assert: result equals: 7 fibonacciNumbers last. " 55"
 
 			  self
-				  export: tree
-				  pathSuffix: 'sequence-diagram'
-				  onCanvasDo: [ :aCanvas :aTree | 
-					  presenter sequenceDiagramTree: aTree canvas: aCanvas ] ]
+				  exportShapeOf: tree
+				  accessorBlock: [ :aTree | 
+					  aTree
+						  asShapeUMLSequenceDiagram: builder
+						  metadata: observedData metadata ]
+				  pathSuffix: 'sequence-diagram' ]
 ]
 
 { #category : #tests }
@@ -542,11 +619,14 @@ MWVisualizationsTest >> testProfileSlowFibonacciWithAddOnly [
 		  compiledMethods: { (Number >> #addNumber:) }
 		  wrapping: [ 6 slowFibonacci ]
 		  then: [ :result :observedData | 
-			  | presenter tree |
+			  | presenter tree builder |
 			  tree := observedData tree.
 
+			  builder := self umlSequenceDiagramBuilder:
+				             RSUMLSequenceBuilder new.
+
 			  presenter := (MWSpPresenter on: observedData)
-				               useShapeSlotsDfsTree;
+				               umlSequenceDiagramBuilder: builder;
 				               openWithSpec;
 				               yourself.
 
@@ -555,10 +635,12 @@ MWVisualizationsTest >> testProfileSlowFibonacciWithAddOnly [
 				  assert: result equals: 7 fibonacciNumbers last. " 55"
 
 			  self
-				  export: tree
-				  pathSuffix: 'sequence-diagram'
-				  onCanvasDo: [ :aCanvas :aTree | 
-					  presenter sequenceDiagramTree: aTree canvas: aCanvas ] ]
+				  exportShapeOf: tree
+				  accessorBlock: [ :aTree | 
+					  aTree
+						  asShapeUMLSequenceDiagram: builder
+						  metadata: observedData metadata ]
+				  pathSuffix: 'sequence-diagram' ]
 ]
 
 { #category : #tests }
@@ -571,11 +653,14 @@ MWVisualizationsTest >> testSequenceableCollectionEstrinInit [
 				  (Number >> #multiplyNumber:) }
 		  wrapping: [ self sutSequenceableCollectionEstrinInit ]
 		  then: [ :result :observedData | 
-			  | presenter tree |
+			  | presenter tree builder |
 			  tree := observedData tree.
 
+			  builder := self umlSequenceDiagramBuilder:
+				             RSUMLSequenceBuilder new.
+
 			  presenter := (MWSpPresenter on: observedData)
-				               useShapeSlotsDfsTree;
+				               umlSequenceDiagramBuilder: builder;
 				               openWithSpec;
 				               yourself.
 
@@ -584,11 +669,14 @@ MWVisualizationsTest >> testSequenceableCollectionEstrinInit [
 				  assert: result equals: 13569.
 
 			  self
-				  export: tree
-				  pathSuffix: 'sequence-diagram'
-				  onCanvasDo: [ :aCanvas :aTree | 
-					  presenter sequenceDiagramTree: aTree canvas: aCanvas ];
-				  exportSlotsGraphOf: result ]
+				  exportShapeOf: tree
+				  accessorBlock: [ :aTree | 
+					  aTree
+						  asShapeUMLSequenceDiagram: builder
+						  metadata: observedData metadata ]
+				  pathSuffix: 'sequence-diagram'.
+
+			  self exportSlotsGraphOf: result ]
 ]
 
 { #category : #tests }
@@ -601,11 +689,14 @@ MWVisualizationsTest >> testSequenceableCollectionHornerInit [
 				  (Number >> #multiplyNumber:) }
 		  wrapping: [ self sutSequenceableCollectionHornerInit ]
 		  then: [ :result :observedData | 
-			  | presenter tree |
+			  | presenter tree builder |
 			  tree := observedData tree.
 
+			  builder := self umlSequenceDiagramBuilder:
+				             RSUMLSequenceBuilder new.
+
 			  presenter := (MWSpPresenter on: observedData)
-				               useShapeSlotsDfsTree;
+				               umlSequenceDiagramBuilder: builder;
 				               openWithSpec;
 				               yourself.
 
@@ -614,9 +705,12 @@ MWVisualizationsTest >> testSequenceableCollectionHornerInit [
 				  assert: result equals: 1356.
 
 			  self
-				  export: tree
-				  pathSuffix: 'sequence-diagram'
-				  onCanvasDo: [ :aCanvas :aTree | 
-					  presenter sequenceDiagramTree: aTree canvas: aCanvas ];
-				  exportSlotsGraphOf: result ]
+				  exportShapeOf: tree
+				  accessorBlock: [ :aTree | 
+					  aTree
+						  asShapeUMLSequenceDiagram: builder
+						  metadata: observedData metadata ]
+				  pathSuffix: 'sequence-diagram'.
+
+			  self exportSlotsGraphOf: result ]
 ]
