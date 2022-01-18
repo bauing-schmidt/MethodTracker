@@ -1,5 +1,5 @@
 Class {
-	#name : #MWObservedData,
+	#name : #MWObservedDataset,
 	#superclass : #Object,
 	#instVars : [
 		'tree',
@@ -9,19 +9,19 @@ Class {
 }
 
 { #category : #accessing }
-MWObservedData >> metadata [
+MWObservedDataset >> metadata [
 
 	^ metadata
 ]
 
 { #category : #accessing }
-MWObservedData >> metadata: anObject [
+MWObservedDataset >> metadata: anObject [
 
 	metadata := anObject
 ]
 
 { #category : #accessing }
-MWObservedData >> statistics [
+MWObservedDataset >> statistics [
 
 	| methodCountDurationDictionary tableItems |
 	methodCountDurationDictionary := Dictionary new.
@@ -77,7 +77,7 @@ MWObservedData >> statistics [
 			                 (durationMinSquaresSum / (count - 1)) sqrt ]
 			                 ifFalse: [ 0 ].
 
-		sample := MWObservedSample new
+		sample := MWObservedDatarow new
 			          compiledMethod: aMethod;
 			          count: count;
 			          duration: (Duration nanoSeconds: duration);
@@ -93,13 +93,13 @@ MWObservedData >> statistics [
 ]
 
 { #category : #accessing }
-MWObservedData >> tree [
+MWObservedDataset >> tree [
 
 	^ tree
 ]
 
 { #category : #accessing }
-MWObservedData >> tree: anObject [
+MWObservedDataset >> tree: anObject [
 
 	tree := anObject
 ]

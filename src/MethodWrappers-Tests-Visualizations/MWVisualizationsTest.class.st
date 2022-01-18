@@ -399,7 +399,7 @@ MWVisualizationsTest >> testInspectProductToPropagating [
 	handlerExecution metadata: metadata.
 	handlerCopying metadata: metadata.
 
-	observedData := MWObservedData new
+	observedData := MWObservedDataset new
 		                tree: tree;
 		                metadata: metadata;
 		                yourself.

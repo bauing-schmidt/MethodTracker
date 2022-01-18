@@ -27,7 +27,7 @@ MWTProfilingCopying >> compiledMethods: methods wrapping: behaviorBlock then: th
 	handlerExecution metadata: metadata.
 	handlerCopying metadata: metadata.
 
-	observed := MWObservedData new
+	observed := MWObservedDataset new
 		            tree: tree;
 		            metadata: metadata;
 		            yourself.

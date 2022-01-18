@@ -1,5 +1,5 @@
 Class {
-	#name : #MWObservedSample,
+	#name : #MWObservedDatarow,
 	#superclass : #Object,
 	#instVars : [
 		'compiledMethod',
@@ -14,85 +14,85 @@ Class {
 }
 
 { #category : #accessing }
-MWObservedSample >> clients [
+MWObservedDatarow >> clients [
 
 	^ clients
 ]
 
 { #category : #accessing }
-MWObservedSample >> clients: anObject [
+MWObservedDatarow >> clients: anObject [
 
 	clients := anObject
 ]
 
 { #category : #accessing }
-MWObservedSample >> compiledMethod [
+MWObservedDatarow >> compiledMethod [
 
 	^ compiledMethod
 ]
 
 { #category : #accessing }
-MWObservedSample >> compiledMethod: anObject [
+MWObservedDatarow >> compiledMethod: anObject [
 
 	compiledMethod := anObject
 ]
 
 { #category : #accessing }
-MWObservedSample >> count [
+MWObservedDatarow >> count [
 
 	^ count
 ]
 
 { #category : #accessing }
-MWObservedSample >> count: anObject [
+MWObservedDatarow >> count: anObject [
 
 	count := anObject
 ]
 
 { #category : #accessing }
-MWObservedSample >> duration [
+MWObservedDatarow >> duration [
 
 	^ duration
 ]
 
 { #category : #accessing }
-MWObservedSample >> duration: anObject [
+MWObservedDatarow >> duration: anObject [
 
 	duration := anObject
 ]
 
 { #category : #accessing }
-MWObservedSample >> durationAvg [
+MWObservedDatarow >> durationAvg [
 
 	^ durationAvg
 ]
 
 { #category : #accessing }
-MWObservedSample >> durationAvg: anObject [
+MWObservedDatarow >> durationAvg: anObject [
 
 	durationAvg := anObject
 ]
 
 { #category : #accessing }
-MWObservedSample >> durationStDev [
+MWObservedDatarow >> durationStDev [
 
 	^ durationStDev
 ]
 
 { #category : #accessing }
-MWObservedSample >> durationStDev: anObject [
+MWObservedDatarow >> durationStDev: anObject [
 
 	durationStDev := anObject
 ]
 
 { #category : #accessing }
-MWObservedSample >> receivers [
+MWObservedDatarow >> receivers [
 
 	^ receivers
 ]
 
 { #category : #accessing }
-MWObservedSample >> receivers: anObject [
+MWObservedDatarow >> receivers: anObject [
 
 	receivers := anObject
 ]

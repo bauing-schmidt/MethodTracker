@@ -29,7 +29,7 @@ MWHandlerTest >> exampleOpalCompiler [
 	metadata := IdentityDictionary new.
 	handlerExecution metadata: metadata.
 
-	observedData := MWObservedData new
+	observedData := MWObservedDataset new
 		                tree: tree;
 		                metadata: metadata;
 		                yourself.
@@ -113,7 +113,7 @@ MWHandlerTest >> testAddWithinDoObjectCentric [
 	metadata := IdentityDictionary new.
 	handlerExecution metadata: metadata.
 
-	observedData := MWObservedData new
+	observedData := MWObservedDataset new
 		                tree: tree;
 		                metadata: metadata;
 		                yourself.
@@ -413,7 +413,7 @@ MWHandlerTest >> testProfileSlowFibonacciMemoing [
 	metadata := IdentityDictionary new.
 	handlerExecution metadata: metadata.
 
-	observedData := MWObservedData new
+	observedData := MWObservedDataset new
 		                tree: tree;
 		                metadata: metadata;
 		                yourself.
@@ -447,7 +447,7 @@ MWHandlerTest >> testSelfSendBeforeRising [
 
 	handlerExecution metadata: metadata.
 
-	observedData := MWObservedData new
+	observedData := MWObservedDataset new
 		                tree: tree;
 		                metadata: metadata;
 		                yourself.
@@ -623,7 +623,7 @@ MWHandlerTest >> testSequenceableCollectionMergeSortPlugging [
 	handlerExecution metadata: metadata.
 	handlerBlockPlugging metadata: metadata.
 
-	observedData := MWObservedData new
+	observedData := MWObservedDataset new
 		                tree: tree;
 		                metadata: metadata;
 		                yourself.
@@ -661,7 +661,7 @@ MWHandlerTest >> testSequenceableCollectionMergeSortWithoutCopying [
 	metadata := IdentityDictionary new.
 	handlerExecution metadata: metadata.
 
-	observedData := MWObservedData new
+	observedData := MWObservedDataset new
 		                tree: tree;
 		                metadata: metadata;
 		                yourself.
