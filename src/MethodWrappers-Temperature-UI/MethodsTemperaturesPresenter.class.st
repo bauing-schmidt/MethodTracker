@@ -801,7 +801,7 @@ MethodsTemperaturesPresenter >> runDoitWrappedTemperatureMethodsStCommand: aComm
 { #category : #'dispatched commands' }
 MethodsTemperaturesPresenter >> runInstallMethodTemperatureWrappersStCommand: aCommand [
 
-	| tree handlerExecution metadata |
+	| tree handlerExecution metadata observedData |
 	tree := CTOrderPreservingTree new.
 
 	handlerExecution := MWHandlerProfiling new
@@ -820,8 +820,13 @@ MethodsTemperaturesPresenter >> runInstallMethodTemperatureWrappersStCommand: aC
 	metadata := IdentityDictionary new.
 	handlerExecution metadata: metadata.
 
+	observedData := MWObservedDataset new
+		                tree: tree;
+		                metadata: metadata;
+		                yourself.
+
 	"Show here the new presenter."
-	(MWSpPresenter on: tree -> metadata) openWithSpec
+	(MWSpPresenter on: observedData) openWithSpec
 ]
 
 { #category : #'dispatched commands' }
