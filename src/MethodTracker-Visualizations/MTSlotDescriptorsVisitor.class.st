@@ -1,7 +1,7 @@
 Class {
 	#name : #MTSlotDescriptorsVisitor,
 	#superclass : #CTSlotDescriptorsVisitor,
-	#category : #'MethodTracker-UI'
+	#category : #'MethodTracker-Visualizations'
 }
 
 { #category : #visiting }

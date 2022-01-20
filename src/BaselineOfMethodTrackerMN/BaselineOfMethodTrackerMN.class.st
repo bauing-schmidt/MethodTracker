@@ -24,5 +24,5 @@ BaselineOfMethodTrackerMN >> baseline: spec [
 			package: 'MethodTracker-Temperature';
 			package: 'MethodTracker-Temperature-UI';
 			package: 'MethodTracker-Tests';
-			package: 'MethodTracker-Tests-Visualizations' ]
+			package: 'MethodTracker-Visualizations' ]
 ]

@@ -3,7 +3,7 @@ Class {
 	#superclass : #TestCase,
 	#traits : 'TIceImagesExporting + MTTProfilingCopying + MTTUmlSequenceDiagramBuilderWithOutliners',
 	#classTraits : 'TIceImagesExporting classTrait + MTTProfilingCopying classTrait + MTTUmlSequenceDiagramBuilderWithOutliners classTrait',
-	#category : #'MethodTracker-Tests-Visualizations'
+	#category : #'MethodTracker-Visualizations'
 }
 
 { #category : #tests }

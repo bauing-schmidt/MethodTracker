@@ -1,6 +1,6 @@
 Trait {
 	#name : #MTTUmlSequenceDiagramBuilderWithOutliners,
-	#category : #'MethodTracker-UI'
+	#category : #'MethodTracker-Visualizations'
 }
 
 { #category : #'accessing - structure variables' }
