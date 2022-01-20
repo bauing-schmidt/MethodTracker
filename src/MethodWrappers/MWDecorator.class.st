@@ -78,12 +78,6 @@ MWDecorator >> install [
 		ifNotInstalled: [ self put: self ]
 ]
 
-{ #category : #testing }
-MWDecorator >> isMethodWrapper [
-
-	^ true
-]
-
 { #category : #accessing }
 MWDecorator >> owner: anObject [
 
