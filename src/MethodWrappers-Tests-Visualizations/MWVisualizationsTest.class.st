@@ -479,6 +479,63 @@ MWVisualizationsTest >> testInspectProductToPropagating [
 ]
 
 { #category : #tests }
+MWVisualizationsTest >> testInspectSkipList [
+
+	^ self
+		  compiledMethods: { 
+				  (CTSkipList >> #add:).
+				  (CTSkipList >> #add:atHeight:).
+				  (CTSkipList >> #add:atHeight:predecessors:) }
+		  wrapping: [ 
+			  | collection skiplist |
+			  collection := #( 5 10 16 18 30 41 80 ) asSortedCollection: #<.
+
+			  skiplist := CTSkipList
+				              onSortedCollection: collection
+				              lowerBound: Float negativeInfinity
+				              upperBound: Float infinity.
+
+			  skiplist
+				  add: 35 atHeight: 4;
+				  yourself ]
+		  then: [ :skiplist :observedData | 
+			  | presenter tree builder |
+			  tree := observedData tree.
+
+			  builder := self umlSequenceDiagramBuilder:
+				             RSUMLSequenceBuilder new.
+
+			  presenter := (MWSpPresenter on: observedData)
+				               umlSequenceDiagramBuilder: builder;
+				               openWithSpec;
+				               yourself.
+
+			  "self
+				  assert: tree size equals: 18;
+				  assert: inversions equals: { 
+						  (1 -> 2).
+						  (1 -> 4).
+						  (3 -> 4) }.
+"
+			  "The count for #nextPut:inversion: equals the count of inversions."
+			  "self
+				  assert:
+				  (observedData statistics at: Stream >> #nextPut:inversion:)
+					  count
+				  equals: inversions size."
+
+			  self
+				  exportShapeOf: tree
+				  accessorBlock: [ :aTree | 
+					  aTree
+						  asShapeUMLSequenceDiagram: builder
+						  metadata: observedData metadata ]
+				  pathSuffix: 'sequence-diagram'.
+
+			  self exportSlotsGraphOf: skiplist ]
+]
+
+{ #category : #tests }
 MWVisualizationsTest >> testProfileSlowExplicitFibonacciTailWithAdd [
 
 	^ self
