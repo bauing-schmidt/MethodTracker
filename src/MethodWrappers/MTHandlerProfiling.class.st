@@ -38,7 +38,7 @@ MTHandlerProfiling >> metadata: metadata [
 	tree
 		pre: [ :each | 
 			| eachReified key model timedResult |
-			eachReified := each asContextReifiedFromWrapping.
+			eachReified := each asArgumentsReifiedContext.
 
 			model := metadata
 				         at: each

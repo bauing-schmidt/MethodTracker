@@ -43,7 +43,7 @@ MTObservedDataset >> statistics [
 				 ifJust: [ :aJust | aJust content ]).
 
 		"Receivers."
-		anArray second add: each asContextReifiedFromWrapping receiver.
+		anArray second add: each asArgumentsReifiedContext receiver.
 
 		"Count."
 		anArray at: 3 update: [ :count | count + 1 ].

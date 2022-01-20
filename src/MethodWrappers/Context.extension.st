@@ -1,14 +1,15 @@
 Extension { #name : #Context }
 
 { #category : #'*MethodWrappers' }
-Context >> asContextReifiedFromWrapping [
+Context >> asArgumentsReifiedContext [
 
-	| recv |
-	recv := self arguments third.
+	| recv arguments |
+	arguments := self arguments.
+	recv := arguments third.
 
 	^ self class
 		  sender: sender
 		  receiver: recv
-		  method: (recv class lookupSelector: self arguments first)
-		  arguments: self arguments second
+		  method: (recv class lookupSelector: arguments first)
+		  arguments: arguments second
 ]

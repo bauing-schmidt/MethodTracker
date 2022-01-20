@@ -72,7 +72,7 @@ MTHandlerReceiverArgumentsCopying >> run: aSelector with: anArray in: aReceiver 
 		withSuspendWrapping: [ 
 			| client clientCopied resultCopied |
 			client := (self parent: aContext ifAbsent: [ Error signal ])
-				          asContextReifiedFromWrapping receiver.
+				          asArgumentsReifiedContext receiver.
 
 			clientCopied := copier value: client.
 			resultCopied := copier value: result.

@@ -329,7 +329,7 @@ MTHandlerTest >> testHeapWithAll [
 				          aChild == aParent
 					          ifTrue: [ 
 						          | method |
-						          method := aParent asContextReifiedFromWrapping method.
+						          method := aParent asArgumentsReifiedContext method.
 						          method = (Heap class >> #withAll:) ]
 					          ifFalse: [ true ] ].
 

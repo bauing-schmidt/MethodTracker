@@ -16,8 +16,8 @@ MTContextsTree >> asShapeUMLSequenceDiagram: aBuilder metadata: metadata [
 
 			"Reify the context but ignoring the metadata info because we want to draw
 			 the skeleton of the real objects that are involved and not their clones."
-			reifiedContext := each asContextReifiedFromWrapping.
-			reifiedParentContext := currentParent asContextReifiedFromWrapping.
+			reifiedContext := each asArgumentsReifiedContext.
+			reifiedParentContext := currentParent asArgumentsReifiedContext.
 
 			client := reifiedParentContext receiver.
 			recv := reifiedContext receiver.
