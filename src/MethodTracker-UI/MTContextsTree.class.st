@@ -1,6 +1,10 @@
-Extension { #name : #MTContextsTree }
+Class {
+	#name : #MTContextsTree,
+	#superclass : #CTOrderPreservingTree,
+	#category : #'MethodTracker-UI'
+}
 
-{ #category : #'*MethodTracker-UI' }
+{ #category : #'as yet unclassified' }
 MTContextsTree >> asShapeUMLSequenceDiagram: aBuilder metadata: metadata [
 
 	| timedMessageSends objectsSeenSoFar |
