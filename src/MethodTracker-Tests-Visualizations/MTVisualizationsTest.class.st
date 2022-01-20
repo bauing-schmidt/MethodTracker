@@ -493,8 +493,7 @@ MTVisualizationsTest >> testInspectSkipList [
 			  skiplist := CTSkipList
 				              onSortedCollection: collection
 				              lowerBound: Float negativeInfinity
-				              upperBound: Float infinity;
-				              yourself.
+				              upperBound: Float infinity.
 
 			  skiplist
 				  add: 35 atHeight: 4;
