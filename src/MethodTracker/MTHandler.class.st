@@ -9,7 +9,7 @@ MTHandler >> metadata: metadata [
 ]
 
 { #category : #hooks }
-MTHandler >> run: aSelector with: anArray in: aReceiver context: aContext wrapper: aWrapper [
+MTHandler >> run: aSelector with: anArray in: aReceiver context: aContext tracker: aTracker [
 
-	^ aWrapper valueWithReceiver: aReceiver arguments: anArray
+	^ aTracker valueWithReceiver: aReceiver arguments: anArray
 ]

@@ -8,7 +8,7 @@ Class {
 }
 
 { #category : #evaluation }
-MTHandlerTracing >> run: aSelector with: anArray in: aReceiver preContext: aContext wrapper: aWrapper [
+MTHandlerTracing >> run: aSelector with: anArray in: aReceiver preContext: aContext tracker: aTracker [
 
 	Stdio stderr
 		nextPutAll: aReceiver class name;

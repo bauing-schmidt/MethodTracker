@@ -16,10 +16,10 @@ MTHandlerMemoing >> initialize [
 ]
 
 { #category : #'as yet unclassified' }
-MTHandlerMemoing >> run: aSelector with: anArray in: aReceiver context: aContext wrapper: aWrapper [
+MTHandlerMemoing >> run: aSelector with: anArray in: aReceiver context: aContext tracker: aTracker [
 
 	| key missing value |
-	aWrapper
+	aTracker
 		withSuspendWrapping: [ 
 			| witness |
 			witness := Object new.
@@ -40,9 +40,9 @@ MTHandlerMemoing >> run: aSelector with: anArray in: aReceiver context: aContext
 				           with: anArray
 				           in: aReceiver
 				           context: aContext
-				           wrapper: aWrapper.
+				           tracker: aTracker.
 
-			  aWrapper
+			  aTracker
 				  withSuspendWrapping: [ table at: key put: value ]
 				  context: aContext ]
 		  ifFalse: [ value ]

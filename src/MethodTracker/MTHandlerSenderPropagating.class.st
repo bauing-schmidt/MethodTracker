@@ -5,9 +5,9 @@ Class {
 }
 
 { #category : #hooks }
-MTHandlerSenderPropagating >> run: aSelector with: anArray in: aReceiver context: aContext wrapper: aWrapper [
+MTHandlerSenderPropagating >> run: aSelector with: anArray in: aReceiver context: aContext tracker: aTracker [
 
-	aWrapper
+	aTracker
 		withSuspendWrapping: [ :session | 
 			| decorator anAddedDecorator |
 			decorator := MTTracker new
@@ -25,5 +25,5 @@ MTHandlerSenderPropagating >> run: aSelector with: anArray in: aReceiver context
 		  with: anArray
 		  in: aReceiver
 		  context: aContext
-		  wrapper: aWrapper
+		  tracker: aTracker
 ]

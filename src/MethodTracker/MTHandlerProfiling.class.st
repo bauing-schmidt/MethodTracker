@@ -100,7 +100,7 @@ MTHandlerProfiling >> parent: aContext ifAbsent: aBlock [
 ]
 
 { #category : #'as yet unclassified' }
-MTHandlerProfiling >> run: aSelector with: anArray in: aReceiver postContext: aContext wrapper: aWrapper carry: timed return: result [
+MTHandlerProfiling >> run: aSelector with: anArray in: aReceiver postContext: aContext tracker: aTracker carry: timed return: result [
 
 	| duration now by start |
 	now := Time microsecondClockValue.
@@ -116,7 +116,7 @@ MTHandlerProfiling >> run: aSelector with: anArray in: aReceiver postContext: aC
 ]
 
 { #category : #hooks }
-MTHandlerProfiling >> run: aSelector with: anArray in: aReceiver preContext: aContext wrapper: aWrapper [
+MTHandlerProfiling >> run: aSelector with: anArray in: aReceiver preContext: aContext tracker: aTracker [
 
 	| aParent start timedResult |
 	aParent := aContext sender findContextSuchThat: [ :ctx | 

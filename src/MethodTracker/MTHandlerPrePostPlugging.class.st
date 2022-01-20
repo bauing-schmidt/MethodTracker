@@ -5,17 +5,17 @@ Class {
 }
 
 { #category : #hooks }
-MTHandlerPrePostPlugging >> run: aSelector with: anArray in: aReceiver context: aContext wrapper: aWrapper [
+MTHandlerPrePostPlugging >> run: aSelector with: anArray in: aReceiver context: aContext tracker: aTracker [
 
 	| result carry |
-	carry := aWrapper
+	carry := aTracker
 		         withSuspendWrapping: [ 
 			         self
 				         run: aSelector
 				         with: anArray
 				         in: aReceiver
 				         preContext: aContext
-				         wrapper: aWrapper ]
+				         tracker: aTracker ]
 		         context: aContext.
 
 	result := super
@@ -23,16 +23,16 @@ MTHandlerPrePostPlugging >> run: aSelector with: anArray in: aReceiver context: 
 		          with: anArray
 		          in: aReceiver
 		          context: aContext
-		          wrapper: aWrapper.
+		          tracker: aTracker.
 
-	aWrapper
+	aTracker
 		withSuspendWrapping: [ 
 			self
 				run: aSelector
 				with: anArray
 				in: aReceiver
 				postContext: aContext
-				wrapper: aWrapper
+				tracker: aTracker
 				carry: carry
 				return: result ]
 		context: aContext.
@@ -41,13 +41,13 @@ MTHandlerPrePostPlugging >> run: aSelector with: anArray in: aReceiver context: 
 ]
 
 { #category : #'as yet unclassified' }
-MTHandlerPrePostPlugging >> run: aSelector with: anArray in: aReceiver postContext: aContext wrapper: aWrapper carry: carry return: result [
+MTHandlerPrePostPlugging >> run: aSelector with: anArray in: aReceiver postContext: aContext tracker: aTracker carry: carry return: result [
 
 	
 ]
 
 { #category : #'as yet unclassified' }
-MTHandlerPrePostPlugging >> run: aSelector with: anArray in: aReceiver preContext: aContext wrapper: aWrapper [
+MTHandlerPrePostPlugging >> run: aSelector with: anArray in: aReceiver preContext: aContext tracker: aTracker [
 
 	
 ]

@@ -45,7 +45,7 @@ MTHandlerCounting >> initialize [
 ]
 
 { #category : #evaluation }
-MTHandlerCounting >> run: aSelector with: anArray in: aReceiver preContext: aContext wrapper: aWrapper [
+MTHandlerCounting >> run: aSelector with: anArray in: aReceiver preContext: aContext tracker: aTracker [
 
 	count := self add: count to: 1
 ]

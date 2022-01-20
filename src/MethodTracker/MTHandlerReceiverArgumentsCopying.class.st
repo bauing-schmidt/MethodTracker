@@ -50,10 +50,10 @@ MTHandlerReceiverArgumentsCopying >> metadata: metadata [
 ]
 
 { #category : #hooks }
-MTHandlerReceiverArgumentsCopying >> run: aSelector with: anArray in: aReceiver context: aContext wrapper: aWrapper [
+MTHandlerReceiverArgumentsCopying >> run: aSelector with: anArray in: aReceiver context: aContext tracker: aTracker [
 
 	| result message |
-	message := aWrapper
+	message := aTracker
 		           withSuspendWrapping: [ 
 			           table at: aContext put: (MessageSend
 					            receiver: (copier value: aReceiver)
@@ -66,9 +66,9 @@ MTHandlerReceiverArgumentsCopying >> run: aSelector with: anArray in: aReceiver 
 		          with: anArray
 		          in: aReceiver
 		          context: aContext
-		          wrapper: aWrapper.
+		          tracker: aTracker.
 
-	aWrapper
+	aTracker
 		withSuspendWrapping: [ 
 			| client clientCopied resultCopied |
 			client := (self parent: aContext ifAbsent: [ Error signal ])

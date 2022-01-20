@@ -28,7 +28,7 @@ MTHandlerToggling >> initialize [
 ]
 
 { #category : #hooks }
-MTHandlerToggling >> run: aSelector with: anArray in: aReceiver context: aContext wrapper: aWrapper [
+MTHandlerToggling >> run: aSelector with: anArray in: aReceiver context: aContext tracker: aTracker [
 
 	^ enable
 		  ifTrue: [ 
@@ -37,9 +37,9 @@ MTHandlerToggling >> run: aSelector with: anArray in: aReceiver context: aContex
 				  with: anArray
 				  in: aReceiver
 				  context: aContext
-				  wrapper: aWrapper ]
+				  tracker: aTracker ]
 		  ifFalse: [ 
-		  aWrapper valueWithReceiver: aReceiver arguments: anArray ]
+		  aTracker valueWithReceiver: aReceiver arguments: anArray ]
 ]
 
 { #category : #operations }

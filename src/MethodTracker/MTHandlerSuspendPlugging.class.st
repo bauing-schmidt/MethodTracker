@@ -30,12 +30,12 @@ MTHandlerSuspendPlugging >> pre: anObject [
 ]
 
 { #category : #hooks }
-MTHandlerSuspendPlugging >> run: aSelector with: anArray in: aReceiver context: aContext wrapper: aWrapper [
+MTHandlerSuspendPlugging >> run: aSelector with: anArray in: aReceiver context: aContext tracker: aTracker [
 
 	| result |
-	aWrapper
+	aTracker
 		withSuspendWrapping: [ :session | 
-		preBlock cull: session cull: aWrapper ]
+		preBlock cull: session cull: aTracker ]
 		context: aContext.
 
 	result := super
@@ -43,11 +43,11 @@ MTHandlerSuspendPlugging >> run: aSelector with: anArray in: aReceiver context: 
 		          with: anArray
 		          in: aReceiver
 		          context: aContext
-		          wrapper: aWrapper.
+		          tracker: aTracker.
 
-	aWrapper
+	aTracker
 		withSuspendWrapping: [ :session | 
-		postBlock cull: session cull: aWrapper ]
+		postBlock cull: session cull: aTracker ]
 		context: aContext.
 
 	^ result

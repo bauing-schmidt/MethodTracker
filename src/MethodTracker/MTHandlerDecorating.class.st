@@ -20,12 +20,12 @@ MTHandlerDecorating >> parent: aContext ifAbsent: aBlock [
 ]
 
 { #category : #hooks }
-MTHandlerDecorating >> run: aSelector with: anArray in: aReceiver context: aContext wrapper: aWrapper [
+MTHandlerDecorating >> run: aSelector with: anArray in: aReceiver context: aContext tracker: aTracker [
 
 	^ handler
 		  run: aSelector
 		  with: anArray
 		  in: aReceiver
 		  context: aContext
-		  wrapper: aWrapper
+		  tracker: aTracker
 ]

@@ -58,28 +58,25 @@ MTSession class >> initialize [
 
 	forbiddenMethods := Set new
 		                    add: MTTracker >> #run:with:in:;
-		                    add: MTSession >> #run:with:in:context:wrapper:;
+		                    add: MTSession >> #run:with:in:context:tracker:;
 		                    add:
 			                    MTTracker >> #run:with:in:context:suspended:;
 		                    add:
-			                    MTTracker
-			                    >> #run:with:in:context:notSuspended:;
+			                    MTTracker >> #run:with:in:context:notSuspended:;
 		                    addAll:
-			                    (MTHandler >> #run:with:in:context:wrapper:)
+			                    (MTHandler >> #run:with:in:context:tracker:)
 				                    allImplementations;
 		                    addAll:
 			                    (MTHandlerPrePostPlugging
-			                     >> #run:with:in:preContext:wrapper:)
+			                     >> #run:with:in:preContext:tracker:)
 				                    allImplementations;
 		                    addAll: (MTHandlerPrePostPlugging
 			                     >>
-				                     #run:with:in:postContext:wrapper:carry:return:)
+				                     #run:with:in:postContext:tracker:carry:return:)
 				                    allImplementations;
-		                    add:
-			                    MTTracker >> #valueWithReceiver:arguments:;
+		                    add: MTTracker >> #valueWithReceiver:arguments:;
 		                    add: ProtoObject >> #withArgs:executeMethod:;
-		                    add:
-			                    MTTracker >> #withSuspendWrapping:context:;
+		                    add: MTTracker >> #withSuspendWrapping:context:;
 		                    yourself
 ]
 
@@ -142,18 +139,18 @@ MTSession >> pushContext: aContext [
 ]
 
 { #category : #API }
-MTSession >> run: aSelector with: anArray in: aReceiver context: aContext wrapper: aWrapper [
+MTSession >> run: aSelector with: anArray in: aReceiver context: aContext tracker: aTracker [
 
 	^ (stackCounter = 0 and: [ aContext hasSender: home ])
 		  ifTrue: [ 
-			  aWrapper
+			  aTracker
 				  run: aSelector
 				  with: anArray
 				  in: aReceiver
 				  context: aContext
 				  notSuspended: true ]
 		  ifFalse: [ 
-			  aWrapper
+			  aTracker
 				  run: aSelector
 				  with: anArray
 				  in: aReceiver

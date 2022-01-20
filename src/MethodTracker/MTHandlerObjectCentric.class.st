@@ -22,10 +22,10 @@ MTHandlerObjectCentric >> predicate: anObject [
 ]
 
 { #category : #API }
-MTHandlerObjectCentric >> run: aSelector with: anArray in: aReceiver context: aContext wrapper: aWrapper [
+MTHandlerObjectCentric >> run: aSelector with: anArray in: aReceiver context: aContext tracker: aTracker [
 
 	| shouldForward |
-	shouldForward := aWrapper
+	shouldForward := aTracker
 		                 withSuspendWrapping: [ 
 			                 [ predicate value: aReceiver value: anArray ]
 				                 on: MessageNotUnderstood
@@ -39,7 +39,7 @@ MTHandlerObjectCentric >> run: aSelector with: anArray in: aReceiver context: aC
 				  with: anArray
 				  in: aReceiver
 				  context: aContext
-				  wrapper: aWrapper ]
+				  tracker: aTracker ]
 		  ifFalse: [ 
-		  aWrapper valueWithReceiver: aReceiver arguments: anArray ]
+		  aTracker valueWithReceiver: aReceiver arguments: anArray ]
 ]
