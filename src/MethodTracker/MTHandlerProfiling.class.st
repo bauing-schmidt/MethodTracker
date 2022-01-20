@@ -18,7 +18,7 @@ MTHandlerProfiling >> initialize [
 
 	super initialize.
 
-	runWithInMethod := MTDecorator >> #run:with:in:.
+	runWithInMethod := MTTracker >> #run:with:in:.
 
 	timedReturns := IdentityDictionary new.
 

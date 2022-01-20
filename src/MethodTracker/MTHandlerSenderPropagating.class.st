@@ -10,7 +10,7 @@ MTHandlerSenderPropagating >> run: aSelector with: anArray in: aReceiver context
 	aWrapper
 		withSuspendWrapping: [ :session | 
 			| decorator anAddedDecorator |
-			decorator := MTDecorator new
+			decorator := MTTracker new
 				             compiledMethod: aContext sender home method;
 				             handler: self;
 				             yourself.

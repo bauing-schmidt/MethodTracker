@@ -175,7 +175,7 @@ MTHandlerTest >> testCountFooSingleWrapper [
 	| wrapper handler |
 	handler := MTHandlerCounting new.
 
-	wrapper := MTDecorator new
+	wrapper := MTTracker new
 		           owner: MTSession new;
 		           compiledMethod: self class >> #foo;
 		           handler: handler;
@@ -223,7 +223,7 @@ MTHandlerTest >> testCountIfTrueDuringSlowFactorial [
 	session := (MTSession withAllImplementations:
 			            { (Boolean >> #ifTrue:) })
 		           do: [ :each | each handler: ifTrueHandler ];
-		           add: (MTDecorator new
+		           add: (MTTracker new
 				            compiledMethod: Integer >> #slowFactorial;
 				            handler: handler;
 				            yourself);
@@ -242,7 +242,7 @@ MTHandlerTest >> testCountIfTrueSingleWrapper [
 	| wrapper handler |
 	handler := MTHandlerCounting new.
 
-	wrapper := MTDecorator new
+	wrapper := MTTracker new
 		           owner: MTSession new;
 		           compiledMethod: true class >> #ifTrue:;
 		           handler: handler;
@@ -270,7 +270,7 @@ MTHandlerTest >> testCountSelfIfTrueSingleWrapper [
 	| wrapper handler |
 	handler := MTHandlerCounting new.
 
-	wrapper := MTDecorator new
+	wrapper := MTTracker new
 		           owner: MTSession new;
 		           compiledMethod: self class >> #ifTrue:;
 		           handler: handler;
@@ -299,7 +299,7 @@ MTHandlerTest >> testCountSlowFactorial [
 	handler := MTHandlerCounting new.
 
 	MTSession new
-		add: (MTDecorator new
+		add: (MTTracker new
 				 compiledMethod: Integer >> #slowFactorial;
 				 handler: handler;
 				 yourself);
@@ -412,7 +412,7 @@ MTHandlerTest >> testProfileSlowFibonacciMemoing [
 	result := (MTSession withAllImplementations:
 			           { (Number >> #addNumber:) })
 		          do: [ :each | each handler: handlerCounting ];
-		          add: (MTDecorator new
+		          add: (MTTracker new
 				           compiledMethod: Integer >> #slowFibonacci;
 				           handler: handler;
 				           yourself);

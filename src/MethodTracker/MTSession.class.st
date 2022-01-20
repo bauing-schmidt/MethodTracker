@@ -24,7 +24,7 @@ MTSession class >> compiledMethods: aCollection thenSelect: methodBlock [
 
 	methods do: [ :each | 
 		| decorator |
-		decorator := MTDecorator new
+		decorator := MTTracker new
 			             compiledMethod: each;
 			             yourself.
 
@@ -57,12 +57,12 @@ MTSession class >> forPackages: aCollection selectMethod: methodBlock [
 MTSession class >> initialize [
 
 	forbiddenMethods := Set new
-		                    add: MTDecorator >> #run:with:in:;
+		                    add: MTTracker >> #run:with:in:;
 		                    add: MTSession >> #run:with:in:context:wrapper:;
 		                    add:
-			                    MTDecorator >> #run:with:in:context:suspended:;
+			                    MTTracker >> #run:with:in:context:suspended:;
 		                    add:
-			                    MTDecorator
+			                    MTTracker
 			                    >> #run:with:in:context:notSuspended:;
 		                    addAll:
 			                    (MTHandler >> #run:with:in:context:wrapper:)
@@ -76,10 +76,10 @@ MTSession class >> initialize [
 				                     #run:with:in:postContext:wrapper:carry:return:)
 				                    allImplementations;
 		                    add:
-			                    MTDecorator >> #valueWithReceiver:arguments:;
+			                    MTTracker >> #valueWithReceiver:arguments:;
 		                    add: ProtoObject >> #withArgs:executeMethod:;
 		                    add:
-			                    MTDecorator >> #withSuspendWrapping:context:;
+			                    MTTracker >> #withSuspendWrapping:context:;
 		                    yourself
 ]
 
