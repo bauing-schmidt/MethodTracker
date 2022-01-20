@@ -19,6 +19,45 @@ MTVisualizationsTest >> sutSequenceableCollectionHornerInit [
 ]
 
 { #category : #tests }
+MTVisualizationsTest >> testHeapWithAll [
+
+	^ self
+		  compiledMethods: { 
+				  (Heap class >> #withAll:).
+				  (Heap >> #reSort).
+				  (Heap >> #downHeap:).
+				  (Heap >> #sorts:before:).
+				  (Integer >> #bitShift:).
+				  (Array lookupSelector: #at:put:) }
+		  wrapping: [ 
+			  Heap withAll: ((1 to: 20) asArray
+					   shuffleBy: (Random seed: 17);
+					   yourself) ]
+		  then: [ :result :observedData | 
+			  | presenter tree builder |
+			  tree := observedData tree select: [ :aChild :aParent | 
+				          aChild == aParent
+					          ifTrue: [ 
+						          | method |
+						          method := aParent asArgumentsReifiedContext method.
+						          method = (Heap class >> #withAll:) ]
+					          ifFalse: [ true ] ].
+
+			  builder := self umlSequenceDiagramBuilder:
+				             RSUMLSequenceBuilder new.
+
+			  presenter := (MTOverviewSpPresenter on: observedData)
+				               umlSequenceDiagramBuilder: builder;
+				               openWithSpec;
+				               yourself.
+
+			  self
+				  assert: tree size equals: 64;
+				  assert: result array
+				  equals: #( 1 2 7 3 4 8 11 9 5 6 10 15 17 12 19 20 14 16 13 18 ) ]
+]
+
+{ #category : #tests }
 MTVisualizationsTest >> testInspectFactorialRecursive [
 
 	| n |
@@ -713,4 +752,153 @@ MTVisualizationsTest >> testSequenceableCollectionHornerInit [
 				  pathSuffix: 'sequence-diagram'.
 
 			  self exportSlotsGraphOf: result ]
+]
+
+{ #category : #tests }
+MTVisualizationsTest >> testSequenceableCollectionMergeSortCopying [
+
+	^ self
+		  compiledMethods: { 
+				  (SequenceableCollection >> #sort).
+				  (SequenceableCollection >> #mergeSortFrom:to:by:).
+				  (SequenceableCollection >> #mergeFirst:middle:last:into:by:).
+				  (SequenceableCollection >> #mergeSortFrom:to:src:dst:by:) }
+			  , (SequenceableCollection >> #replaceFrom:to:with:startingAt:)
+					  allImplementations
+		  wrapping: [ (1 to: 20) shuffled sort ]
+		  then: [ :result :observedData | 
+			  | presenter tree builder |
+			  tree := observedData tree.
+
+			  builder := self umlSequenceDiagramBuilder:
+				             RSUMLSequenceBuilder new.
+
+			  presenter := (MTOverviewSpPresenter on: observedData)
+				               umlSequenceDiagramBuilder: builder;
+				               openWithSpec;
+				               yourself.
+
+			  self
+				  assert: tree size equals: 81;
+				  assert: result equals: (1 to: 20) asArray ]
+]
+
+{ #category : #tests }
+MTVisualizationsTest >> testSequenceableCollectionMergeSortCopyingDetailed [
+
+	^ self
+		  compiledMethods: { 
+				  (SequenceableCollection >> #sort).
+				  (SequenceableCollection >> #mergeSortFrom:to:by:).
+				  (SequenceableCollection >> #mergeFirst:middle:last:into:by:).
+				  (SequenceableCollection >> #mergeSortFrom:to:src:dst:by:).
+				  (SequenceableCollection >> #shuffle).
+				  (SequenceableCollection >> #shuffleBy:).
+				  (SequenceableCollection >> #swap:with:) }
+			  , (SequenceableCollection >> #replaceFrom:to:with:startingAt:)
+					  allImplementations
+			  , (SequenceableCollection >> #shuffled) allImplementations
+		  wrapping: [ (1 to: 20) shuffled sort ]
+		  then: [ :result :observedData | 
+			  | presenter tree builder |
+			  tree := observedData tree.
+
+			  builder := self umlSequenceDiagramBuilder:
+				             RSUMLSequenceBuilder new.
+
+			  presenter := (MTOverviewSpPresenter on: observedData)
+				               umlSequenceDiagramBuilder: builder;
+				               openWithSpec;
+				               yourself.
+
+			  self
+				  assert: tree size equals: 103;
+				  assert: result equals: (1 to: 20) asArray ]
+]
+
+{ #category : #tests }
+MTVisualizationsTest >> testSequenceableCollectionMergeSortPlugging [
+
+	| tree metadata result handlerExecution handlerBlockPlugging observedData |
+	tree := MTContextsTree new.
+
+	handlerExecution := MTHandlerProfiling new
+		                    tree: tree;
+		                    yourself.
+
+	handlerBlockPlugging := MTHandlerSuspendPlugging new
+		                        handler: handlerExecution;
+		                        pre: [ (1 to: 20) shuffled sort ];
+		                        post: [  ];
+		                        yourself.
+
+	result := (MTSession withAllImplementations: { 
+				           (SequenceableCollection >> #sort).
+				           (SequenceableCollection >> #mergeSortFrom:to:by:).
+				           (SequenceableCollection
+				            >> #mergeFirst:middle:last:into:by:).
+				           (SequenceableCollection
+				            >> #mergeSortFrom:to:src:dst:by:).
+				           (SequenceableCollection
+				            >> #replaceFrom:to:with:startingAt:) })
+		          do: [ :each | each handler: handlerBlockPlugging ];
+		          value: [ (1 to: 20) shuffled sort ].
+
+	metadata := IdentityDictionary new.
+	handlerExecution metadata: metadata.
+	handlerBlockPlugging metadata: metadata.
+
+	observedData := MTObservedDataset new
+		                tree: tree;
+		                metadata: metadata;
+		                yourself.
+
+	"Show here the new presenter."
+	(MTOverviewSpPresenter on: observedData)
+		umlSequenceDiagramBuilder: RSUMLSequenceBuilder new;
+		openWithSpec.
+
+	self
+		assert: tree size equals: 81;
+		assert: result equals: (1 to: 20) asArray
+]
+
+{ #category : #tests }
+MTVisualizationsTest >> testSequenceableCollectionMergeSortWithoutCopying [
+
+	| tree result handlerExecution metadata observedData |
+	tree := MTContextsTree new.
+
+	handlerExecution := MTHandlerProfiling new
+		                    tree: tree;
+		                    yourself.
+
+	result := (MTSession withAllImplementations: { 
+				           (SequenceableCollection >> #sort).
+				           (SequenceableCollection >> #mergeSortFrom:to:by:).
+				           (SequenceableCollection
+				            >> #mergeFirst:middle:last:into:by:).
+				           (SequenceableCollection
+				            >> #mergeSortFrom:to:src:dst:by:).
+				           (SequenceableCollection
+				            >> #replaceFrom:to:with:startingAt:) })
+		          do: [ :each | each handler: handlerExecution ];
+		          value: [ (1 to: 20) shuffled sort ].
+
+	metadata := IdentityDictionary new.
+	handlerExecution metadata: metadata.
+
+	observedData := MTObservedDataset new
+		                tree: tree;
+		                metadata: metadata;
+		                yourself.
+
+	"Show here the new presenter."
+	(MTOverviewSpPresenter on: observedData)
+		umlSequenceDiagramBuilder: RSUMLSequenceBuilder new;
+		openWithSpec.
+
+	self
+		assert: tree size equals: 81;
+		assert: result equals: (1 to: 20) asArray
 ]
