@@ -1,6 +1,6 @@
 Trait {
 	#name : #MTTProfilingCopying,
-	#category : #MethodTracker
+	#category : #'MethodTracker-UI'
 }
 
 { #category : #collecting }
