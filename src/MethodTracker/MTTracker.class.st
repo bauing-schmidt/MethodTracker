@@ -1,5 +1,5 @@
 "
-I am an abstract class that install a wrapper around a compiled method, and uninstall it when finished my scope.
+I am able to represent a compiled method and, collaborating with an handler, I can customize the computation flow.
 "
 Class {
 	#name : #MTTracker,
@@ -78,12 +78,6 @@ MTTracker >> install [
 		ifNotInstalled: [ self put: self ]
 ]
 
-{ #category : #accessing }
-MTTracker >> owner: anObject [
-
-	session := anObject
-]
-
 { #category : #printing }
 MTTracker >> printOn: aStream [
 
@@ -138,6 +132,12 @@ MTTracker >> run: aSelector with: anArray in: aReceiver context: aContext suspen
 	^ self valueWithReceiver: aReceiver arguments: anArray
 ]
 
+{ #category : #accessing }
+MTTracker >> session: anObject [
+
+	session := anObject
+]
+
 { #category : #actions }
 MTTracker >> uninstall [
 
@@ -156,7 +156,7 @@ MTTracker >> valueWithReceiver: aReceiver arguments: anArray [
 { #category : #evaluation }
 MTTracker >> withSuspendWrapping: aBlock context: aContext [
 
-	^ [ session pushContext: aContext ]
-		  value: [ aBlock cull: session ]
-		  then: [ session popContext: aContext ]
+	session pushContext: aContext.
+
+	^ [ aBlock cull: session ] ensure: [ session popContext: aContext ]
 ]

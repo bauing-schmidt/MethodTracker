@@ -1,15 +1,14 @@
 Class {
 	#name : #MTHandlerReceiverArgumentsCopying,
-	#superclass : #MTHandlerDecorating,
+	#superclass : #MTHandlerTabling,
 	#instVars : [
-		'table',
 		'copier'
 	],
 	#category : #MethodTracker
 }
 
 { #category : #accessing }
-MTHandlerReceiverArgumentsCopying >> copier: anObject [
+MTHandlerReceiverArgumentsCopying >> copyBlock: anObject [
 
 	copier := anObject
 ]
@@ -19,9 +18,7 @@ MTHandlerReceiverArgumentsCopying >> initialize [
 
 	super initialize.
 
-	table := Dictionary new.
-
-	self copier: [ :each | each copy ]
+	self copyBlock: [ :each | each copy ]
 ]
 
 { #category : #hooks }
@@ -55,10 +52,13 @@ MTHandlerReceiverArgumentsCopying >> run: aSelector with: anArray in: aReceiver 
 	| result message |
 	message := aTracker
 		           withSuspendWrapping: [ 
-			           table at: aContext put: (MessageSend
-					            receiver: (copier value: aReceiver)
-					            selector: aSelector
-					            arguments: (anArray collect: copier)) ]
+			           | messageSend |
+			           messageSend := MessageSend
+				                          receiver: (copier value: aReceiver)
+				                          selector: aSelector
+				                          arguments: (anArray collect: copier).
+
+			           table at: aContext put: messageSend ]
 		           context: aContext.
 
 	result := super

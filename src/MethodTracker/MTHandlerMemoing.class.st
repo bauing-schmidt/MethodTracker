@@ -1,19 +1,8 @@
 Class {
 	#name : #MTHandlerMemoing,
-	#superclass : #MTHandlerDecorating,
-	#instVars : [
-		'table'
-	],
+	#superclass : #MTHandlerTabling,
 	#category : #MethodTracker
 }
-
-{ #category : #'as yet unclassified' }
-MTHandlerMemoing >> initialize [
-
-	super initialize.
-
-	table := Dictionary new
-]
 
 { #category : #'as yet unclassified' }
 MTHandlerMemoing >> run: aSelector with: anArray in: aReceiver context: aContext tracker: aTracker [

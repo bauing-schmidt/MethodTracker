@@ -1,3 +1,6 @@
+"
+I am able to accept and customize the execution of a (tracked) compiled method.
+"
 Class {
 	#name : #MTHandler,
 	#superclass : #Object,

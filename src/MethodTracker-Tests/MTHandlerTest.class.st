@@ -12,7 +12,7 @@ Class {
 { #category : #tests }
 MTHandlerTest >> exampleOpalCompiler [
 
-	<script: 'MWHandlerTest new exampleOpalCompiler'>
+	<script: 'MTHandlerTest new exampleOpalCompiler'>
 	| tree metadata result handlerExecution observedData |
 	tree := MTContextsTree new.
 
@@ -167,29 +167,29 @@ MTHandlerTest >> testCountAdd [
 ]
 
 { #category : #tests }
-MTHandlerTest >> testCountFooSingleWrapper [
+MTHandlerTest >> testCountFooSingleTracker [
 
-	| wrapper handler |
+	| tracker handler |
 	handler := MTHandlerCounting new.
 
-	wrapper := MTTracker new
-		           owner: MTSession new;
+	tracker := MTTracker new
+		           session: MTSession new;
 		           compiledMethod: self class >> #foo;
 		           handler: handler;
 		           yourself.
 
-	wrapper install.
+	tracker install.
 
 	self assert:
-		(wrapper ifInstalled: [ true ] ifNotInstalled: [ false ]).
+		(tracker ifInstalled: [ true ] ifNotInstalled: [ false ]).
 
-	self assert: (self class methodDict at: #foo) equals: wrapper.
+	self assert: (self class methodDict at: #foo) equals: tracker.
 
 	self foo.
 
-	wrapper uninstall.
+	tracker uninstall.
 
-	self deny: (wrapper ifInstalled: [ true ] ifNotInstalled: [ false ]).
+	self deny: (tracker ifInstalled: [ true ] ifNotInstalled: [ false ]).
 
 	self assert: handler count equals: 0
 ]
@@ -234,57 +234,57 @@ MTHandlerTest >> testCountIfTrueDuringSlowFactorial [
 ]
 
 { #category : #tests }
-MTHandlerTest >> testCountIfTrueSingleWrapper [
+MTHandlerTest >> testCountIfTrueSingleTracker [
 
-	| wrapper handler |
+	| tracker handler |
 	handler := MTHandlerCounting new.
 
-	wrapper := MTTracker new
-		           owner: MTSession new;
+	tracker := MTTracker new
+		           session: MTSession new;
 		           compiledMethod: true class >> #ifTrue:;
 		           handler: handler;
 		           yourself.
 
-	wrapper install.
+	tracker install.
 
 	self assert:
-		(wrapper ifInstalled: [ true ] ifNotInstalled: [ false ]).
+		(tracker ifInstalled: [ true ] ifNotInstalled: [ false ]).
 
-	self assert: (true class methodDict at: #ifTrue:) equals: wrapper.
+	self assert: (true class methodDict at: #ifTrue:) equals: tracker.
 
 	true ifTrue: [ 3 ].
 
-	wrapper uninstall.
+	tracker uninstall.
 
-	self deny: (wrapper ifInstalled: [ true ] ifNotInstalled: [ false ]).
+	self deny: (tracker ifInstalled: [ true ] ifNotInstalled: [ false ]).
 
 	self assert: handler count equals: 0
 ]
 
 { #category : #tests }
-MTHandlerTest >> testCountSelfIfTrueSingleWrapper [
+MTHandlerTest >> testCountSelfIfTrueSingleTracker [
 
-	| wrapper handler |
+	| tracker handler |
 	handler := MTHandlerCounting new.
 
-	wrapper := MTTracker new
-		           owner: MTSession new;
+	tracker := MTTracker new
+		           session: MTSession new;
 		           compiledMethod: self class >> #ifTrue:;
 		           handler: handler;
 		           yourself.
 
-	wrapper install.
+	tracker install.
 
 	self assert:
-		(wrapper ifInstalled: [ true ] ifNotInstalled: [ false ]).
+		(tracker ifInstalled: [ true ] ifNotInstalled: [ false ]).
 
-	self assert: (self class methodDict at: #ifTrue:) equals: wrapper.
+	self assert: (self class methodDict at: #ifTrue:) equals: tracker.
 
 	self ifTrue: [  ].
 
-	wrapper uninstall.
+	tracker uninstall.
 
-	self deny: (wrapper ifInstalled: [ true ] ifNotInstalled: [ false ]).
+	self deny: (tracker ifInstalled: [ true ] ifNotInstalled: [ false ]).
 
 	self assert: handler count equals: 0
 ]

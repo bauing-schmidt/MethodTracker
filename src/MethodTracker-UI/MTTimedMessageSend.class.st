@@ -31,9 +31,3 @@ MTTimedMessageSend >> timespan: anObject [
 
 	timespan := anObject
 ]
-
-{ #category : #accessing }
-MTTimedMessageSend >> value [
-
-	self shouldNotBeRedefined
-]

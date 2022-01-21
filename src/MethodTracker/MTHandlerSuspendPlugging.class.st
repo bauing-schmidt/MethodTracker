@@ -2,7 +2,6 @@ Class {
 	#name : #MTHandlerSuspendPlugging,
 	#superclass : #MTHandlerDecorating,
 	#instVars : [
-		'table',
 		'preBlock',
 		'postBlock'
 	],
@@ -14,7 +13,9 @@ MTHandlerSuspendPlugging >> initialize [
 
 	super initialize.
 
-	table := Dictionary new
+	self
+		pre: [  ];
+		post: [  ]
 ]
 
 { #category : #accessing }

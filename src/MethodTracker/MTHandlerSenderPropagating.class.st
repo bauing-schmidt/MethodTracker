@@ -1,23 +1,36 @@
 Class {
 	#name : #MTHandlerSenderPropagating,
 	#superclass : #MTHandlerDecorating,
+	#instVars : [
+		'walkBlock'
+	],
 	#category : #MethodTracker
 }
+
+{ #category : #hooks }
+MTHandlerSenderPropagating >> initialize [
+
+	super initialize.
+
+	self walkBlock: [ :aContext | aContext sender home method ]
+]
 
 { #category : #hooks }
 MTHandlerSenderPropagating >> run: aSelector with: anArray in: aReceiver context: aContext tracker: aTracker [
 
 	aTracker
 		withSuspendWrapping: [ :session | 
-			| decorator anAddedDecorator |
-			decorator := MTTracker new
-				             compiledMethod: aContext sender home method;
-				             handler: self;
-				             yourself.
+			| tracker additionWitness walkedContext |
+			walkedContext := walkBlock value: aContext.
 
-			anAddedDecorator := session add: decorator.
+			tracker := MTTracker new
+				           compiledMethod: walkedContext;
+				           handler: self;
+				           yourself.
 
-			anAddedDecorator == decorator ifTrue: [ decorator install ] ]
+			additionWitness := session add: tracker.
+
+			additionWitness == tracker ifTrue: [ tracker install ] ]
 		context: aContext.
 
 	^ super
@@ -26,4 +39,10 @@ MTHandlerSenderPropagating >> run: aSelector with: anArray in: aReceiver context
 		  in: aReceiver
 		  context: aContext
 		  tracker: aTracker
+]
+
+{ #category : #accessing }
+MTHandlerSenderPropagating >> walkBlock: anObject [
+
+	walkBlock := anObject
 ]

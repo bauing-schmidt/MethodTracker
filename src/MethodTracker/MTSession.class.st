@@ -3,7 +3,7 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'stackCounter',
-		'decorators',
+		'trackers',
 		'home'
 	],
 	#classVars : [
@@ -96,24 +96,24 @@ MTSession class >> withAllImplementations: aCollection [
 ]
 
 { #category : #adding }
-MTSession >> add: aDecorator [
+MTSession >> add: aTracker [
 
-	| key |
-	key := aDecorator compiledMethod.
+	| compiledMethod |
+	compiledMethod := aTracker compiledMethod.
 
-	^ (forbiddenMethods includes: key)
+	^ (forbiddenMethods includes: compiledMethod)
 		  ifTrue: [ Object new ]
 		  ifFalse: [ 
-			  decorators at: key ifAbsentPut: [ 
-				  aDecorator
-					  owner: self;
+			  trackers at: compiledMethod ifAbsentPut: [ 
+				  aTracker
+					  session: self;
 					  yourself ] ]
 ]
 
 { #category : #'*MethodWrappers' }
 MTSession >> do: aBlock [
 
-	decorators valuesDo: aBlock
+	trackers valuesDo: aBlock
 ]
 
 { #category : #initialization }
@@ -121,7 +121,7 @@ MTSession >> initialize [
 
 	super initialize.
 
-	decorators := Dictionary new.
+	trackers := Dictionary new.
 
 	stackCounter := 0
 ]
@@ -165,7 +165,9 @@ MTSession >> value: aBlock [
 
 	home := thisContext.
 
-	^ [ self do: [ :each | each install ] ] value: aBlock then: [ 
+	^ [ 
+	  self do: [ :each | each install ].
+	  aBlock value ] ensure: [ 
 		  self do: [ :each | each uninstall ].
 		  home := nil ]
 ]

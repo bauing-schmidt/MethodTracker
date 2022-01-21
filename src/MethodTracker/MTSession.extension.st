@@ -3,7 +3,7 @@ Extension { #name : #MTSession }
 { #category : #'*MethodWrappers' }
 MTSession >> do: aBlock [
 
-	decorators valuesDo: aBlock
+	trackers valuesDo: aBlock
 ]
 
 { #category : #'*MethodWrappers' }
@@ -13,7 +13,9 @@ MTSession >> value: aBlock [
 
 	home := thisContext.
 
-	^ [ self do: [ :each | each install ] ] value: aBlock then: [ 
+	^ [ 
+	  self do: [ :each | each install ].
+	  aBlock value ] ensure: [ 
 		  self do: [ :each | each uninstall ].
 		  home := nil ]
 ]
