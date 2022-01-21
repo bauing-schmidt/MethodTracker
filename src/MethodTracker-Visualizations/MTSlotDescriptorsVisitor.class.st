@@ -1,3 +1,6 @@
+"
+I am a visitor that simplify the representation of blocks.
+"
 Class {
 	#name : #MTSlotDescriptorsVisitor,
 	#superclass : #CTSlotDescriptorsVisitor,

@@ -1,3 +1,6 @@
+"
+I am a trait that assemble instrumentation using profiling with copying.
+"
 Trait {
 	#name : #MTTProfilingCopying,
 	#category : #'MethodTracker-UI'

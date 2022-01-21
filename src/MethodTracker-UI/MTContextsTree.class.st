@@ -1,3 +1,6 @@
+"
+I am a variant of order-preserving tree that provides a shape representation as sequence diagrams.
+"
 Class {
 	#name : #MTContextsTree,
 	#superclass : #CTOrderPreservingTree,

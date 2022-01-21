@@ -1,3 +1,6 @@
+"
+I am a trait that provides a UML sequence diagram builder configured to use outliners as shapes for objects.
+"
 Trait {
 	#name : #MTTUmlSequenceDiagramBuilderWithOutliners,
 	#category : #'MethodTracker-Visualizations'

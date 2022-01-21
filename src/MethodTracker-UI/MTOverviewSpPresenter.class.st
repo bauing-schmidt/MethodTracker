@@ -1,3 +1,6 @@
+"
+I am a presenter that collects data about an instrumented computation via method trackers.
+"
 Class {
 	#name : #MTOverviewSpPresenter,
 	#superclass : #SpPresenter,

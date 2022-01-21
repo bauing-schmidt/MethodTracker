@@ -1,3 +1,6 @@
+"
+I am a presenter that allows a fine-grain selection of compiled methods.
+"
 Class {
 	#name : #MTCompiledMethodChoosePresenter,
 	#superclass : #SpPresenter,

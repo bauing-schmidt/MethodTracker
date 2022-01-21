@@ -1,3 +1,6 @@
+"
+I am a presenter that reifies the tree of contexts with interpolation of clients, receivers, arguments and returned objects.
+"
 Class {
 	#name : #MTSpContextsTreePresenter,
 	#superclass : #SpPresenter,

@@ -1,3 +1,6 @@
+"
+I am a data object for the building of sequence diagrams.
+"
 Class {
 	#name : #MTTimedMessageSend,
 	#superclass : #Object,
