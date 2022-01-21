@@ -1,3 +1,6 @@
+"
+I am a decorator that delegates to my handler if a given predicate holds.
+"
 Class {
 	#name : #MTHandlerObjectCentric,
 	#superclass : #MTHandlerDecorating,

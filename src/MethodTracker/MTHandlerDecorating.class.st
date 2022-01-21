@@ -1,3 +1,6 @@
+"
+I am a decorator of a given handler, delegating to it the responsibility to actually do behavior.
+"
 Class {
 	#name : #MTHandlerDecorating,
 	#superclass : #MTHandler,

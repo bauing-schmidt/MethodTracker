@@ -1,3 +1,6 @@
+"
+I am a decorator that copy both client, receiver and arguments of each message send.
+"
 Class {
 	#name : #MTHandlerReceiverArgumentsCopying,
 	#superclass : #MTHandlerTabling,

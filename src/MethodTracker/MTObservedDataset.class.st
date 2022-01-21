@@ -1,3 +1,6 @@
+"
+I am a container of `MTObservedDatarow`, also I compute some statistics.
+"
 Class {
 	#name : #MTObservedDataset,
 	#superclass : #Object,

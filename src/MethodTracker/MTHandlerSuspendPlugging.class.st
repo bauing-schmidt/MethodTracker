@@ -1,3 +1,6 @@
+"
+I am a decorator that allows plugging both a pre and a post blocks in a instrumentation-suspended environment.
+"
 Class {
 	#name : #MTHandlerSuspendPlugging,
 	#superclass : #MTHandlerDecorating,

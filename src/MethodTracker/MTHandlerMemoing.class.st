@@ -1,3 +1,6 @@
+"
+I am a decorator that prevents the delegation to my handler if a given message send has been already seen.
+"
 Class {
 	#name : #MTHandlerMemoing,
 	#superclass : #MTHandlerTabling,

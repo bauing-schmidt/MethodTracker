@@ -1,3 +1,6 @@
+"
+I am a handler that allows my subclasses to customize both the pre and post phases in an instrumentation-suspended context.
+"
 Class {
 	#name : #MTHandlerPrePostPlugging,
 	#superclass : #MTHandler,

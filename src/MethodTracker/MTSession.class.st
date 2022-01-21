@@ -1,3 +1,6 @@
+"
+I am a container of method trackers and I manage their installation, execution and uninstallation.
+"
 Class {
 	#name : #MTSession,
 	#superclass : #Object,

@@ -1,3 +1,6 @@
+"
+I am a data object, in particular I am a row that will be contained in a `MTObservedDataset` object.
+"
 Class {
 	#name : #MTObservedDatarow,
 	#superclass : #Object,

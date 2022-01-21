@@ -1,3 +1,6 @@
+"
+I am a decorator that install my self on the sender of the caught context.
+"
 Class {
 	#name : #MTHandlerSenderPropagating,
 	#superclass : #MTHandlerDecorating,

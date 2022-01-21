@@ -1,3 +1,6 @@
+"
+I am a decorator that alternate the delegation to my handler according to my `enable` state.
+"
 Class {
 	#name : #MTHandlerToggling,
 	#superclass : #MTHandlerDecorating,

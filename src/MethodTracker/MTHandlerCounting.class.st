@@ -1,19 +1,5 @@
 "
-```
-methods := (BaselineOfDocumaps allPackageNames collect: [ :each | each asPackage ]) flatCollect: [ :each | each methods ].
-
-wrappers := methods collect: [ :each | MethodTemperatureWrapper on: each ].
-wrappers do: [ :each | each install ].
-
-""open the application here ""
-    
-wrappers do: [ :each | each uninstall ].
-wrappers := (wrappers sorted: [:a :b | a count <= b count]) collect: [:e | e count -> e].
-
-""find one method""
-
-wrappers detect: [ :e |  e value method = (PdmStandardNames>>#getOwnPersonIdForUserName:) ]
-```
+I am a handler that just count message sends.
 "
 Class {
 	#name : #MTHandlerCounting,

@@ -1,3 +1,6 @@
+"
+I am a handler that keeps the relation among contexts when they are activated because of message sends.
+"
 Class {
 	#name : #MTModelHandlerProfiling,
 	#superclass : #Object,

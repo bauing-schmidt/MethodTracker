@@ -1,3 +1,6 @@
+"
+I am a handler that just stops the computation when the tracked method will be called.
+"
 Class {
 	#name : #MTHandlerHalting,
 	#superclass : #MTHandlerPrePostPlugging,

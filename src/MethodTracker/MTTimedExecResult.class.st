@@ -1,3 +1,6 @@
+"
+I am a data object for the profiling handler.
+"
 Class {
 	#name : #MTTimedExecResult,
 	#superclass : #Object,
