@@ -7,7 +7,7 @@ Class {
 { #category : #accessing }
 MTStCommandInstallMethod class >> defaultDescription [
 
-	^ 'Install method temperature wrappers.'
+	^ 'Install method temperature trackers.'
 ]
 
 { #category : #accessing }
@@ -31,5 +31,5 @@ MTStCommandInstallMethod class >> priority [
 { #category : #executing }
 MTStCommandInstallMethod >> execute [
 
-	context runInstallMethodTemperatureWrappersStCommand: self
+	context runInstallMethodTemperatureTrackersStCommand: self
 ]

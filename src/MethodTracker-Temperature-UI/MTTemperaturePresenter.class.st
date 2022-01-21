@@ -11,13 +11,11 @@ Class {
 		'do',
 		'toolbar',
 		'barChart',
-		'wrappers',
 		'classesSorter',
 		'selectorsSorter',
 		'barChartSorter',
 		'process',
 		'measuringInProgress',
-		'wrappersHaveBeenInstalledAlready',
 		'table',
 		'methodsByClassDict',
 		'updateInProgress',
@@ -32,7 +30,9 @@ Class {
 		'checkboxShowMessageSendsArgs',
 		'checkboxSkipTestPackages',
 		'confLabel',
-		'clearPackagesButton'
+		'clearPackagesButton',
+		'trackers',
+		'trackersHaveBeenInstalledAlready'
 	],
 	#category : #'MethodTracker-Temperature-UI'
 }
@@ -328,27 +328,27 @@ MTTemperaturePresenter >> doBlock [
 ]
 
 { #category : #charting }
-MTTemperaturePresenter >> filteredWrappers [
+MTTemperaturePresenter >> filteredTrackers [
 
-	| thresholdBlock selectedWrappers orderedWrappers filteredWrappers |
+	| thresholdBlock selectedTrackers orderedTrackers filteredTrackers |
 	thresholdBlock := self temperatureBlock.
 
-	selectedWrappers := wrappers select: [ :each | 
+	selectedTrackers := trackers select: [ :each | 
 		                    thresholdBlock
 			                    value: each method
 			                    value: each count ].
 
-	orderedWrappers := selectedWrappers asSortedCollection: [ 
-		                   :aWrapper 
-		                   :anotherWrapper | 
-		                   aWrapper count > anotherWrapper count ].
+	orderedTrackers := selectedTrackers asSortedCollection: [ 
+		                   :aTracker 
+		                   :anotherTracker | 
+		                   aTracker count > anotherTracker count ].
 
-	filteredWrappers := self
+	filteredTrackers := self
 		                    keep: self topWarmerCompiledMethodsSize
-		                    of: orderedWrappers
+		                    of: orderedTrackers
 		                    accordingTo: checkbox.
 
-	^ filteredWrappers asSortedCollection: self selectorsSorter
+	^ filteredTrackers asSortedCollection: self selectorsSorter
 ]
 
 { #category : #accessing }
@@ -414,9 +414,9 @@ MTTemperaturePresenter >> initialize [
 
 	measuringInProgress := MTMeasuringPhase sleeping.
 
-	"Also, keep track if the wrappers have been installed or not."
-	wrappers := OrderedCollection new.
-	wrappersHaveBeenInstalledAlready := false.
+	"Also, keep track if the trackers have been installed or not."
+	trackers := OrderedCollection new.
+	trackersHaveBeenInstalledAlready := false.
 
 	"Finally, keep track if an update of visualizations is 
 	 in progress to not overlap data creation."
@@ -599,31 +599,6 @@ MTTemperaturePresenter >> initializeWindow: aWindowPresenter [
 		initialExtent: 1100 @ 850
 ]
 
-{ #category : #initialization }
-MTTemperaturePresenter >> installWrappersSpButtonPresenter [
-
-	^ toolbar itemNamed:
-		  MTStCommandInstallMethod defaultName
-]
-
-{ #category : #'dispatched commands' }
-MTTemperaturePresenter >> installingWrappers: aBlock [
-
-	wrappersHaveBeenInstalledAlready
-		ifTrue: [ 
-			| msg |
-			msg := 'Wrappers have been installed already on {1} compiled methods. Skipping...' 
-				       format: { wrappers size }.
-			Warning signal: msg ]
-		ifFalse: [ 
-			aBlock ensure: [ 
-				wrappersHaveBeenInstalledAlready := true.
-				
-				self installWrappersSpButtonPresenter
-					badge: 'i';
-					update ] ]
-]
-
 { #category : #charting }
 MTTemperaturePresenter >> keep: n of: aCollection accordingTo: aTruthHolder [
 
@@ -657,9 +632,9 @@ MTTemperaturePresenter >> measureTemperaturesSpButtonPresenter [
 ]
 
 { #category : #accessing }
-MTTemperaturePresenter >> methodTemperatureWrappersDo: aBlock [
+MTTemperaturePresenter >> methodTrackersDo: aBlock [
 
-	 wrappers do: aBlock
+	 trackers do: aBlock
 ]
 
 { #category : #'dispatched commands' }
@@ -720,13 +695,13 @@ MTTemperaturePresenter >> refreshPackagesTableWhenTextChanges: aString [
 ]
 
 { #category : #charting }
-MTTemperaturePresenter >> resortWrappers [
+MTTemperaturePresenter >> resortTrackers [
 
 	| selectors classIndices |
 	selectors := Dictionary new.
 	classIndices := Dictionary new.
 
-	self filteredWrappers do: [ :each | 
+	self filteredTrackers do: [ :each | 
 		| selectorAssoc aClass |
 		aClass := each method methodClass.
 
@@ -799,7 +774,7 @@ MTTemperaturePresenter >> runDoitWrappedTemperatureMethodsStCommand: aCommand [
 ]
 
 { #category : #'dispatched commands' }
-MTTemperaturePresenter >> runInstallMethodTemperatureWrappersStCommand: aCommand [
+MTTemperaturePresenter >> runInstallMethodTemperatureTrackersStCommand: aCommand [
 
 	| tree handlerExecution metadata observedData |
 	tree := MTContextsTree new.
@@ -967,14 +942,14 @@ MTTemperaturePresenter >> updateVisualizations [
 
 	self visualizationsUpdating: [ 
 		| aDictionary anAssociation |
-		anAssociation := self resortWrappers.
+		anAssociation := self resortTrackers.
 
 		aDictionary := self
 			               dataForVisualizationsSelectors: anAssociation key
 			               classesIndices: anAssociation value.
 
 		callsLog
-			items: (wrappers select: [ :each | each callsLog isNotEmpty ]);
+			items: (trackers select: [ :each | each callsLog isNotEmpty ]);
 			updateList.
 
 		aDictionary isEmpty ifFalse: [ 
@@ -997,11 +972,11 @@ MTTemperaturePresenter >> windowIsClosing [
 
 	super windowIsClosing.
 
-	wrappers
+	trackers
 		do: [ :each | [ each uninstall ] onDNU: #uninstall do: [ :ex |  ] ];
 		removeAll.
 
-	wrappersHaveBeenInstalledAlready := false
+	trackersHaveBeenInstalledAlready := false
 ]
 
 { #category : #charting }

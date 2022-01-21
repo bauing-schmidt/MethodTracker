@@ -10,7 +10,7 @@ Class {
 { #category : #operations }
 MTMeasuringPhaseSleeping >> runMeasureMethodsTemperaturesStCommand: aCommand forMethodsTemperaturesPresenter: aPresenter [
 
-	aPresenter methodTemperatureWrappersDo: [ :each | each disable ].
+	aPresenter methodTrackersDo: [ :each | each disable ].
 	process terminate.
 	aPresenter measureTemperaturesSpButtonPresenter
 		badge: nil;

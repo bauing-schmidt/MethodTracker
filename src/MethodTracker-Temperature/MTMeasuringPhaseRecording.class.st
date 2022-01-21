@@ -16,7 +16,7 @@ MTMeasuringPhaseRecording >> refreshInterval [
 { #category : #operations }
 MTMeasuringPhaseRecording >> runMeasureMethodsTemperaturesStCommand: aCommand forMethodsTemperaturesPresenter: aPresenter [
 
-	aPresenter methodTemperatureWrappersDo: [ :each | each enable ].
+	aPresenter methodTrackersDo: [ :each | each enable ].
 	process := [ aPresenter updateVisualizations ] valueWithInterval:
 		           self refreshInterval.
 	aPresenter measureTemperaturesSpButtonPresenter

@@ -113,7 +113,7 @@ MTSession >> add: aTracker [
 					  yourself ] ]
 ]
 
-{ #category : #'*MethodWrappers' }
+{ #category : #enumerating }
 MTSession >> do: aBlock [
 
 	trackers valuesDo: aBlock
@@ -161,7 +161,7 @@ MTSession >> run: aSelector with: anArray in: aReceiver context: aContext tracke
 				  suspended: false ]
 ]
 
-{ #category : #'*MethodWrappers' }
+{ #category : #accessing }
 MTSession >> value: aBlock [
 
 	"Save the current context as 'root' for the following computation."
