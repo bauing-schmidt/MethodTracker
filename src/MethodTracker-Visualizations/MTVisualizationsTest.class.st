@@ -48,7 +48,7 @@ MTVisualizationsTest >> testHeapWithAll [
 
 			  presenter := (MTOverviewSpPresenter on: observedData)
 				               umlSequenceDiagramBuilder: builder;
-				               openWithSpec;
+				               open;
 				               yourself.
 
 			  self
@@ -77,7 +77,7 @@ MTVisualizationsTest >> testInspectFactorialRecursive [
 
 			  presenter := (MTOverviewSpPresenter on: observedData)
 				               umlSequenceDiagramBuilder: builder;
-				               openWithSpec;
+				               open;
 				               yourself.
 
 			  self
@@ -127,7 +127,7 @@ MTVisualizationsTest >> testInspectInversions [
 
 			  presenter := (MTOverviewSpPresenter on: observedData)
 				               umlSequenceDiagramBuilder: builder;
-				               openWithSpec;
+				               open;
 				               yourself.
 
 			  self
@@ -175,7 +175,7 @@ MTVisualizationsTest >> testInspectInversionsReversed [
 
 			  presenter := (MTOverviewSpPresenter on: observedData)
 				               umlSequenceDiagramBuilder: builder;
-				               openWithSpec;
+				               open;
 				               yourself.
 
 			  self
@@ -228,7 +228,7 @@ MTVisualizationsTest >> testInspectKaratsuba42FactorialSquaredProfiled [
 
 			  presenter := (MTOverviewSpPresenter on: observedData)
 				               umlSequenceDiagramBuilder: builder;
-				               openWithSpec;
+				               open;
 				               yourself.
 
 			  nBits := (m numberOfDigitsInBase: 10) + 1.
@@ -274,7 +274,7 @@ MTVisualizationsTest >> testInspectLargeIntegerProfiled [
 
 			  presenter := (MTOverviewSpPresenter on: observedData)
 				               umlSequenceDiagramBuilder: builder;
-				               openWithSpec;
+				               open;
 				               yourself.
 
 			  self
@@ -315,7 +315,7 @@ MTVisualizationsTest >> testInspectLargeIntegerQuickProfiled [
 
 			  presenter := (MTOverviewSpPresenter on: observedData)
 				               umlSequenceDiagramBuilder: builder;
-				               openWithSpec;
+				               open;
 				               yourself.
 
 			  self
@@ -356,7 +356,7 @@ MTVisualizationsTest >> testInspectLargeIntegerSlowProfiled [
 
 			  presenter := (MTOverviewSpPresenter on: observedData)
 				               umlSequenceDiagramBuilder: builder;
-				               openWithSpec;
+				               open;
 				               yourself.
 
 			  self
@@ -401,7 +401,7 @@ MTVisualizationsTest >> testInspectProbabilisticMedian [
 
 			  presenter := (MTOverviewSpPresenter on: observedData)
 				               umlSequenceDiagramBuilder: builder;
-				               openWithSpec;
+				               open;
 				               yourself.
 
 			  self
@@ -443,7 +443,7 @@ MTVisualizationsTest >> testInspectProductTo [
 
 			  presenter := (MTOverviewSpPresenter on: observedData)
 				               umlSequenceDiagramBuilder: builder;
-				               openWithSpec;
+				               open;
 				               yourself.
 
 			  self
@@ -499,7 +499,7 @@ MTVisualizationsTest >> testInspectProductToPropagating [
 
 	presenter := (MTOverviewSpPresenter on: observedData)
 		             umlSequenceDiagramBuilder: builder;
-		             openWithSpec;
+		             open;
 		             yourself.
 
 	self
@@ -536,7 +536,7 @@ MTVisualizationsTest >> testProfileSlowExplicitFibonacciTailWithAdd [
 
 			  presenter := (MTOverviewSpPresenter on: observedData)
 				               umlSequenceDiagramBuilder: builder;
-				               openWithSpec;
+				               open;
 				               yourself.
 
 			  self
@@ -569,7 +569,7 @@ MTVisualizationsTest >> testProfileSlowFibonacciMemoingWithAdd [
 
 			  presenter := (MTOverviewSpPresenter on: observedData)
 				               umlSequenceDiagramBuilder: builder;
-				               openWithSpec;
+				               open;
 				               yourself.
 
 			  self
@@ -602,7 +602,7 @@ MTVisualizationsTest >> testProfileSlowFibonacciTailWithAdd [
 
 			  presenter := (MTOverviewSpPresenter on: observedData)
 				               umlSequenceDiagramBuilder: builder;
-				               openWithSpec;
+				               open;
 				               yourself.
 
 			  self
@@ -635,7 +635,7 @@ MTVisualizationsTest >> testProfileSlowFibonacciWithAdd [
 
 			  presenter := (MTOverviewSpPresenter on: observedData)
 				               umlSequenceDiagramBuilder: builder;
-				               openWithSpec;
+				               open;
 				               yourself.
 
 			  self
@@ -666,7 +666,7 @@ MTVisualizationsTest >> testProfileSlowFibonacciWithAddOnly [
 
 			  presenter := (MTOverviewSpPresenter on: observedData)
 				               umlSequenceDiagramBuilder: builder;
-				               openWithSpec;
+				               open;
 				               yourself.
 
 			  self
@@ -700,7 +700,7 @@ MTVisualizationsTest >> testSequenceableCollectionEstrinInit [
 
 			  presenter := (MTOverviewSpPresenter on: observedData)
 				               umlSequenceDiagramBuilder: builder;
-				               openWithSpec;
+				               open;
 				               yourself.
 
 			  self
@@ -736,7 +736,7 @@ MTVisualizationsTest >> testSequenceableCollectionHornerInit [
 
 			  presenter := (MTOverviewSpPresenter on: observedData)
 				               umlSequenceDiagramBuilder: builder;
-				               openWithSpec;
+				               open;
 				               yourself.
 
 			  self
@@ -775,7 +775,7 @@ MTVisualizationsTest >> testSequenceableCollectionMergeSortCopying [
 
 			  presenter := (MTOverviewSpPresenter on: observedData)
 				               umlSequenceDiagramBuilder: builder;
-				               openWithSpec;
+				               open;
 				               yourself.
 
 			  self
@@ -808,7 +808,7 @@ MTVisualizationsTest >> testSequenceableCollectionMergeSortCopyingDetailed [
 
 			  presenter := (MTOverviewSpPresenter on: observedData)
 				               umlSequenceDiagramBuilder: builder;
-				               openWithSpec;
+				               open;
 				               yourself.
 
 			  self
@@ -856,7 +856,7 @@ MTVisualizationsTest >> testSequenceableCollectionMergeSortPlugging [
 	"Show here the new presenter."
 	(MTOverviewSpPresenter on: observedData)
 		umlSequenceDiagramBuilder: RSUMLSequenceBuilder new;
-		openWithSpec.
+		open.
 
 	self
 		assert: tree size equals: 81;
@@ -896,7 +896,7 @@ MTVisualizationsTest >> testSequenceableCollectionMergeSortWithoutCopying [
 	"Show here the new presenter."
 	(MTOverviewSpPresenter on: observedData)
 		umlSequenceDiagramBuilder: RSUMLSequenceBuilder new;
-		openWithSpec.
+		open.
 
 	self
 		assert: tree size equals: 81;
