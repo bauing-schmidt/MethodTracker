@@ -518,6 +518,57 @@ MTVisualizationsTest >> testInspectProductToPropagating [
 ]
 
 { #category : #tests }
+MTVisualizationsTest >> testMoveToFrontIfNone [
+
+	| l l1 l2 |
+	l := (1 to: 5) asValueLink.
+
+	^ self
+		  compiledMethods: { 
+				  (Link >> #nextLink).
+				  (Link >> #nextLink:).
+				  "	  (ValueLink >> #value)."
+				  (Link >> #moveToFront:) }
+		  wrapping: [ 
+			  l1 := l moveToFront: [ :each | each = 5 ].
+			  l2 := l1 moveToFront: [ :each | each = 3 ].
+			  l2 moveToFront: [ :each | each = 0 ] ]
+		  then: [ :l3 :observedData | 
+			  | presenter tree builder |
+			  tree := observedData tree.
+
+			  builder := self umlSequenceDiagramBuilder:
+				             RSUMLSequenceBuilder new.
+
+			  presenter := (MTOverviewSpPresenter on: observedData)
+				               umlSequenceDiagramBuilder: builder;
+				               open;
+				               yourself.
+
+			  self assert: tree size equals: 21.
+
+			  self
+				  assert: l1 value equals: 5;
+				  assert: l2 value equals: 3;
+				  assert: l2 nextLink value equals: 5;
+				  assert: l3 equals: l2.
+
+			  self
+				  exportShapeOf: tree
+				  accessorBlock: [ :aTree | 
+					  aTree
+						  asShapeUMLSequenceDiagram: builder
+						  metadata: observedData metadata ]
+				  pathSuffix: 'sequence-diagram'.
+
+			  self
+				  exportSlotsGraphOf: l pathSuffix: 'original';
+				  exportSlotsGraphOf: l1 pathSuffix: 'mtf6';
+				  exportSlotsGraphOf: l2 pathSuffix: 'mtf3';
+				  exportSlotsGraphOf: l3 pathSuffix: 'none' ]
+]
+
+{ #category : #tests }
 MTVisualizationsTest >> testProfileSlowExplicitFibonacciTailWithAdd [
 
 	^ self
