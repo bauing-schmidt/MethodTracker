@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
 
-<title>MT slides</title><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>PharoDays22 slides</title><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 
 <!-- General and theme style sheets -->
 <link rel="stylesheet" href="https://unpkg.com/reveal.js@4.0.2/dist/reveal.css">
@@ -14648,17 +14648,17 @@ div.jp-OutputPrompt {
 </div></section></section><section><section>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<ul>
+<h3>implementation</h3><ul>
 <li>yet another instrumentation tool for debugging, tracing and inspecting execution flow;</li>
-<li>strongly inspired by <a href="https://github.com/pharo-contributions/MethodProxies">https://github.com/pharo-contributions/MethodProxies</a>.</li>
+<li>strongly inspired by <a href="https://github.com/pharo-contributions/MethodProxies">https://github.com/pharo-contributions/MethodProxies</a>;</li>
+<li>strong focus on <code>Context</code>s: the <em>send</em> relation is caught in a tree $\mathcal{T}$, $$(a, b) \in \mathcal{T} \leftrightarrow sender(a) = b$$ where both $a$ and $b$ are <code>Context</code>s.</li>
 </ul>
-<p>First, it catches the <em>send</em> relation among <code>Context</code>s in a tree $\mathcal{T}$, $$(a, b) \in \mathcal{T} \leftrightarrow sender(a) = b$$ where both $a$ and $b$ are <code>Context</code>s.</p>
 
 </div>
 </div></section></section><section><section>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Second, it presents $\mathcal{T}$ in a <code>SpecPresenter</code> composed according to:</p>
+<h3>results</h3><p>The tree $\mathcal{T}$ in a <code>SpecPresenter</code> composed according to:</p>
 <ul>
 <li>a top-left pane with a <code>SpTreePresenter</code> showing the caught sends;</li>
 <li>a bottom-left pane with a <code>SpTablePresenter</code> showing statistics for each tracked method;</li>
@@ -14669,11 +14669,10 @@ div.jp-OutputPrompt {
 </div></section></section><section><section>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>For the <strong>tracking</strong>:</p>
-<ul>
+<h3>tracking</h3><ul>
 <li>a tower of <em>handlers</em> manages pre, <em>in</em> and post actions for each tracked message send;</li>
 <li>a <em>tracker</em> object is actually installed in <code>MethodDictionary</code>ies to track <br>
-the original execution, possibly decorated by handlers;</li>
+the original message, possibly decorated by handlers;</li>
 <li>a <em>session</em> object knows the set of <code>CompiledMethod</code>s subject of investigation<br> 
 and it ensures that <em>the tracking code doesn't track itself</em>.</li>
 </ul>
@@ -14682,11 +14681,10 @@ and it ensures that <em>the tracking code doesn't track itself</em>.</li>
 </div></section></section><section><section>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>For the <strong>drawing</strong>:</p>
-<ul>
+<h3>drawing</h3><ul>
 <li>introduces <code>RSUMLSequenceBuilder</code>, <code>RSUMLSequenceDescriptor</code> and <code>RSBasicUMLSequenceRenderer</code>, 
 according to Roassal's classes;</li>
-<li>almost compliant with UML spec, diverges to ease visualization of receivers, arguments and returns;</li>
+<li>almost UML spec compliant, diverges to ease visualization of receivers, arguments and returns;</li>
 <li>straightforward processing of a <code>SequenceableCollection</code> of <code>RSFullMessageSend</code> objects.</li>
 </ul>
 
@@ -14694,7 +14692,23 @@ according to Roassal's classes;</li>
 </div></section></section><section><section>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<center><b>Short demo</b></center>
+<h3>demo</h3>
+</div>
+</div></section></section><section><section>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h3>refs</h3><ul>
+<li><a href="https://github.com/bauing-schmidt/MethodTracker">https://github.com/bauing-schmidt/MethodTracker</a>, main repo</li>
+<li><a href="https://massimo-nocentini.github.io/Booklet-DSst/">https://massimo-nocentini.github.io/Booklet-DSst/</a>, more examples</li>
+<li><a href="https://github.com/bauing-schmidt/Roassal3">https://github.com/bauing-schmidt/Roassal3</a>, fork with UML sd</li>
+<li><a href="https://github.com/bauing-schmidt/Containers-OrderPreservingTree">https://github.com/bauing-schmidt/Containers-OrderPreservingTree</a>, $\mathcal{T}$</li>
+</ul>
+
+</div>
+</div></section></section><section><section>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h3>thank you</h3>
 </div>
 </div></section></section>
 </div>

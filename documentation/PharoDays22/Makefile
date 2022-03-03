@@ -1,4 +1,4 @@
 
 all:
-	jupyter-nbconvert MT.ipynb --to slides
-	mv MT.slides.html ../../docs/
+	jupyter-nbconvert PharoDays22.ipynb --to slides
+	mv PharoDays22.slides.html ../../docs/
