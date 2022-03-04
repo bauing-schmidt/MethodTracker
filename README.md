@@ -10,3 +10,5 @@ Metacello new
     repository: 'github://bauing-schmidt/MethodTrackers/src';
     load.
 ```
+
+Slides presented at PharoDays22 can be found at https://bauing-schmidt.github.io/MethodTracker/PharoDays22.slides.html
