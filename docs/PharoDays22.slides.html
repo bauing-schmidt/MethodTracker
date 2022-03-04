@@ -14659,11 +14659,11 @@ div.jp-OutputPrompt {
 </div></section></section><section><section>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h3>results</h3><p>The tree $\mathcal{T}$ in a <code>SpecPresenter</code> composed according to:</p>
+<h3>results</h3><p>The tree $\mathcal{T}$ in a <code>SpPresenter</code> composed according to:</p>
 <ul>
-<li>a top-left pane with a <code>SpTreePresenter</code> showing the caught sends;</li>
-<li>a bottom-left pane with a <code>SpTablePresenter</code> showing statistics for each tracked method;</li>
-<li>a right pane with a <code>SpRoassalPresenter</code> showing the corresponding <em>UML sequence diagram</em>.</li>
+<li>a top-left pane with a <code>SpTreePresenter</code> showing the parents-children;</li>
+<li>a bottom-left pane with a <code>SpTablePresenter</code> showing statistics for each tracker;</li>
+<li>a right pane with a <code>SpRoassalPresenter</code> showing the <em>UML sequence diagram</em>.</li>
 </ul>
 
 </div>
@@ -14685,29 +14685,25 @@ and it ensures that <em>the tracking code doesn't track itself</em>.</li>
 <h3>drawing</h3><ul>
 <li>introduces <code>RSUMLSequenceBuilder</code>, <code>RSUMLSequenceDescriptor</code> and <code>RSBasicUMLSequenceRenderer</code>, 
 according to Roassal's classes;</li>
-<li>almost UML spec compliant, diverges to ease visualization of receivers, arguments and returns;</li>
-<li>straightforward processing of a <code>SequenceableCollection</code> of <code>RSFullMessageSend</code> objects.</li>
+<li>UML compliant, diverges to ease viz of receivers, arguments and returned objects;</li>
+<li>straightforward pass over a <code>SequenceableCollection</code> of <code>RSFullMessageSend</code> (= <code>MessageSend</code> + client) objects.</li>
 </ul>
 
 </div>
 </div></section></section><section><section>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p><h3>demo</h3></p>
-<ul>
-<li>$16\,!$</li>
-<li>median of <code>#( 1 4 15 3 5 9 9 6 10 13 10 1 11 14 18 11 2 4 9 )</code> in $\mathcal{O}(n)$ <em>amortized</em> time</li>
-</ul>
-
+<h3>demo</h3>
 </div>
 </div></section></section><section><section>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h3>refs</h3><ul>
 <li><a href="https://github.com/bauing-schmidt/MethodTracker">https://github.com/bauing-schmidt/MethodTracker</a>, main repo</li>
-<li><a href="https://massimo-nocentini.github.io/Booklet-DSst">https://massimo-nocentini.github.io/Booklet-DSst</a>, more examples</li>
-<li><a href="https://github.com/bauing-schmidt/Roassal3">https://github.com/bauing-schmidt/Roassal3</a>, fork with UML sd</li>
+<li><a href="https://github.com/bauing-schmidt/Roassal3">https://github.com/bauing-schmidt/Roassal3</a>, fork with UML sequence diagrams</li>
 <li><a href="https://github.com/bauing-schmidt/Containers-OrderPreservingTree">https://github.com/bauing-schmidt/Containers-OrderPreservingTree</a>, $\mathcal{T}$</li>
+<li><a href="https://github.com/bauing-schmidt/Containers-Essentials">https://github.com/bauing-schmidt/Containers-Essentials</a>, utils &amp; deps</li>
+<li><a href="https://massimo-nocentini.github.io/Booklet-DSst">https://massimo-nocentini.github.io/Booklet-DSst</a>, docs &amp; more examples</li>
 </ul>
 
 </div>
