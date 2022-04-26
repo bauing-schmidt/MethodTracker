@@ -10,5 +10,7 @@ Class {
 { #category : #visiting }
 MTSlotDescriptorsVisitor >> visitBlockClosure: aBlock [
 
-	^ { #asString asSlotDescriptor inline }
+	^ { (self newSlotDescriptor
+		   selector: #asString;
+		   inline) }
 ]
