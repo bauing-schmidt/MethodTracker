@@ -49,7 +49,7 @@ MTHandlerProfiling >> metadata: metadata [
 			model parent: (tree parent: each ifAbsent: [ Error signal ]).
 
 			model client: (model parent == each
-					 ifTrue: [ Maybe nothing ]
+					 ifTrue: [ self nothing ]
 					 ifFalse: [ 
 					 (metadata at: model parent) reifiedContext receiver just ]).
 
@@ -131,7 +131,7 @@ MTHandlerProfiling >> run: aSelector with: anArray in: aReceiver preContext: aCo
 	start := Time microsecondClockValue.
 
 	timedResult := MTTimedExecResult new
-		               result: Maybe nothing;
+		               result: self nothing;
 		               duration: (start to: start + 1);
 		               yourself.
 
