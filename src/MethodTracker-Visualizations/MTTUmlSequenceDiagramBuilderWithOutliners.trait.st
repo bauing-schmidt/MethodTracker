@@ -18,7 +18,7 @@ MTTUmlSequenceDiagramBuilderWithOutliners >> umlSequenceDiagramBuilder: aBuilder
 	block := [ :anObject | 
 	         | walker |
 	         walker := CTDfsWalker new
-		                   slotDescriptorsContext: slotsVisitor;
+		                   slotDescriptorsVisitor: slotsVisitor;
 		                   yourself.
 
 	         anObject asShapeSlotsDfsTree: walker ].
