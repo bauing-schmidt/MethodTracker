@@ -84,8 +84,8 @@ MTTemperaturePresenter class >> defaultConfiguration [
 	^ conf
 ]
 
-{ #category : #specs }
-MTTemperaturePresenter class >> defaultSpec [
+{ #category : #layout }
+MTTemperaturePresenter class >> defaultLayout [
 
 	^ SpBoxLayout newVertical
 		  spacing: 5;
@@ -801,7 +801,9 @@ MTTemperaturePresenter >> runInstallMethodTemperatureTrackersStCommand: aCommand
 		                yourself.
 
 	"Show here the new presenter."
-	(MTOverviewSpPresenter on: observedData) openWithSpec
+	(MTOverviewSpPresenter on: observedData)
+		umlSequenceDiagramBuilder: RSUMLSequenceBuilder new;
+		open
 ]
 
 { #category : #'dispatched commands' }
