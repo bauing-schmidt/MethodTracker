@@ -1,3 +1,6 @@
+"
+I am a small data object to support the rendering of the heatmap.
+"
 Class {
 	#name : #MTTemperatureData,
 	#superclass : #Object,

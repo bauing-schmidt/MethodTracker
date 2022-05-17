@@ -57,29 +57,35 @@ MTTemperaturePresenter class >> defaultConfiguration [
 	| conf |
 	conf := Dictionary new.
 	conf at: #installOnAllMethods put: true.
-	conf at: #topWarmerMethods put: 30.
+	conf at: #topWarmerMethods put: 100.
 	conf at: #selectTopWarmerMethods put: true.
 	conf at: #showMessageSendsArgs put: false.
 	conf
 		at: #defaultCodeForBarChartSorter
-		put:
-		'[ :anAssociation :anotherAssociation | anAssociation value > anotherAssociation value ]'.
+		put: [ :anAssociation :anotherAssociation | 
+			anAssociation value > anotherAssociation value ] sourceNode
+				formattedCode.
 	conf
 		at: #defaultCodeForClassesSorter
-		put: '[ :aClass :anotherClass | aClass name < anotherClass name ]'.
+		put:
+			[ :aClass :anotherClass | aClass name < anotherClass name ]
+				sourceNode formattedCode.
 	conf
 		at: #defaultCodeForCompiledMethodSelection
-		put: '[ :aMethod :packages | true ]'.
+		put: [ :aMethod :packages | true ] sourceNode formattedCode.
 	conf at: #defaultCodeForDoBehavior put: 'PdmSystem start.'.
 	conf
 		at: #defaultCodeForSelectorsSorter
-		put:
-		'[ :aWrapper :anotherWrapper | aWrapper method selector < anotherWrapper method selector ]'.
+		put: [ :aWrapper :anotherWrapper | 
+			aWrapper method selector < anotherWrapper method selector ]
+				sourceNode formattedCode.
 	conf
 		at: #defaultCodeForTemperatureThreshold
-		put: '[ :aCompiledMethod :temperature | temperature > 49 ]'.
+		put:
+			[ :aCompiledMethod :temperature | temperature > 49 ] sourceNode
+				formattedCode.
 
-	conf at: #selectedPackageNames put: { 'Documaps'. 'Glorp' }.
+	conf at: #selectedPackageNames put: { 'Documaps' }.
 
 	^ conf
 ]
