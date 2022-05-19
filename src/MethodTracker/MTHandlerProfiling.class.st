@@ -51,7 +51,9 @@ MTHandlerProfiling >> metadata: metadata [
 			model client: (model parent == each
 					 ifTrue: [ CTCategoryMaybe nothing ]
 					 ifFalse: [ 
-					 (metadata at: model parent) reifiedContext receiver just ]).
+						 | c |
+						 c := (metadata at: model parent) reifiedContext receiver.
+						 CTCategory just: c ]).
 
 			timedResult := timedReturns at: each ifAbsent: [ Error signal ].
 
@@ -111,7 +113,7 @@ MTHandlerProfiling >> run: aSelector with: anArray in: aReceiver postContext: aC
 	duration := start to: now by: by.
 
 	timed
-		result: result just;
+		result: (CTCategory just: result);
 		duration: duration
 ]
 
