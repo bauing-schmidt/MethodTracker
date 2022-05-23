@@ -49,17 +49,16 @@ MTHandlerProfiling >> metadata: metadata [
 			model parent: (tree parent: each ifAbsent: [ Error signal ]).
 
 			model client: (model parent == each
-					 ifTrue: [ CTCategoryMaybe nothing ]
+					 ifTrue: [ CTCategory maybe nothing ]
 					 ifFalse: [ 
-						 | c |
-						 c := (metadata at: model parent) reifiedContext receiver.
-						 CTCategory just: c ]).
+						 (metadata at: model parent) reifiedContext receiver
+							 asJustMaybeCategory ]).
 
 			timedResult := timedReturns at: each ifAbsent: [ Error signal ].
 
 			model return: (timedResult result
 					 ifNothing: [ '†' ]
-					 ifJust: [ :aJust | aJust content ]).
+					 ifJust: [ :aJust | aJust argument ]).
 
 			model duration: (Duration microSeconds: timedResult duration size).
 
@@ -113,7 +112,7 @@ MTHandlerProfiling >> run: aSelector with: anArray in: aReceiver postContext: aC
 	duration := start to: now by: by.
 
 	timed
-		result: (CTCategory just: result);
+		result: result asJustMaybeCategory;
 		duration: duration
 ]
 
@@ -133,7 +132,7 @@ MTHandlerProfiling >> run: aSelector with: anArray in: aReceiver preContext: aCo
 	start := Time microsecondClockValue.
 
 	timedResult := MTTimedExecResult new
-		               result: CTCategoryMaybe nothing;
+		               result: CTCategory maybe nothing;
 		               duration: (start to: start + 1);
 		               yourself.
 

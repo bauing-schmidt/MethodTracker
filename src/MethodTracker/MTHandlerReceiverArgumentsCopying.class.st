@@ -46,7 +46,7 @@ MTHandlerReceiverArgumentsCopying >> metadata: metadata [
 
 		model client
 			ifNothing: [  ]
-			ifJust: [ :aJust | model client: (CTCategory just: anAssoc key) ] ]
+			ifJust: [ :aJust | model client: anAssoc key asJustMaybeCategory ] ]
 ]
 
 { #category : #hooks }

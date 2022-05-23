@@ -43,7 +43,7 @@ MTObservedDataset >> statistics [
 		"Clients."
 		anArray first add: ((metadata at: each) client
 				 ifNothing: [ Object new ]
-				 ifJust: [ :aJust | aJust content ]).
+				 ifJust: [ :aJust | aJust argument ]).
 
 		"Receivers."
 		anArray second add: each asArgumentsReifiedContext receiver.

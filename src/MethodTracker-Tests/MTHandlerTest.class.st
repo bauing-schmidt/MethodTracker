@@ -119,7 +119,7 @@ MTHandlerTest >> testAddWithinDoObjectCentric [
 
 	(MTOverviewSpPresenter on: observedData)
 		umlSequenceDiagramBuilder: RSUMLSequenceBuilder new;
-		openWithSpec.
+		open.
 
 	self
 		assert: tree size equals: 11;
@@ -142,7 +142,7 @@ MTHandlerTest >> testAddWithinDoª [
 
 			  presenter := (MTOverviewSpPresenter on: observedData)
 				               umlSequenceDiagramBuilder: RSUMLSequenceBuilder new;
-				               openWithSpec;
+				               open;
 				               yourself.
 
 			  self
@@ -317,7 +317,7 @@ MTHandlerTest >> testProfileSlowFactorial [
 
 			  presenter := (MTOverviewSpPresenter on: observedData)
 				               umlSequenceDiagramBuilder: RSUMLSequenceBuilder new;
-				               openWithSpec;
+				               open;
 				               yourself.
 
 			  self
@@ -337,7 +337,7 @@ MTHandlerTest >> testProfileSlowFibonacci [
 
 			  presenter := (MTOverviewSpPresenter on: observedData)
 				               umlSequenceDiagramBuilder: RSUMLSequenceBuilder new;
-				               openWithSpec;
+				               open;
 				               yourself.
 
 			  self
@@ -381,7 +381,7 @@ MTHandlerTest >> testProfileSlowFibonacciMemoing [
 	"Show here the new presenter."
 	(MTOverviewSpPresenter on: observedData)
 		umlSequenceDiagramBuilder: RSUMLSequenceBuilder new;
-		openWithSpec.
+		open.
 
 	self
 		assert: tree size equals: 11;
@@ -416,7 +416,7 @@ MTHandlerTest >> testSelfSendBeforeRising [
 
 	(MTOverviewSpPresenter on: observedData)
 		umlSequenceDiagramBuilder: RSUMLSequenceBuilder new;
-		openWithSpec.
+		open.
 
 	self
 		assert: tree size equals: 2;
@@ -441,7 +441,7 @@ MTHandlerTest >> testSelfSendsSimple [
 
 			  presenter := (MTOverviewSpPresenter on: observedData)
 				               umlSequenceDiagramBuilder: RSUMLSequenceBuilder new;
-				               openWithSpec;
+				               open;
 				               yourself.
 
 			  self
@@ -466,7 +466,7 @@ MTHandlerTest >> testSelfSendsSimpleUsingPlus [
 
 			  presenter := (MTOverviewSpPresenter on: observedData)
 				               umlSequenceDiagramBuilder: RSUMLSequenceBuilder new;
-				               openWithSpec;
+				               open;
 				               yourself.
 
 			  self assert: result equals: (1 to: 20) asArray
