@@ -808,6 +808,9 @@ MTVisualizationsTest >> testSequenceableCollectionHornerInit [
 { #category : #tests }
 MTVisualizationsTest >> testSequenceableCollectionMergeSortCopying [
 
+	| anArray |
+	anArray := #( 19 9 14 15 3 16 11 4 5 12 13 7 10 2 6 17 20 18 8 1 )
+		           copy.
 	^ self
 		  compiledMethods: { 
 				  (SequenceableCollection >> #sort).
@@ -815,7 +818,7 @@ MTVisualizationsTest >> testSequenceableCollectionMergeSortCopying [
 				  (SequenceableCollection >> #mergeFirst:middle:last:into:by:).
 				  (SequenceableCollection >> #mergeSortFrom:to:src:dst:by:).
 				  (Array >> #replaceFrom:to:with:startingAt:) }
-		  wrapping: [ (1 to: 20) shuffled sort ]
+		  wrapping: [ anArray sort ]
 		  then: [ :result :observedData | 
 			  | presenter tree builder |
 			  tree := observedData tree.
@@ -829,7 +832,7 @@ MTVisualizationsTest >> testSequenceableCollectionMergeSortCopying [
 				               yourself.
 
 			  self
-				  assert: tree size equals: 80;
+				  assert: tree size equals: 79;
 				  assert: result equals: (1 to: 20) asArray ]
 ]
 
