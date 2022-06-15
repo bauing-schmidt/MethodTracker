@@ -57,29 +57,35 @@ MTTemperaturePresenter class >> defaultConfiguration [
 	| conf |
 	conf := Dictionary new.
 	conf at: #installOnAllMethods put: true.
-	conf at: #topWarmerMethods put: 30.
+	conf at: #topWarmerMethods put: 100.
 	conf at: #selectTopWarmerMethods put: true.
 	conf at: #showMessageSendsArgs put: false.
 	conf
 		at: #defaultCodeForBarChartSorter
-		put:
-		'[ :anAssociation :anotherAssociation | anAssociation value > anotherAssociation value ]'.
+		put: [ :anAssociation :anotherAssociation | 
+			anAssociation value > anotherAssociation value ] sourceNode
+				formattedCode.
 	conf
 		at: #defaultCodeForClassesSorter
-		put: '[ :aClass :anotherClass | aClass name < anotherClass name ]'.
+		put:
+			[ :aClass :anotherClass | aClass name < anotherClass name ]
+				sourceNode formattedCode.
 	conf
 		at: #defaultCodeForCompiledMethodSelection
-		put: '[ :aMethod :packages | true ]'.
+		put: [ :aMethod :packages | true ] sourceNode formattedCode.
 	conf at: #defaultCodeForDoBehavior put: 'PdmSystem start.'.
 	conf
 		at: #defaultCodeForSelectorsSorter
-		put:
-		'[ :aWrapper :anotherWrapper | aWrapper method selector < anotherWrapper method selector ]'.
+		put: [ :aWrapper :anotherWrapper | 
+			aWrapper method selector < anotherWrapper method selector ]
+				sourceNode formattedCode.
 	conf
 		at: #defaultCodeForTemperatureThreshold
-		put: '[ :aCompiledMethod :temperature | temperature > 49 ]'.
+		put:
+			[ :aCompiledMethod :temperature | temperature > 49 ] sourceNode
+				formattedCode.
 
-	conf at: #selectedPackageNames put: { 'Documaps'. 'Glorp' }.
+	conf at: #selectedPackageNames put: { 'Documaps' }.
 
 	^ conf
 ]
@@ -354,24 +360,29 @@ MTTemperaturePresenter >> filteredTrackers [
 { #category : #accessing }
 MTTemperaturePresenter >> heatmap: anHeatmap [
 
-	heatmap script: [ :view | 
+	anHeatmap canvas open.
+
+	"heatmap script: [ :view | 
 		view
 			addShape: anHeatmap canvas asShape;
 			addInteraction: RSCanvasController;
 			zoomToFit;
-			yourself ]
+			yourself ]"
 ]
 
 { #category : #charting }
 MTTemperaturePresenter >> heatmap: anHeatmap xLabels: xLabels yLabels: yLabels matrix: matrix [
 
-	| box leftMostShapes topMostShapes boxes aBlock scale |
+	| box leftMostShapes topMostShapes boxes aBlock scale min max witness |
+	witness := Object new.
+
 	aBlock := [ :aSelector :aClass | 
 	          [ aClass >> aSelector ]
 		          on: KeyNotFound
-		          do: [ nil ] ].
+		          do: [ witness ] ].
 
-	scale := self scaleForHeatmap.
+	min := Float infinity.
+	max := -1.
 
 	anHeatmap configureScaleFrom: matrix.
 	leftMostShapes := OrderedCollection new.
@@ -381,10 +392,12 @@ MTTemperaturePresenter >> heatmap: anHeatmap xLabels: xLabels yLabels: yLabels m
 		row doWithIndex: [ :v :ir | 
 			| xyModel |
 			xyModel := aBlock value: (yLabels at: ic) value: (xLabels at: ir).
+			min := min min: v.
+			max := max max: v.
+
 			box := RSBox new
 				       model: xyModel -> v;
 				       size: 40;
-				       color: (scale scale: v);
 				       addInteraction:
 					       (RSPopup text: [ :anAssociation | 
 							        anAssociation value asString ]);
@@ -396,11 +409,26 @@ MTTemperaturePresenter >> heatmap: anHeatmap xLabels: xLabels yLabels: yLabels m
 			ir = 1 ifTrue: [ leftMostShapes add: box ].
 			ic = 1 ifTrue: [ topMostShapes add: box ] ] ].
 
+	scale := self scaleForHeatmap
+		         domain: (Array with: min with: max);
+		         yourself.
+
+	boxes do: [ :each | 
+		| c model |
+		model := each model.
+		c := model key == witness
+			     ifTrue: [ Color red translucent ]
+			     ifFalse: [ scale scale: model value ].
+		each color: c ].
+
 	RSGridLayout new
 		gapSize: 0;
 		lineItemsCount: matrix first size;
 		on: boxes.
 
+	anHeatmap
+		xLabels: xLabels;
+		yLabels: yLabels.
 	anHeatmap setYLabelsOn: leftMostShapes.
 	anHeatmap setXLabelsOn: topMostShapes.
 
@@ -803,7 +831,20 @@ MTTemperaturePresenter >> runInstallMethodTemperatureTrackersStCommand: aCommand
 	"Show here the new presenter."
 	(MTOverviewSpPresenter on: observedData)
 		umlSequenceDiagramBuilder: RSUMLSequenceBuilder new;
-		open
+		open.
+
+	"Try to reopen the old heatmap"
+	trackers removeAll.
+
+	observedData statistics keysAndValuesDo: [ :method :data | 
+		trackers add: (MTTemperatureData new
+				 method: method;
+				 count: data count;
+				 yourself) ].
+
+	self updateVisualizations.
+
+	trackers removeAll
 ]
 
 { #category : #'dispatched commands' }
@@ -950,9 +991,9 @@ MTTemperaturePresenter >> updateVisualizations [
 			               dataForVisualizationsSelectors: anAssociation key
 			               classesIndices: anAssociation value.
 
-		callsLog
+		"callsLog
 			items: (trackers select: [ :each | each callsLog isNotEmpty ]);
-			updateList.
+			updateList."
 
 		aDictionary isEmpty ifFalse: [ 
 			self
