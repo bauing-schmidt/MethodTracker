@@ -10,6 +10,11 @@ BaselineOfMethodTrackerMN >> baseline: spec [
 	<baseline>
 	spec for: #common do: [ 
 		spec
+			baseline: 'ContainersEssentials'
+			with: [ 
+			spec repository: 'github://massimo-nocentini/Containers-Essentials' ].
+
+		spec
 			baseline: 'ContainersCategory'
 			with: [ 
 			spec repository: 'github://massimo-nocentini/Containers-Category' ].
