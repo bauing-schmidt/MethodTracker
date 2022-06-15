@@ -813,9 +813,8 @@ MTVisualizationsTest >> testSequenceableCollectionMergeSortCopying [
 				  (SequenceableCollection >> #sort).
 				  (SequenceableCollection >> #mergeSortFrom:to:by:).
 				  (SequenceableCollection >> #mergeFirst:middle:last:into:by:).
-				  (SequenceableCollection >> #mergeSortFrom:to:src:dst:by:) }
-			  , (SequenceableCollection >> #replaceFrom:to:with:startingAt:)
-					  allImplementations
+				  (SequenceableCollection >> #mergeSortFrom:to:src:dst:by:).
+				  (Array >> #replaceFrom:to:with:startingAt:) }
 		  wrapping: [ (1 to: 20) shuffled sort ]
 		  then: [ :result :observedData | 
 			  | presenter tree builder |
@@ -830,7 +829,7 @@ MTVisualizationsTest >> testSequenceableCollectionMergeSortCopying [
 				               yourself.
 
 			  self
-				  assert: tree size equals: 81;
+				  assert: tree size equals: 80;
 				  assert: result equals: (1 to: 20) asArray ]
 ]
 
