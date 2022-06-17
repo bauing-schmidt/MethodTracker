@@ -39,6 +39,36 @@ MTHandlerTest >> exampleOpalCompiler [
 		openWithSpec
 ]
 
+{ #category : #tests }
+MTHandlerTest >> exampleOpalCompilerCount [
+
+	<script: 'MTHandlerTest new exampleOpalCompilerCount'>
+	| tree metadata result handlerExecution observedData |
+	tree := MTContextsTree new.
+
+	handlerExecution := MTHandlerCounting new.
+
+	result := (MTSession
+		           forPackages: { #'AST-Core' asPackage }
+		           selectMethod: [ :aMethod | true ])
+		          do: [ :each | each handler: handlerExecution ];
+		          value: [ [ OpalCompiler recompile ] timeToRun ].
+
+	result inspect.
+
+	metadata := IdentityDictionary new.
+	handlerExecution metadata: metadata.
+
+	observedData := MTObservedDataset new
+		                tree: tree;
+		                metadata: metadata;
+		                yourself.
+
+	(MTOverviewSpPresenter on: observedData)
+		umlSequenceDiagramBuilder: RSUMLSequenceBuilder new;
+		open
+]
+
 { #category : #accessing }
 MTHandlerTest >> foo [
 ]
