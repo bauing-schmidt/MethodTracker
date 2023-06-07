@@ -178,7 +178,7 @@ MTSpContextsTreePresenter >> openDetailsWithSpec [
 					 evaluated: [ :aContext | (metadata at: aContext) startTime ]);
 			expandAll ].
 
-	presenter openWithSpec
+	presenter open
 ]
 
 { #category : #initialization }

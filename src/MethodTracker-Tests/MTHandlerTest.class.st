@@ -36,7 +36,7 @@ MTHandlerTest >> exampleOpalCompiler [
 
 	(MTOverviewSpPresenter on: observedData)
 		umlSequenceDiagramBuilder: RSUMLSequenceBuilder new;
-		openWithSpec
+		open
 ]
 
 { #category : #tests }
