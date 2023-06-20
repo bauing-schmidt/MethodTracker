@@ -6,7 +6,7 @@ I'm a self contained package and I can be loaded with:
 
 ```smalltalk
 Metacello new
-    baseline: 'MethodTrackers';
+    baseline: 'MethodTracker';
     repository: 'github://bauing-schmidt/MethodTracker/src';
     load.
 ```
