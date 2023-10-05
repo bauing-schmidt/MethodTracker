@@ -40,7 +40,7 @@ BaselineOfMethodTracker >> roassal3Heatmap: spec [
 
 	spec package: 'Roassal3-Heatmap'
 		with: [ 
-			spec repository: 'github://bauing-schmidt/Roassal3:production10/src' ]
+			spec repository: 'github://bauing-schmidt/Roassal3:production12/src' ]
 ]
 
 { #category : #baselines }
